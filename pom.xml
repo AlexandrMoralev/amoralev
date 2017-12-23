@@ -55,6 +55,14 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>3.7</version>
+				<configuration>
+					<printFallingErrors>true</printFallingErrors>
+				</configuration>
+			</plugin>		
 		</plugins>
 	</build> 
 		
