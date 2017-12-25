@@ -7,16 +7,16 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 /**
-* Test.
-* @author Alexandr Moralev (moralev.alexandr@yandex.ru)
-* @version $Id$
-* @since 0.1
-*/
+ * Test.
+ * @author Alexandr Moralev (moralev.alexandr@yandex.ru)
+ * @version $Id$
+ * @since 0.1
+ */
 
 public class CalculateTest {
 	/**
-	* Test echo.
-	*/
+	 * Test echo.
+	 */
 	@Test
 	public void whenTakeNameThenTreeEchoPlusName() {
 		String input = "Alexandr Moralev";
