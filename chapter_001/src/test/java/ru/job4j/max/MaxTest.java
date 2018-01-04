@@ -43,4 +43,44 @@ public class MaxTest {
         int result = maximum.max(2, 2);
         assertThat(result, is(2));
     }
+
+    /**
+     * Test First is max
+     */
+    @Test
+    public void whenFirstIsMax() {
+        Max max = new Max();
+        int rsl = max.max(3, 2,1);
+        assertThat(rsl, is(3));
+    }
+
+    /**
+     * Test Second is max
+     */
+    @Test
+    public void whenSecondIsMax() {
+        Max max = new Max();
+        int rsl = max.max(0,3,-1);
+        assertThat(rsl, is(3));
+    }
+
+    /**
+     * Test Second is max
+     */
+    @Test
+    public void whenThirdIsMax() {
+        Max max = new Max();
+        int rsl = max.max(0, 1, 2);
+        assertThat(rsl, is(2));
+    }
+
+    /**
+     * Test TwoFromThreeIsEqual
+     */
+    @Test
+    public void whenTwoFromThreeIsEqual() {
+        Max max = new Max();
+        int rsl = max.max(1, 0, 1);
+        assertThat(rsl, is(1));
+    }
 }
