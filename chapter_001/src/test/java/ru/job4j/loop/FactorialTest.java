@@ -18,7 +18,7 @@ public class FactorialTest {
      * Test. 5! == 120
      */
     @Test
-    public void whenNumberEqualsFiveThen120 () {
+    public void whenNumberEqualsFiveThen120() {
         Factorial f = new Factorial();
         int result = f.calc(5);
         assertThat(result, is(120));
@@ -28,7 +28,7 @@ public class FactorialTest {
      * Test. 0! == 1
      */
     @Test
-    public void whenNumberIsZeroThenOne () {
+    public void whenNumberIsZeroThenOne() {
         Factorial f = new Factorial();
         int result = f.calc(0);
         assertThat(result, is(1));
