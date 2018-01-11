@@ -16,6 +16,46 @@ import static org.hamcrest.Matchers.is;
 public class PaintTest {
 
     /**
+     * Test. Right triangle
+     */
+    @Test
+    public void whenPyramidRight() {
+        Paint paint = new Paint();
+        String result = paint.rightTrl(4);
+        System.out.println(result);
+        assertThat(result,
+                is(
+                        new StringJoiner(System.lineSeparator(), "", System.lineSeparator())
+                                .add("^   ")
+                                .add("^^  ")
+                                .add("^^^ ")
+                                .add("^^^^")
+                                .toString()
+                )
+        );
+    }
+
+    /**
+     * Test. Left triangle
+     */
+    @Test
+    public void whenPyramidLeft() {
+        Paint paint = new Paint();
+        String result = paint.leftTrl(4);
+        System.out.println(result);
+        assertThat(result,
+                is(
+                        new StringJoiner(System.lineSeparator(), "", System.lineSeparator())
+                                .add("   ^")
+                                .add("  ^^")
+                                .add(" ^^^")
+                                .add("^^^^")
+                                .toString()
+                )
+        );
+    }
+
+    /**
      * Test. Full pyramid
      */
     @Test
@@ -33,16 +73,5 @@ public class PaintTest {
                                 .toString()
                 )
         );
-    }
-
-    /**
-     * Test. Zero pyramid
-     */
-    @Test
-    public void whenPyramidZeroHeight() {
-        Paint paint = new Paint();
-        String result = paint.pyramid(0);
-        System.out.println(result);
-        assertThat(result, is(""));
     }
 }
