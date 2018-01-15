@@ -62,6 +62,6 @@ public class Triangle {
      * @return true if triangle exists, false if it doesn't
      */
     public boolean exist(double ab, double bc, double ac) {
-        return ((ab + bc > ac) && (ab + ac > bc) && (bc + ac > ab)) ? true : false;
+        return ((ab + bc > ac) && (ab + ac > bc) && (bc + ac > ab));
     }
 }
