@@ -7,7 +7,7 @@ import static org.hamcrest.core.Is.is;
 /**
  * MatrixTest
  *
- * @author
+ * @author Alexandr Moralev (moralev.alexandr@yandex.ru)
  * @version $Id$
  * @since 0.1
  */
@@ -21,11 +21,11 @@ public class MatrixTest {
         Matrix matrix = new Matrix();
         int[][] result = matrix.multiple(5);
         int[][] expected = {
-                {0, 0, 0, 0, 0},
-                {0, 1, 2, 3, 4},
-                {0, 2, 4, 6, 8},
-                {0, 3, 6, 9, 12},
-                {0, 4, 8, 12, 16}
+                {1, 2, 3, 4, 5},
+                {2, 2*2, 2*3, 2*4, 2*5},
+                {3, 3*2, 3*3, 3*4, 3*5},
+                {4, 4*2, 4*3, 4*4, 4*5},
+                {5, 5*2, 5*3, 5*4, 5*5}
         };
         assertThat(result, is(expected));
     }
