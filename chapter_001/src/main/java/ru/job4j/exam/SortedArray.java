@@ -26,11 +26,9 @@ public class SortedArray {
         // adding elements to merged array in ascending order
         // until all the elements of one input array is added to merged array
         while ((firstArrIndex < firstArray.length) && (secondArrIndex < secondArray.length)) {
-            if (firstArray[firstArrIndex] <= secondArray[secondArrIndex]) {
-                mergedArray[mergedArrIndex++] = firstArray[firstArrIndex++];
-            } else {
-                mergedArray[mergedArrIndex++] = secondArray[secondArrIndex++];
-            }
+            mergedArray[mergedArrIndex++] =
+                    firstArray[firstArrIndex] <= secondArray[secondArrIndex]
+                            ? firstArray[firstArrIndex++] : secondArray[secondArrIndex++];
         }
 
         // adding the remaining elements of the second array to merged array
