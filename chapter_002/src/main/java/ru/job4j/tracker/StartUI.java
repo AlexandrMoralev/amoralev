@@ -56,10 +56,10 @@ public class StartUI {
      *  when user choose some action then called appropriate method
      *  user must enter "6" to exit
      */
-    void init(){
+    void init() {
         boolean exit = false;
 
-        while(!exit) {
+        while (!exit) {
             this.showMenu();
             String answer = this.input.ask("Enter menu item");
 
@@ -84,6 +84,8 @@ public class StartUI {
                     break;
                 case EXIT:
                     exit = true;
+                    break;
+                default:
                     break;
             }
         }

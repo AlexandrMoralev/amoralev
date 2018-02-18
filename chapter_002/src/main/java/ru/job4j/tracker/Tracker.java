@@ -105,7 +105,9 @@ public class Tracker {
         int counter = 0;
 
         for (int index = 0; index < this.position; index++) {
-            if (this.items[index].getName().equals(key)) counter++;
+            if (this.items[index].getName().equals(key)) {
+                counter++;
+            }
         }
 
         if (counter > 0) {

@@ -13,7 +13,7 @@ public interface Input {
      * @param question String question to user
      * @return String answer from user
      */
-    String ask (String question);
+    String ask(String question);
 
     /**
      * Method print

@@ -3,7 +3,7 @@ package ru.job4j.tracker;
 import java.util.Scanner;
 
 /**
- * CaonsoleInput
+ * ConsoleInput
  *
  * @author Alexandr Moralev (moralev.alexandr@yandex.ru)
  * @version $Id$
