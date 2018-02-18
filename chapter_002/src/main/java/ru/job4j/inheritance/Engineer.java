@@ -18,7 +18,6 @@ public class Engineer extends Professional {
      *
      * @param name String
      * @param age int
-     * @param telNumber long, without "+" and braces
      * @param hasJob booleam
      * @param specialization String
      * @param experienceInYears int
@@ -28,14 +27,13 @@ public class Engineer extends Professional {
     public Engineer(
             String name,
             int age,
-            long telNumber,
             boolean hasJob,
             String specialization,
             int experienceInYears,
             Stack<String> qualificationImprovement,
             int averageKPI
     ) {
-        super(name, age, telNumber, hasJob, specialization, experienceInYears, qualificationImprovement);
+        super(name, age, hasJob, specialization, experienceInYears, qualificationImprovement);
         this.averageKPI = averageKPI;
     }
 
@@ -49,7 +47,7 @@ public class Engineer extends Professional {
     /**
      * Method setAverageKPI - simplified calculation of the Engineer's---- KPI
      */
-    void setAverageKPI(){
+    void setAverageKPI() {
         this.averageKPI = this.getExperienceInYears() * this.getExperienceInYears();
     }
 
@@ -69,7 +67,7 @@ public class Engineer extends Professional {
      */
     public void makeChanges(Project project) {
         project.setCost(project.getCost() + this.getExperienceInYears() * this.getAverageKPI());
-        project.setPercentageOfCompleted((byte)(project.getPercentageOfCompleted() + 1));
+        project.setPercentageOfCompleted((byte) (project.getPercentageOfCompleted() + 1));
         project.setChangeLog(
                 this.getSpecialization()
                         + " "

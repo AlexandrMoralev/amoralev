@@ -22,7 +22,6 @@ public class TeacherTest extends ProfessionalTest {
         Teacher teacher = new Teacher(
                 "Grigory",
                 56,
-                0,
                 true,
                 "Math",
                 20,
@@ -35,7 +34,7 @@ public class TeacherTest extends ProfessionalTest {
                 0,
                 "MGIMO",
                 "lawyer",
-                (byte)3,
+                (byte) 3,
                 3
         );
 
@@ -55,7 +54,6 @@ public class TeacherTest extends ProfessionalTest {
         Teacher teacher = new Teacher(
                 "Grigory",
                 56,
-                0,
                 true,
                 "Math",
                 20,
@@ -68,7 +66,7 @@ public class TeacherTest extends ProfessionalTest {
                 0,
                 "MGIMO",
                 "lawyer",
-                (byte)3,
+                (byte) 3,
                 3
         );
 
@@ -89,7 +87,6 @@ public class TeacherTest extends ProfessionalTest {
         Teacher teacher = new Teacher(
                 "Grigory",
                 56,
-                0,
                 true,
                 "Math",
                 20,
@@ -102,7 +99,7 @@ public class TeacherTest extends ProfessionalTest {
                 0,
                 "MGIMO",
                 "lawyer",
-                (byte)0,
+                (byte) 0,
                 4
         );
 

@@ -17,7 +17,7 @@ public class ProfessionalTest {
      * Test. Checks Stack<String> qualificationImprovement
      */
     @Test
-    public void whenImproveQualificationOfProfessionalThenNewSkill () {
+    public void whenImproveQualificationOfProfessionalThenNewSkill() {
         Professional professional = new Professional(
                 "Andrey",
                 25,

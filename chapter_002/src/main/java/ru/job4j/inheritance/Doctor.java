@@ -18,7 +18,6 @@ public class Doctor extends Professional {
      *
      * @param name String
      * @param age int
-     * @param telNumber long, without "+" and braces
      * @param hasJob boolean
      * @param specialization String
      * @param experienceInYears int
@@ -28,14 +27,13 @@ public class Doctor extends Professional {
     public Doctor(
             String name,
             int age,
-            long telNumber,
             boolean hasJob,
             String specialization,
             int experienceInYears,
             Stack<String> qualificationImprovement,
             byte percentageOfCuredPatients
     ) {
-        super(name, age, telNumber, hasJob, specialization, experienceInYears, qualificationImprovement);
+        super(name, age, hasJob, specialization, experienceInYears, qualificationImprovement);
         this.percentageOfCuredPatients = percentageOfCuredPatients;
     }
 
@@ -48,9 +46,9 @@ public class Doctor extends Professional {
 
         if (patient.isSick()) {
             patient.setCurrentDisease("diagnose: " + patient.getName() + " is ill");
-            patient.setDiseaseSeverity((byte) (Math.random()*126));
+            patient.setDiseaseSeverity((byte) (Math.random() * 126));
 
-            for (int diseaseSeverityLevel = patient.getDiseaseSeverity(); diseaseSeverityLevel >= 0 ; diseaseSeverityLevel--) {
+            for (int diseaseSeverityLevel = patient.getDiseaseSeverity(); diseaseSeverityLevel >= 0; diseaseSeverityLevel--) {
                 patient.sneeze();
                 patient.fallAsleep();
             }
@@ -89,7 +87,7 @@ public class Doctor extends Professional {
      * @param projectDescription - short description of the Project
      * @return Project
      */
-    public Project researchWork(String projectName, String projectDescription){
+    public Project researchWork(String projectName, String projectDescription) {
         return new Project(projectName, projectDescription, this);
     }
 

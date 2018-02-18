@@ -169,7 +169,7 @@ public class Student {
      * @param score - int score for test or homework from teacher
      */
     public void setScore(int score) {
-        this.averageScore = (this.averageScore + score)*2/3;
+        this.averageScore = (this.averageScore + score) * 2 / 3;
     }
 
     /**

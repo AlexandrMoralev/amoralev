@@ -190,7 +190,9 @@ public class Patient {
             this.height += 1;
             this.weight += 1;
         }
-        if (this.diseaseSeverity <= 0) this.recover();
+        if (this.diseaseSeverity <= 0) {
+            this.recover();
+        }
     }
 
     /**

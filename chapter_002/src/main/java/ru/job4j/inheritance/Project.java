@@ -164,7 +164,9 @@ public class Project {
      */
     void setPercentageOfCompleted(byte percentageOfCompleted) {
         this.percentageOfCompleted = percentageOfCompleted;
-        if (percentageOfCompleted == 100) this.setComplete();
+        if (percentageOfCompleted == 100) {
+            this.setComplete();
+        }
     }
 
     /**

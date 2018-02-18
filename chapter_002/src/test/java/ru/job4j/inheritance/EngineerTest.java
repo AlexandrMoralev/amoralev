@@ -21,7 +21,6 @@ public class EngineerTest extends ProfessionalTest {
         Engineer engineer = new Engineer(
                 "Denis Richie",
                 54,
-                0,
                 true,
                 "gold mining engineer",
                 10,
@@ -64,7 +63,6 @@ public class EngineerTest extends ProfessionalTest {
         Engineer engineer = new Engineer(
                 "Denis Richie",
                 54,
-                0,
                 true,
                 "gold mining engineer",
                 10,
@@ -92,11 +90,10 @@ public class EngineerTest extends ProfessionalTest {
      * Test. Engineer supports completed Project
      */
     @Test
-    public void whenEngineerSupportsProjectThenProjectBecomesMoreExpensive(){
+    public void whenEngineerSupportsProjectThenProjectBecomesMoreExpensive() {
         Engineer engineer = new Engineer(
                 "Denis Richie",
                 54,
-                0,
                 true,
                 "gold mining engineer",
                 10,
@@ -128,7 +125,6 @@ public class EngineerTest extends ProfessionalTest {
         Engineer engineer = new Engineer(
                 "Denis Richie",
                 54,
-                0,
                 true,
                 "gold mining engineer",
                 10,
@@ -139,7 +135,6 @@ public class EngineerTest extends ProfessionalTest {
         Engineer assistant = new Engineer(
                 "Richie Blackmore",
                 44,
-                0,
                 true,
                 "mechanical vibration engineer",
                 15,
@@ -175,7 +170,6 @@ public class EngineerTest extends ProfessionalTest {
         Engineer engineer = new Engineer(
                 "Denis Richie",
                 54,
-                0,
                 true,
                 "gold mining engineer",
                 10,
@@ -186,7 +180,6 @@ public class EngineerTest extends ProfessionalTest {
         Engineer assistant = new Engineer(
                 "Richie Blackmore",
                 44,
-                0,
                 true,
                 "mechanical vibration engineer",
                 15,

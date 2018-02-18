@@ -18,7 +18,6 @@ public class Teacher extends Professional {
      *
      * @param name String
      * @param age int
-     * @param telNumber long, without "+" and braces
      * @param hasJob boolean
      * @param specialization String
      * @param experienceInYears int
@@ -28,14 +27,13 @@ public class Teacher extends Professional {
     public Teacher(
             String name,
             int age,
-            long telNumber,
             boolean hasJob,
             String specialization,
             int experienceInYears,
             Stack<String> qualificationImprovement,
             int averageStudentsScore
     ) {
-        super(name, age, telNumber, hasJob, specialization, experienceInYears, qualificationImprovement);
+        super(name, age, hasJob, specialization, experienceInYears, qualificationImprovement);
         this.averageStudentsScore = averageStudentsScore;
     }
 
@@ -56,14 +54,14 @@ public class Teacher extends Professional {
         int counter = 1;
 
         // !! simplified (incorrect) calculation of averageStudentsScore
-        this.averageStudentsScore = (this.averageStudentsScore + student.getAverageScore())*2/3;
+        this.averageStudentsScore = (this.averageStudentsScore + student.getAverageScore()) * 2 / 3;
 
         for (String exercise : student.getHomework()) {
-            exercisesOfHW += (int)(Math.random()*5 + 1);
+            exercisesOfHW += (int) (Math.random() * 5 + 1);
             counter++;
         }
 
-        return exercisesOfHW/counter;
+        return exercisesOfHW / counter;
     }
 
     /**
@@ -75,15 +73,15 @@ public class Teacher extends Professional {
     public int testStudent(Student student) {
         int result;
 
-        result = (student.isReadyForExam()) ? (int)(3 + Math.random()*(student.getAverageScore())) : (int)(1 + Math.random());
+        result = (student.isReadyForExam()) ? (int) (3 + Math.random() * (student.getAverageScore())) : (int) (1 + Math.random());
 
         student.setScore(result);
 
         if (result > 2) {
-            student.setCurrentStageOfEducation((byte)(student.getCurrentStageOfEducation() + 1));
+            student.setCurrentStageOfEducation((byte) (student.getCurrentStageOfEducation() + 1));
         }
 
-        this.averageStudentsScore += result/2;
+        this.averageStudentsScore += result / 2;
 
         return result;
     }

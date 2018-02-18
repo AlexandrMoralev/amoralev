@@ -21,12 +21,11 @@ public class DoctorTest extends ProfessionalTest {
         Doctor doctor = new Doctor(
                 "Antony",
                 37,
-                89200202020L,
                 true,
                 "surgery",
                 12,
                 new Stack<String>(),
-                (byte)80
+                (byte) 80
         );
         Patient patient = new Patient(
                 "Olga",
@@ -50,12 +49,11 @@ public class DoctorTest extends ProfessionalTest {
         Doctor doctor = new Doctor(
                 "Antony",
                 37,
-                89200202020L,
                 true,
                 "surgeon",
                 12,
                 new Stack<String>(),
-                (byte)80
+                (byte) 80
         );
 
         String projectName = "NewCure";
@@ -63,21 +61,21 @@ public class DoctorTest extends ProfessionalTest {
 
         Project project = doctor.researchWork(projectName, description);
 
-        String result = project.getSpecialization() +
-                " " +
-                project.getAuthor().getName() +
-                " created new project " +
-                project.getName() +
-                " - " +
-                project.getDescription();
+        String result = project.getSpecialization()
+                + " "
+                + project.getAuthor().getName()
+                + " created new project "
+                + project.getName()
+                + " - "
+                + project.getDescription();
 
-        String expected = doctor.getSpecialization() +
-                " " +
-                doctor.getName() +
-                " created new project " +
-                projectName +
-                " - " +
-                description;
+        String expected = doctor.getSpecialization()
+                + " "
+                + doctor.getName()
+                + " created new project "
+                + projectName
+                + " - "
+                + description;
 
         assertThat(result, is(expected));
     }
@@ -90,33 +88,31 @@ public class DoctorTest extends ProfessionalTest {
         Doctor doctor = new Doctor(
                 "Antony",
                 37,
-                89200202020L,
                 true,
                 "surgeon",
                 12,
                 new Stack<String>(),
-                (byte)80
+                (byte) 80
         );
         Doctor assistant = new Doctor(
                 "Bill",
                 27,
-                89100101010L,
                 false,
                 "anesthesiologist",
                 2,
                 new Stack<String>(),
-                (byte)50
+                (byte) 50
         );
 
         doctor.workTogether(assistant);
 
-        String result = doctor.getName() +
-                " " +
-                doctor.getQualificationImprovement().pop() +
-                " and " +
-                assistant.getName() +
-                " " +
-                assistant.getQualificationImprovement().pop();
+        String result = doctor.getName()
+                + " "
+                + doctor.getQualificationImprovement().pop()
+                + " and "
+                + assistant.getName()
+                + " "
+                + assistant.getQualificationImprovement().pop();
 
         String expected = "Antony work in team and Bill now can do CPR!";
 
