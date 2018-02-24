@@ -38,14 +38,14 @@ public class StartUI {
     private final Tracker tracker;
 
     // StringBuilder instance to concatenate Strings inside loops
-    private final StringBuilder stringBuilder = new StringBuilder();
+    private final StringBuilder stringBuilder = new StringBuilder(128);
 
     /**
      * StartUI instance constructor
      * @param input @NotNull Input instance
      * @param tracker @NotNull Tracker instance
      */
-    public StartUI(Input input, Tracker tracker) {
+    StartUI(Input input, Tracker tracker) {
         this.input = input;
         this.tracker = tracker;
     }
@@ -97,12 +97,12 @@ public class StartUI {
      *  then the order ID is displayed on the console
      */
     private void createItem() {
-        System.out.println("-------- New order creation --------");
+        this.input.print(input.ACTION_LEFT_SEPARATOR + "New order creation" + input.ACTION_RIGHT_SEPARATOR);
         String name = this.input.ask("Enter the order name: ");
         String description = this.input.ask("Enter the order description: ");
-        Item item = new Item(name, description, System.currentTimeMillis());
+        Item item = new Item(name, description);
         this.tracker.add(item);
-        System.out.println("-------- new order id : " + item.getId() + " --------");
+        this.input.print(input.ACTION_LEFT_SEPARATOR + " new order id : " + item.getId() + input.ACTION_RIGHT_SEPARATOR);
     }
 
     /**
@@ -110,29 +110,33 @@ public class StartUI {
      * calls printItem() method
      */
     private void showAllItems() {
-        System.out.println("-------- All tracker orders --------");
-        for (int counter = 0; counter < this.tracker.findAll().length; counter++) {
-            System.out.print(counter + 1);
-            printItem(this.tracker.findAll()[counter]);
+        Item[] items = this.tracker.findAll();
+        if (items == null) {
+            this.input.print(input.EXCEPT_MSG_SEPARATOR + "Tracker is empty!" + input.EXCEPT_MSG_SEPARATOR);
+        } else {
+            this.input.print(input.ACTION_LEFT_SEPARATOR + " All tracker orders " + input.ACTION_RIGHT_SEPARATOR);
+            for (int counter = 0; counter < items.length; counter++) {
+                System.out.print(String.valueOf(counter + 1));
+                this.printItem(items[counter]);
+            }
+            this.input.print(input.DIVIDING_LINE);
         }
-        System.out.println("------------------------------------------------------------");
     }
 
     /**
      * Method editItem - replaces order with new one by Id
      */
     private void editItem() {
-        System.out.println("-------- Replace the order with another by id --------");
+        this.input.print(input.ACTION_LEFT_SEPARATOR + " Replace the order with another by id " + input.ACTION_RIGHT_SEPARATOR);
         String id = this.input.ask("Enter ID of the order to be replaced: ");
-
         if (this.tracker.findById(id) != null) {
             String name = this.input.ask("Enter the new order name: ");
             String description = this.input.ask("Enter the new order description: ");
-            Item newItem = new Item(name, description, System.currentTimeMillis());
+            Item newItem = new Item(name, description);
             this.tracker.replace(id, newItem);
-            System.out.println("-------- Order replaced! new order id : " + newItem.getId() + " --------");
+            this.input.print(input.ACTION_LEFT_SEPARATOR + " Order replaced! new order id : " + newItem.getId() + input.ACTION_RIGHT_SEPARATOR);
         } else {
-            System.out.println("-------- Order with id = " + id + " doesn't exist. Nothing to replace. --------");
+            this.input.print(input.EXCEPT_MSG_SEPARATOR + " Order with id = " + id + " doesn't exist. Nothing to replace. " + input.EXCEPT_MSG_SEPARATOR);
         }
     }
 
@@ -140,14 +144,14 @@ public class StartUI {
      * Method deleteItem - finds item by id and delete if it exists
      */
     private void deleteItem() {
-        System.out.println("-------- Delete the order by id --------");
+        this.input.print(input.ACTION_LEFT_SEPARATOR + " Delete the order by id " + input.ACTION_RIGHT_SEPARATOR);
         String id = this.input.ask("Enter ID of the order to be deleted: ");
         Item anItem = this.tracker.findById(id);
         if (anItem == null) {
-            System.out.println("-------- There is no order with id = " + id + ". Nothing to delete. --------");
+            this.input.print(input.EXCEPT_MSG_SEPARATOR + " There is no order with id = " + id + ". Nothing to delete. " + input.EXCEPT_MSG_SEPARATOR);
         } else {
             this.tracker.delete(anItem.getId());
-            System.out.println("-------- Order with id = " + id + " deleted. --------");
+            this.input.print(input.ACTION_LEFT_SEPARATOR + " Order \"" + anItem.getName() + "\" with id = " + id + " deleted successfully. " + input.ACTION_RIGHT_SEPARATOR);
         }
     }
 
@@ -156,14 +160,15 @@ public class StartUI {
      * calls printItem() method
      */
     private void findItemById() {
-        System.out.println("-------- Find order by id --------");
+        this.input.print(input.ACTION_LEFT_SEPARATOR + " Find order by id " + input.ACTION_RIGHT_SEPARATOR);
         String id = this.input.ask("Enter ID for the order search: ");
         Item anItem = this.tracker.findById(id);
         if (anItem == null) {
-            System.out.println("-------- There is no order with id = " + id + ". --------");
+            this.input.print(input.EXCEPT_MSG_SEPARATOR + " There is no order with id = " + id + input.EXCEPT_MSG_SEPARATOR);
         } else {
+            this.input.print(input.DIVIDING_LINE);
             this.printItem(anItem);
-            System.out.println("------------------------------------------------------------");
+            this.input.print(input.DIVIDING_LINE);
         }
     }
 
@@ -172,16 +177,16 @@ public class StartUI {
      * calls printItem() method
      */
     private void findItemsByName() {
-        System.out.println("-------- Find orders by name --------");
+        this.input.print(input.ACTION_LEFT_SEPARATOR  + " Find orders by name " + input.ACTION_RIGHT_SEPARATOR);
         String name = this.input.ask("Enter order's name for the search: ");
         Item[] items = this.tracker.findByName(name);
         if (items == null) {
-            System.out.println("-------- There is no orders with name = " + name + ". --------");
+            this.input.print(input.EXCEPT_MSG_SEPARATOR + " There is no orders with name = " + name + input.EXCEPT_MSG_SEPARATOR);
         } else {
             for (Item item : items) {
-                printItem(item);
+                this.printItem(item);
             }
-            System.out.println("------------------------------------------------------------");
+            this.input.print(input.DIVIDING_LINE);
         }
     }
 
@@ -189,11 +194,11 @@ public class StartUI {
      * Method showMenu - prints action menu
      */
     private void showMenu() {
-        System.out.println("========== Menu ===========");
+        this.input.print(input.MENU_START_SEPARATOR);
         for (String element : this.menu) {
-            System.out.println(element);
+            this.input.print(element);
         }
-        System.out.println("============================");
+        this.input.print(input.MENU_END_SEPARATOR);
     }
 
     /**
@@ -202,6 +207,7 @@ public class StartUI {
      * @param item item to print
      */
     private void printItem(Item item) {
+        stringBuilder.setLength(0); // making stringBuilder empty
         System.out.println(
                 stringBuilder
                         .append(" Order's name: ")
@@ -211,11 +217,12 @@ public class StartUI {
                         .append(", description: ")
                         .append(item.getDescription())
                         .append(", date of creation: ")
-                        .append(new Date(item.getCreated() * 1000L)) // converting order creation date from milliseconds to date format
+                        .append(new Date(item.getCreated())) // converting order creation date from milliseconds to date format
         );
     }
 
     public static void main(String[] args) {
-        new StartUI(new ConsoleInput(), new Tracker()).init();
+        Input input = new ConsoleInput();
+        new StartUI(input, new Tracker()).init();
     }
 }

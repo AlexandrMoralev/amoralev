@@ -20,7 +20,7 @@ public class ConsoleInput implements Input {
      */
     @Override
     public String ask(String question) {
-        System.out.println(question);
+        System.out.println(" " + question);
         return scanner.nextLine();
     }
 

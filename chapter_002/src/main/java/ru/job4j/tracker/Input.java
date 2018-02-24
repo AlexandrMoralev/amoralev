@@ -8,6 +8,14 @@ package ru.job4j.tracker;
  * @since 0.1
  */
 public interface Input {
+
+    String MENU_START_SEPARATOR = " ================== Menu ================== ";
+    String MENU_END_SEPARATOR = " ========================================== ";
+    String ACTION_LEFT_SEPARATOR = " --->> ";
+    String ACTION_RIGHT_SEPARATOR = " <<--- \r\n";
+    String DIVIDING_LINE = "____________________________________________________________________________________________________\r\n";
+    String EXCEPT_MSG_SEPARATOR = " +++++++++++++++++++++ ";
+
     /**
      * Method ask
      * @param question String question to user

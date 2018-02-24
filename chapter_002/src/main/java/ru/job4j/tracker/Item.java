@@ -18,12 +18,12 @@ public class Item {
      * Instance constructor of the Item class
      * @param name String name of the Item
      * @param description String short description of the Item
-     * @param created long, in ms - date of Item creation
+     * created long, in ms - date of Item creation
      */
-    Item(String name, String description, long created) {
+    Item(String name, String description) {
         this.name = name;
         this.description = description;
-        this.created = created;
+        this.created = System.currentTimeMillis();
     }
 
     /**
@@ -36,7 +36,7 @@ public class Item {
     /**
      * @param id String id of the Item
      */
-    public void setId(String id) {
+    void setId(String id) {
         this.id = id;
     }
 

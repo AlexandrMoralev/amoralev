@@ -19,7 +19,7 @@ public class TrackerTest {
     @Test
     public void whenAddNewItemThenTrackerHasTheSameItem() {
         Tracker tracker = new Tracker();
-        Item item = new Item("testItem", "testItemDescription", 1L);
+        Item item = new Item("testItem", "testItemDescription");
 
         tracker.add(item);
         assertThat(tracker.findAll()[0].getName(), is(item.getName()));
@@ -32,12 +32,12 @@ public class TrackerTest {
     public void whenReplacingItemThenTrackerHasNewItemInsteadReplaced() {
         Tracker tracker = new Tracker();
 
-        tracker.add(new Item("A", "Description of A", 1L));
-        tracker.add(new Item("C", "Description of C", 3L));
+        tracker.add(new Item("A", "Description of A"));
+        tracker.add(new Item("C", "Description of C"));
 
-        Item replaceableItem = tracker.add(new Item("B", "Description of B", 2L));
+        Item replaceableItem = tracker.add(new Item("B", "Description of B"));
 
-        Item itemForReplacement = new Item("new item for replacement", "new description", 99L);
+        Item itemForReplacement = new Item("new item for replacement", "new description");
 
         tracker.replace(replaceableItem.getId(), itemForReplacement);
 
@@ -51,10 +51,10 @@ public class TrackerTest {
     public void whenDeleteItemThenTrackerWithoutDeletedItem() {
         Tracker tracker = new Tracker();
 
-        Item deleteableItem = new Item("D", "Del", 1L);
+        Item deleteableItem = new Item("D", "Del");
 
         tracker.add(deleteableItem);
-        Item item = tracker.add(new Item("nonDeleteableItem", "NonDel", 2L));
+        Item item = tracker.add(new Item("nonDeleteableItem", "NonDel"));
 
         tracker.delete(deleteableItem.getId());
 
@@ -69,10 +69,10 @@ public class TrackerTest {
         Tracker firstTracker = new Tracker();
         Tracker secondTracker = new Tracker();
 
-        Item firstItem = firstTracker.add(new Item("A", "Description of A", 1L));
-        Item secondItem = firstTracker.add(new Item("B", "Description of B", 2L));
+        Item firstItem = firstTracker.add(new Item("A", "Description of A"));
+        Item secondItem = firstTracker.add(new Item("B", "Description of B"));
 
-        Item sharedItem = new Item("C", "Description of C", 3L);
+        Item sharedItem = new Item("C", "Description of C");
 
         firstTracker.add(sharedItem);
         secondTracker.add(sharedItem);
@@ -91,12 +91,12 @@ public class TrackerTest {
     public void whenFindItemByNameThenItemsWithThatName() {
         Tracker tracker = new Tracker();
 
-        tracker.add(new Item("A", "Description of A0", 1L));
-        tracker.add(new Item("B", "Description of B", 2L));
-        tracker.add(new Item("C", "Description of C0", 3L));
-        tracker.add(new Item("A", "Description of A1", 15L));
-        tracker.add(new Item("C", "Description of C1", 31L));
-        tracker.add(new Item("A", "Description of A2", 151L));
+        tracker.add(new Item("A", "Description of A0"));
+        tracker.add(new Item("B", "Description of B"));
+        tracker.add(new Item("C", "Description of C0"));
+        tracker.add(new Item("A", "Description of A1"));
+        tracker.add(new Item("C", "Description of C1"));
+        tracker.add(new Item("A", "Description of A2"));
 
         Item[] result = tracker.findByName("A");
 
@@ -116,15 +116,15 @@ public class TrackerTest {
     public void whenFindByIdThenItemWithThatId() {
         Tracker tracker = new Tracker();
 
-        tracker.add(new Item("A", "Description of A0", 1L));
-        tracker.add(new Item("B", "Description of B", 2L));
-        tracker.add(new Item("C", "Description of C0", 3L));
-        tracker.add(new Item("A", "Description of A1", 15L));
+        tracker.add(new Item("A", "Description of A0"));
+        tracker.add(new Item("B", "Description of B"));
+        tracker.add(new Item("C", "Description of C0"));
+        tracker.add(new Item("A", "Description of A1"));
 
-        Item item =  tracker.add(new Item("C", "Description of C1", 31L));
-        tracker.add(new Item("A", "Description of A2", 151L));
+        Item item =  tracker.add(new Item("C", "Description of C1"));
+        tracker.add(new Item("A", "Description of A2"));
 
-        assertThat(tracker.findById(item.getId()).getCreated(), is(31L));
+        assertThat(tracker.findById(item.getId()).getDescription(), is("Description of C1"));
 
     }
 }
