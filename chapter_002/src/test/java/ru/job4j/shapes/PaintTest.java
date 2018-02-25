@@ -7,7 +7,18 @@ import java.io.PrintStream;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+/**
+ * PaintTest
+ *
+ * @author Alexandr Moralev (moralev.alexandr@yandex.ru)
+ * @version $Id$
+ * @since 0.1
+ */
 public class PaintTest {
+    /**
+     * Test. Painting Square.
+     * replaces std output to buffered and back during testing
+     */
     @Test
     public void whenDrawSquare() {
         // get a reference to the standard console output
