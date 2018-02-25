@@ -22,7 +22,6 @@ public class Triangle implements Shape {
         pic.append(" *** ");
         pic.append(separator);
         pic.append("*****");
-        pic.append(separator);
 
         return pic.toString();
     }
