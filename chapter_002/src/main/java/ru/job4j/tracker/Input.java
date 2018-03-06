@@ -9,6 +9,7 @@ package ru.job4j.tracker;
  */
 public interface Input {
 
+    // String "separators" for message printing
     String MENU_START_SEPARATOR = " ================== Menu ================== ";
     String MENU_END_SEPARATOR = " ========================================== ";
     String ACTION_LEFT_SEPARATOR = " --->> ";

@@ -45,7 +45,7 @@ public class StartUITest {
      */
     @Before
     public void trackerInit() {
-        tracker = new Tracker();
+        this.tracker = new Tracker();
     }
 
     /**
@@ -61,7 +61,7 @@ public class StartUITest {
      */
     @Test
     public void whenUserAddItemThenTrackerHasNewItemWithSameName() {
-        input = new StubInput(new String[]{"0", "test name", "desc", "6"});
+        input = new StubInput(new String[]{"0", "test name", "desc", "", "6", "y"});
         new StartUI(input, tracker).init();
         assertThat(tracker.findAll()[0].getName(), is("test name"));
     }
@@ -72,7 +72,7 @@ public class StartUITest {
     @Test
     public void whenUserEditItemThenTrackerHasUpdatedValue() {
         item = tracker.add(new Item("test name", "desc"));
-        input = new StubInput(new String[]{"2", item.getId(), "new test name", "new desc", "6"});
+        input = new StubInput(new String[]{"2", item.getId(), "new test name", "new desc", "", "6", "y"});
         new StartUI(input, tracker).init();
         assertThat(tracker.findById(item.getId()).getName(), is("new test name"));
     }
@@ -84,7 +84,7 @@ public class StartUITest {
     public void wheUserDeleteItemThenTrackerHasNoItemWithThatId() {
         item = tracker.add(new Item("test name", "desc"));
         tracker.add(new Item("other name", "other desc"));
-        input = new StubInput(new String[]{"3", item.getId(), "6"});
+        input = new StubInput(new String[]{"3", item.getId(), "", "6", "y"});
         new StartUI(input, tracker).init();
         assertThat(tracker.findAll()[0].getName(), is("other name"));
     }
@@ -96,8 +96,8 @@ public class StartUITest {
     public void whenUserChecksAllItemsThenPrintingAllItemsInConsole() {
 
         item = tracker.add(new Item("first name", "first desc"));
+        input = new StubInput(new String[] {"1", "", "6", "y"});
 
-        input = new StubInput(new String[] {"1", "6"});
         new StartUI(input, tracker).init();
 
         output = new String(out.toByteArray());
@@ -112,7 +112,7 @@ public class StartUITest {
                 .add(new Date(item.getCreated()).toString())
                 .toString();
 
-        assertThat(output.contains(expected) , is(true));
+        assertThat(output.contains(expected), is(true));
     }
 
     /**
@@ -125,7 +125,7 @@ public class StartUITest {
         tracker.add(new Item("other order name", "other desc"));
         item = tracker.add(new Item("that order", "that description"));
 
-        input = new StubInput(new String[] {"4", item.getId(), "6"});
+        input = new StubInput(new String[] {"4", item.getId(), "", "6", "y"});
         new StartUI(input, tracker).init();
 
         output = new String(out.toByteArray());
@@ -153,7 +153,7 @@ public class StartUITest {
         tracker.add(new Item("other order name", "other desc"));
         Item secondItem = tracker.add(new Item("Order name", "new description"));
 
-        input = new StubInput(new String[] {"5", "Order name", "6"});
+        input = new StubInput(new String[] {"5", "Order name", "", "6", "y"});
 
         new StartUI(input, tracker).init();
 
