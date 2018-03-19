@@ -27,16 +27,16 @@ class EditItem implements UserAction {
      */
     @Override
     public void execute(Input input, Tracker tracker) {
-        input.print(input.ACTION_LEFT_SEPARATOR + " Replace the order with another by id " + input.ACTION_RIGHT_SEPARATOR);
+        input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " Replace the order with another by id ", input.ACTION_RIGHT_SEPARATOR));
         String id = input.ask("Enter ID of the order to be replaced: ");
         if (tracker.findById(id) != null) {
             String name = input.ask("Enter the new order name: ");
             String description = input.ask("Enter the new order description: ");
             Item newItem = new Item(name, description);
             tracker.replace(id, newItem);
-            input.print(input.ACTION_LEFT_SEPARATOR + " Order replaced! new order id : " + newItem.getId() + input.ACTION_RIGHT_SEPARATOR);
+            input.print(String.format("%s %s %s %s", input.ACTION_LEFT_SEPARATOR, " Order replaced! new order id : ", newItem.getId(), input.ACTION_RIGHT_SEPARATOR));
         } else {
-            input.print(input.EXCEPT_MSG_SEPARATOR + " Order with id = " + id + " doesn't exist. Nothing to replace. " + input.EXCEPT_MSG_SEPARATOR);
+            input.print(String.format("%s %s %s %s %s", input.EXCEPT_MSG_SEPARATOR, " Order with id = ", id, " doesn't exist. Nothing to replace. ", input.EXCEPT_MSG_SEPARATOR));
         }
     }
 
@@ -204,12 +204,12 @@ public class MenuTracker {
          */
         @Override
         public void execute(Input input, Tracker tracker) {
-            input.print(input.ACTION_LEFT_SEPARATOR + "New order creation" + input.ACTION_RIGHT_SEPARATOR);
+            input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, "New order creation", input.ACTION_RIGHT_SEPARATOR));
             String name = input.ask("Enter the order name: ");
             String description = input.ask("Enter the order description: ");
             Item item = new Item(name, description);
             tracker.add(item);
-            input.print(input.ACTION_LEFT_SEPARATOR + " new order id : " + item.getId() + input.ACTION_RIGHT_SEPARATOR);
+            input.print(String.format("%s %s %s %s", input.ACTION_LEFT_SEPARATOR, " new order id : ", item.getId(), input.ACTION_RIGHT_SEPARATOR));
         }
 
         /**
@@ -250,9 +250,9 @@ public class MenuTracker {
             MenuTracker mt = new MenuTracker(input, tracker);
             Item[] items = tracker.findAll();
             if (items == null) {
-                input.print(input.EXCEPT_MSG_SEPARATOR + "Tracker is empty!" + input.EXCEPT_MSG_SEPARATOR);
+                input.print(String.format("%s %s %s", input.EXCEPT_MSG_SEPARATOR, "Tracker is empty!", input.EXCEPT_MSG_SEPARATOR));
             } else {
-                input.print(input.ACTION_LEFT_SEPARATOR + " All tracker orders " + input.ACTION_RIGHT_SEPARATOR);
+                input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " All tracker orders ", input.ACTION_RIGHT_SEPARATOR));
                 for (int counter = 0; counter < items.length; counter++) {
                     System.out.print(String.valueOf(counter + 1));
                     mt.printItem(items[counter]);
@@ -294,14 +294,14 @@ public class MenuTracker {
          */
         @Override
         public void execute(Input input, Tracker tracker) {
-            input.print(input.ACTION_LEFT_SEPARATOR + " Delete the order by id " + input.ACTION_RIGHT_SEPARATOR);
+            input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " Delete the order by id ", input.ACTION_RIGHT_SEPARATOR));
             String id = input.ask("Enter ID of the order to be deleted: ");
             Item anItem = tracker.findById(id);
             if (anItem == null) {
-                input.print(input.EXCEPT_MSG_SEPARATOR + " There is no order with id = " + id + ". Nothing to delete. " + input.EXCEPT_MSG_SEPARATOR);
+                input.print(String.format("%s %s %s %s %s", input.EXCEPT_MSG_SEPARATOR, " There is no order with id = ", id, ". Nothing to delete. ", input.EXCEPT_MSG_SEPARATOR));
             } else {
                 tracker.delete(anItem.getId());
-                input.print(input.ACTION_LEFT_SEPARATOR + " Order \"" + anItem.getName() + "\" with id = " + id + " deleted successfully. " + input.ACTION_RIGHT_SEPARATOR);
+                input.print(String.format("%s %s %s %s %s %s %s", input.ACTION_LEFT_SEPARATOR, " Order \"", anItem.getName(), "\" with id = ", id, " deleted successfully. ", input.ACTION_RIGHT_SEPARATOR));
             }
         }
 
@@ -338,11 +338,11 @@ public class MenuTracker {
          */
         @Override
         public void execute(Input input, Tracker tracker) {
-            input.print(input.ACTION_LEFT_SEPARATOR + " Find order by id " + input.ACTION_RIGHT_SEPARATOR);
+            input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " Find order by id ", input.ACTION_RIGHT_SEPARATOR));
             String id = input.ask("Enter ID for the order search: ");
             Item anItem = tracker.findById(id);
             if (anItem == null) {
-                input.print(input.EXCEPT_MSG_SEPARATOR + " There is no order with id = " + id + input.EXCEPT_MSG_SEPARATOR);
+                input.print(String.format("%s %s %s %s", input.EXCEPT_MSG_SEPARATOR, " There is no order with id = ", id, input.EXCEPT_MSG_SEPARATOR));
             } else {
                 input.print(input.DIVIDING_LINE);
                 printItem(anItem);
@@ -384,11 +384,11 @@ public class MenuTracker {
          */
         @Override
         public void execute(Input input, Tracker tracker) {
-            input.print(input.ACTION_LEFT_SEPARATOR  + " Find orders by name " + input.ACTION_RIGHT_SEPARATOR);
+            input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " Find orders by name ", input.ACTION_RIGHT_SEPARATOR));
             String name = input.ask("Enter order's name for the search: ");
             Item[] items = tracker.findByName(name);
             if (items == null) {
-                input.print(input.EXCEPT_MSG_SEPARATOR + " There is no orders with name = " + name + input.EXCEPT_MSG_SEPARATOR);
+                input.print(String.format("%s %s %s %s", input.EXCEPT_MSG_SEPARATOR, " There is no orders with name = ", name, input.EXCEPT_MSG_SEPARATOR));
             } else {
                 for (Item item : items) {
                     printItem(item);

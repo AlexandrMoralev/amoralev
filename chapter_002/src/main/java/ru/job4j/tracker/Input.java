@@ -24,6 +24,14 @@ public interface Input {
      */
     String ask(String question);
 
+   /* /**
+     * Method ask - overloaded, using for handling MenuOutException
+     * @param question String question to user
+     * @param range int[] range of valid values of answers
+     * @return int answer from user
+     */
+    /*int ask(String question, int[] range);*/
+
     /**
      * Method print
      * @param data String data to print
