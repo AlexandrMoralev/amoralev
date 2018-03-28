@@ -12,6 +12,8 @@ public class StartUI {
     private Input input;
     private Tracker tracker;
 
+    private int[] range;
+
     /**
      * StartUI instance constructor
      * @param input @NotNull Input instance
@@ -21,29 +23,30 @@ public class StartUI {
         this.tracker = tracker;
     }
 
-    /**
+    /**+
      *  UI initialisation
      *  shows action menu, asking for user action in while() loop
      *  when user choose some action then called appropriate method
      *  user must enter "6" to exit
      */
     void init() {
-        MenuTracker menu = new MenuTracker(input, tracker);
-        menu.fillActions();
+        MenuTracker menu = new MenuTracker(this.input, this.tracker);
         ExitMenu exitMenu = new ExitMenu();
+        // getting actions range[] from menu
+        this.range = new int[menu.getMenuSize()];
+        for (int i = 0; i < range.length; i++) {
+            this.range[i] = i;
+        }
 
+        menu.fillActions();
         do {
             menu.show();
-            int key = Integer.valueOf(input.ask("Select: "));
-            menu.select(key);
-            if (exitMenu.isTimeToExit()) {
-                break;
-            }
-        } while (!"y".equals(this.input.ask("Exit? (press \"y\") ")));
+            menu.select(input.ask("Select: ", this.range));
+        } while (!exitMenu.isTimeToExit()  & !"y".equals(this.input.ask("Exit? (press \"y\") ")));
     }
 
     public static void main(String[] args) {
-        Input input = new ConsoleInput();
+        Input input = new ValidateInput();
         new StartUI(input, new Tracker()).init();
     }
 }

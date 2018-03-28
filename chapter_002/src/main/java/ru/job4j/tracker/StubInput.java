@@ -30,6 +30,18 @@ public class StubInput implements Input {
     }
 
     /**
+     * Method ask (when validating menu selection key)
+     * @param question String question to user
+     * @param range String[] range of valid values of answers
+     * @return
+     */
+    @Override
+    public int ask(String question, int[] range) {
+        //throw new UnsupportedOperationException("Unsupported operation");
+        return Integer.valueOf(this.ask(question));
+    }
+
+    /**
      * Method print
      * @param data String data to print
      */

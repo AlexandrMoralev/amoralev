@@ -180,6 +180,14 @@ public class MenuTracker {
     }
 
     /**
+     * Method getMenuSize
+     * @return int number of menu actions to fill range of validation
+     */
+    public int getMenuSize() {
+        return this.actions.length;
+    }
+
+    /**
      * AddItem.
      *
      * @author Alexandr Moralev (moralev.alexandr@yandex.ru)
