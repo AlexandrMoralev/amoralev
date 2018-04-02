@@ -28,7 +28,6 @@ public class TriangleTest {
                                 .append(" *** ")
                                 .append("\r\n")
                                 .append("*****")
-                                .append("\r\n")
                                 .toString()
                 )
         );

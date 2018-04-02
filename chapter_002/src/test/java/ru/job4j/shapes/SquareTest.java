@@ -30,7 +30,6 @@ public class SquareTest {
                                 .append("1  1")
                                 .append("\r\n")
                                 .append("4444")
-                                .append("\r\n")
                                 .toString()
                 )
         );
