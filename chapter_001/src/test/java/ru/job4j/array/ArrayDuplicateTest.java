@@ -20,6 +20,6 @@ public class ArrayDuplicateTest {
     public void whenArrayOfFiveHasTwoDuplicatesThenArrayOfThreeElements() {
         ArrayDuplicate arrayDuplicate = new ArrayDuplicate();
         String[] result = arrayDuplicate.remove(new String[] {"Привет", "Мир", "Привет", "Супер", "Мир"});
-        assertThat (result, arrayContainingInAnyOrder(new String[] {"Привет", "Мир", "Супер"}));
+        assertThat(result, arrayContainingInAnyOrder(new String[] {"Привет", "Мир", "Супер"}));
     }
 }

@@ -28,7 +28,7 @@ public class Point {
      *
      */
     public double distanceTo(Point that) {
-        return Math.sqrt(Math.pow(that.x - this.x, 2)+ Math.pow(that.y - this.y, 2));
+        return Math.sqrt(Math.pow(that.x - this.x, 2) + Math.pow(that.y - this.y, 2));
     }
     /**
      * Main.
@@ -36,7 +36,7 @@ public class Point {
      */
     public static void main(String[] args) {
         Point p1 = new Point(1, 3);
-        Point p2 = new Point(7,9);
+        Point p2 = new Point(7, 9);
         System.out.println("x1 = " + p1.x);
         System.out.println("y1 = " + p1.y);
         System.out.println("x2 = " + p2.x);

@@ -31,7 +31,7 @@ public class FindLoopTest {
     public void whenElementIsAbsentThenMinusOne() {
         FindLoop fl = new FindLoop();
         int[] array = new int[] {0, 1, 2, 3, 4, 5, 6};
-        int result = fl.indexOf(array,10);
+        int result = fl.indexOf(array, 10);
         assertThat(result, is(-1));
     }
 }

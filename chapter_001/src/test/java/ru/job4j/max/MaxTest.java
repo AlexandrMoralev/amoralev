@@ -21,7 +21,7 @@ public class MaxTest {
     public void whenFirstGreaterThanSecond() {
         Max maximum = new Max();
         int result = maximum.max(2, 1);
-        assertThat (result, is(2));
+        assertThat(result, is(2));
     }
 
     /**
@@ -50,7 +50,7 @@ public class MaxTest {
     @Test
     public void whenFirstIsMax() {
         Max max = new Max();
-        int rsl = max.max(3, 2,1);
+        int rsl = max.max(3, 2, 1);
         assertThat(rsl, is(3));
     }
 
@@ -60,7 +60,7 @@ public class MaxTest {
     @Test
     public void whenSecondIsMax() {
         Max max = new Max();
-        int rsl = max.max(0,3,-1);
+        int rsl = max.max(0, 3, -1);
         assertThat(rsl, is(3));
     }
 
