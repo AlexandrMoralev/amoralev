@@ -27,22 +27,22 @@ public class StartUI {
      *  UI initialisation
      *  shows action menu, asking for user action in while() loop
      *  when user choose some action then called appropriate method
-     *  user must enter "6" to exit
+     *  user must enter "6" to exit, then press "y" to confirm
      */
     void init() {
         MenuTracker menu = new MenuTracker(this.input, this.tracker);
-        ExitMenu exitMenu = new ExitMenu();
-        // getting actions range[] from menu
+        // getting actions range[] from menu.
         this.range = new int[menu.getMenuSize()];
         for (int i = 0; i < range.length; i++) {
             this.range[i] = i;
         }
-
+        // init menu actions.
         menu.fillActions();
+        // running application
         do {
             menu.show();
             menu.select(input.ask("Select: ", this.range));
-        } while (!exitMenu.isTimeToExit()  & !"y".equals(this.input.ask("Exit? (press \"y\") ")));
+        } while (!menu.timeToExit()  & !"y".equals(this.input.ask("Exit? (press \"y\") ")));
     }
 
     public static void main(String[] args) {

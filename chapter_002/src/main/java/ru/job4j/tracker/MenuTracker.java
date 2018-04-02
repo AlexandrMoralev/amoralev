@@ -9,15 +9,15 @@ import java.util.Date;
  * @version $Id$
  * @since 0.1
  */
-class EditItem implements UserAction {
+class EditItem extends BaseAction {
 
     /**
-     * Method key
-     * @return int value of the menu action
+     * EditItem instance constructor, calls the superclass constructor
+     * @param key NonNull int menu action's key
+     * @param name NonNull String menu action's name
      */
-    @Override
-    public int key() {
-        return 2;
+    public EditItem(int key, String name) {
+        super(key, name);
     }
 
     /**
@@ -39,15 +39,6 @@ class EditItem implements UserAction {
             input.print(String.format("%s %s %s %s %s", input.EXCEPT_MSG_SEPARATOR, " Order with id = ", id, " doesn't exist. Nothing to replace. ", input.EXCEPT_MSG_SEPARATOR));
         }
     }
-
-    /**
-     * Method info
-     * @return formatted String description of menu action
-     */
-    @Override
-    public String info() {
-        return String.format("%s. %s", this.key(), "Edit item ");
-    }
 }
 
 /**
@@ -57,7 +48,7 @@ class EditItem implements UserAction {
  * @version $Id$
  * @since 0.1
  */
-class ExitMenu implements UserAction {
+class ExitMenu extends BaseAction {
 
     // menu exit flag
     private boolean isTimeToExit;
@@ -67,34 +58,28 @@ class ExitMenu implements UserAction {
      * @return boolean
      */
     public boolean isTimeToExit() {
-        return isTimeToExit;
+        return this.isTimeToExit;
     }
 
     /**
-     * Method key
-     * @return int value of the menu action
+     * ExitMenu instance constructor, calls the superclass constructor
+     * @param key NonNull int menu action's key
+     * @param name NonNull String menu action's name
      */
-    @Override
-    public int key() {
-        return 6;
+    public ExitMenu(int key, String name) {
+        super(key, name);
+        this.isTimeToExit = false;
     }
 
     /**
-     * Method execute - program exit realisation
+     * Method execute - sets program exit condition to "true"
+     *
      */
     @Override
     public void execute(Input input, Tracker tracker) {
         this.isTimeToExit = true;
     }
 
-    /**
-     * Method info
-     * @return formatted String description of menu action
-     */
-    @Override
-    public String info() {
-        return String.format("%s. %s", this.key(), "Exit the program. ");
-    }
 }
 
 /**
@@ -115,6 +100,9 @@ public class MenuTracker {
     // StringBuilder instance to concatenate Strings inside loops
     private final StringBuilder stringBuilder = new StringBuilder(128);
 
+    // ExitMenu reference for checking condition of menu exit
+    private ExitMenu exitMenu;
+
     /**
      * MenuTracker instance constructor
      * @param input NonNull Input instance
@@ -127,15 +115,16 @@ public class MenuTracker {
 
     /**
      * Method fillActions - menu actions aggregation
+     * !hardcode as is
      */
     public void fillActions() {
-        this.actions[0] = this.new AddItem();
-        this.actions[1] = new MenuTracker.ShowAllItems();
-        this.actions[2] = new EditItem();
-        this.actions[3] = new DeleteItem();
-        this.actions[4] = new FindItemById();
-        this.actions[5] = new FindItemByName();
-        this.actions[6] = new ExitMenu();
+        this.actions[0] = this.new AddItem(0, "Add the new item. ");
+        this.actions[1] = new MenuTracker.ShowAllItems(1, "Show all Items. ");
+        this.actions[2] = new EditItem(2, "Edit item. ");
+        this.actions[3] = new DeleteItem(3, "Delete item. ");
+        this.actions[4] = new FindItemById(4, "Find item by Id. ");
+        this.actions[5] = new FindItemByName(5, "Find item by name. ");
+        this.actions[6] = new ExitMenu(6, "Exit the program. ");
     }
 
     /**
@@ -188,21 +177,30 @@ public class MenuTracker {
     }
 
     /**
+     * Method timeToExit - "getter" for the flag transmission
+     * @return boolean
+     */
+    public boolean timeToExit() {
+        exitMenu = (ExitMenu) this.actions[6];
+        return exitMenu.isTimeToExit();
+    }
+
+    /**
      * AddItem.
      *
      * @author Alexandr Moralev (moralev.alexandr@yandex.ru)
      * @version $Id$
      * @since 0.1
      */
-    private class AddItem implements UserAction {
+    private class AddItem extends BaseAction {
 
         /**
-         * Method key
-         * @return int value of the menu action
+         * AddItem instance constructor, calls the superclass constructor
+         * @param key NonNull int menu action's key
+         * @param name NonNull String menu action's name
          */
-        @Override
-        public int key() {
-            return 0;
+        public AddItem(int key, String name) {
+            super(key, name);
         }
 
         /**
@@ -219,15 +217,6 @@ public class MenuTracker {
             tracker.add(item);
             input.print(String.format("%s %s %s %s", input.ACTION_LEFT_SEPARATOR, " new order id : ", item.getId(), input.ACTION_RIGHT_SEPARATOR));
         }
-
-        /**
-         * Method info
-         * @return formatted String description of menu action
-         */
-        @Override
-        public String info() {
-            return String.format("%s. %s", this.key(), "Add the new item. ");
-        }
     }
 
     /**
@@ -237,15 +226,15 @@ public class MenuTracker {
      * @version $Id$
      * @since 0.1
      */
-    private static class ShowAllItems implements UserAction {
+    private static class ShowAllItems extends BaseAction {
 
         /**
-         * Method key
-         * @return int value of the menu action
+         * ShowAllItems instance constructor, calls the superclass constructor
+         * @param key NonNull int menu action's key
+         * @param name NonNull String menu action's name
          */
-        @Override
-        public int key() {
-            return 1;
+        public ShowAllItems(int key, String name) {
+            super(key, name);
         }
 
         /**
@@ -268,16 +257,8 @@ public class MenuTracker {
                 input.print(input.DIVIDING_LINE);
             }
         }
-
-        /**
-         * Method info
-         * @return formatted String description of menu action
-         */
-        @Override
-        public String info() {
-            return String.format("%s. %s", this.key(), "Show all Items. ");
-        }
     }
+
 
     /**
      * DeleteItem.
@@ -286,15 +267,15 @@ public class MenuTracker {
      * @version $Id$
      * @since 0.1
      */
-    private class DeleteItem implements UserAction {
+    private class DeleteItem extends BaseAction {
 
         /**
-         * Method key
-         * @return int value of the menu action
+         * DeleteItem instance constructor, calls the superclass constructor
+         * @param key NonNull int menu action's key
+         * @param name NonNull String menu action's name
          */
-        @Override
-        public int key() {
-            return 3;
+        public DeleteItem(int key, String name) {
+            super(key, name);
         }
 
         /**
@@ -312,15 +293,6 @@ public class MenuTracker {
                 input.print(String.format("%s %s %s %s %s %s %s", input.ACTION_LEFT_SEPARATOR, " Order \"", anItem.getName(), "\" with id = ", id, " deleted successfully. ", input.ACTION_RIGHT_SEPARATOR));
             }
         }
-
-        /**
-         * Method info
-         * @return formatted String description of menu action
-         */
-        @Override
-        public String info() {
-            return String.format("%s. %s", this.key(), "Delete item. ");
-        }
     }
 
     /**
@@ -330,14 +302,15 @@ public class MenuTracker {
      * @version $Id$
      * @since 0.1
      */
-    private class FindItemById implements UserAction {
+    private class FindItemById extends BaseAction {
+
         /**
-         * Method key
-         * @return int value of the menu action
+         * FindItemById instance constructor, calls the superclass constructor
+         * @param key NonNull int menu action's key
+         * @param name NonNull String menu action's name
          */
-        @Override
-        public int key() {
-            return 4;
+        public FindItemById(int key, String name) {
+            super(key, name);
         }
 
         /**
@@ -357,15 +330,6 @@ public class MenuTracker {
                 input.print(input.DIVIDING_LINE);
             }
         }
-
-        /**
-         * Method info
-         * @return formatted String description of menu action
-         */
-        @Override
-        public String info() {
-            return String.format("%s. %s", this.key(), "Find item by Id. ");
-        }
     }
 
     /**
@@ -375,15 +339,15 @@ public class MenuTracker {
      * @version $Id$
      * @since 0.1
      */
-    private class FindItemByName implements UserAction {
+    private class FindItemByName extends BaseAction {
 
         /**
-         * Method key
-         * @return int value of the menu action
+         * FindItemByName instance constructor, calls the superclass constructor
+         * @param key NonNull int menu action's key
+         * @param name NonNull String menu action's name
          */
-        @Override
-        public int key() {
-            return 5;
+        public FindItemByName(int key, String name) {
+            super(key, name);
         }
 
         /**
@@ -403,15 +367,6 @@ public class MenuTracker {
                 }
                 input.print(input.DIVIDING_LINE);
             }
-        }
-
-        /**
-         * Method info
-         * @return formatted String description of menu action
-         */
-        @Override
-        public String info() {
-            return String.format("%s. %s", this.key(), "Find item by name. ");
         }
     }
 }

@@ -11,15 +11,28 @@ public class ValidateInput implements Input {
 
     private final Input input;
 
+    /**
+     * ValidateInput instance constructor
+     * @param input
+     */
     public ValidateInput(final Input input) {
         this.input = input;
     }
 
+    /**
+     * Method ask
+     * @param question String question to user
+     * @return String user's answer
+     */
     @Override
     public String ask(String question) {
         return this.input.ask(question);
     }
 
+    /**
+     * Method print - console output
+     * @param data String data to print
+     */
     @Override
     public void print(String data) {
         System.out.println(data);
