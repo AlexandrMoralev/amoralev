@@ -11,7 +11,7 @@ public class Turn {
 
     /**
      * Method back - invert int[] array
-     * @param array
+     * @param array source int[] array
      * @return inverted int[] array
      */
     public int[] back(int[] array) {

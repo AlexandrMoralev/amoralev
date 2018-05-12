@@ -3,7 +3,7 @@ package ru.job4j.array;
 /**
  * FindLoop
  *
- * @author
+ * @author Alexandr Moralev (moralev.alexandr@yandex.ru)
  * @version $Id$
  * @since 0.1
  */

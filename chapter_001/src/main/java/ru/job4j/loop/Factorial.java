@@ -12,7 +12,7 @@ public class Factorial {
     /**
      * Method calc
      *
-     * @param n - int number, n > 0
+     * @param n - int number, n must be greater than 0
      * @return the factorial of a number n
      */
     public int calc(int n) {

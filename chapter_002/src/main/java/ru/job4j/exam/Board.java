@@ -105,7 +105,7 @@ public class Board {
      * @param aCell target Cell to check on Figure
      * @return Figure at target Cell, or null if there is no Figure at the target Cell
      */
-    public Figure getFigureAtCell (Cell aCell) {
+    public Figure getFigureAtCell(Cell aCell) {
 
         Figure result = null;
 
