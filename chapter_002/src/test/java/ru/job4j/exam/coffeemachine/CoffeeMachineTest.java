@@ -21,20 +21,14 @@ public class CoffeeMachineTest {
      */
     @Test
     public void whenValueLessThanPriceThenGetErrMessage() {
-
         CoffeeMachine coffeeMachine = new CoffeeMachine();
-
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final PrintStream stdOut = System.out;
-
         String msg;
-
         System.setOut(new PrintStream(out));
-
         coffeeMachine.changes(10, 15);
         msg = out.toString();
         assertThat(msg.contains("Not enough money."), is(true));
-
         System.setOut(stdOut);
     }
 
@@ -43,12 +37,9 @@ public class CoffeeMachineTest {
      */
     @Test
     public void whenValueEqualsPriceThenGetZeroChange() {
-
         CoffeeMachine coffeeMachine = new CoffeeMachine();
-
         int[] result = coffeeMachine.changes(100, 100);
         int[] expected = {};
-
         assertThat(result, is(expected));
     }
 
@@ -57,12 +48,9 @@ public class CoffeeMachineTest {
      */
     @Test
     public void whenValueGreaterThanPriceThenGetChangeCoins() {
-
         CoffeeMachine coffeeMachine = new CoffeeMachine();
-
         int[] result = coffeeMachine.changes(50, 35);
         int[] expected = {5, 10};
-
         assertThat(result, is(expected));
     }
 
