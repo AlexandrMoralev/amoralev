@@ -98,7 +98,7 @@ public class BoardTest {
     @Test
     public void whenMovingFigureWrongWayThenIMException() {
 
-        String errMsg = "can't go this way"; // ImpossibleMoveException message
+        String errMsg = "can't go that way"; // ImpossibleMoveException message
         Board board = new Board();
         Figure figure = new Bishop(new Cell(Cell.F, 1));
 

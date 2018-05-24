@@ -9,11 +9,6 @@ package ru.job4j.exam;
  */
 public class Bishop extends Figure {
 
-    // int[] sign multipliers for way calculation
-    // wayMask[0] is board rank
-    // wayMask[1] is board file
-    private final int[] wayMask = new int[2];
-
     /**
      * Bishop instance constructor
      * @param initCell initial Cell to place the Bishop
@@ -27,15 +22,15 @@ public class Bishop extends Figure {
      * @param source initial cell of the Bishop's movement
      * @param destination Bishop's movement destination Cell
      * @return Cell[] for Bishop's move
-     * @throws ImpossibleMoveException
+     * @throws ImpossibleMoveException when Figure can't move to dest Cell for any reason
      */
     @Override
     public Cell[] way(Cell source, Cell destination) throws ImpossibleMoveException {
 
-        checkDirection(source, destination);
+        Cell[] result = route(source, destination);
 
-        if (isPossibleToMove(source, destination)) {
-            return route(source, destination);
+        if (result.length != 0) {
+            return result;
         } else {
             throw new ImpossibleMoveException("The " + this.getClass().getSimpleName() + " can't move this way.");
         }
@@ -51,86 +46,52 @@ public class Bishop extends Figure {
         return new Bishop(dest);
     }
 
-    // checking Figure move direction to destination
-    // filling int[] wayMask, containing sign coefficients, to calculate way() correctly
-    private void checkDirection(Cell source, Cell dest) {
+    private Cell[] route(Cell source, Cell dest) throws ImpossibleMoveException {
 
-        if (source.getRank() < dest.getRank()) {
-            wayMask[0] = 1;
-        } else if (source.getRank() == dest.getRank()) {
-            wayMask[0] = 0;
-        } else if (source.getRank() > dest.getRank()) {
-            wayMask[0] = -1;
-        }
-
-        if (source.getFile() < dest.getFile()) {
-            wayMask[1] = 1;
-        } else if (source.getFile() == dest.getFile()) {
-            wayMask[1] = 0;
-        } else if (source.getFile() > dest.getFile()) {
-            wayMask[1] = -1;
-        }
-    }
-
-    // checking move ability to dest Cell
-    private boolean isPossibleToMove(Cell source, Cell dest) throws ImpossibleMoveException {
-
-        boolean result = false;
+        Cell[] result = new Cell[0];
 
         // using source Cell coordinates as cell counters at while() cycle
         int rank = source.getRank();
         int file = source.getFile();
 
+        //
+        int rankDelta = -Integer.compare(source.getRank(), dest.getRank());
+        int fileDelta = -Integer.compare(source.getFile(), dest.getFile());
+
         // checking move ability
         // 1. if source Cell != destination Cell then figure can move
         if (!source.equals(dest)) {
 
-            // 2. checking the direction of the moving figure
-            if (!(wayMask[0] == 0 | wayMask[1] == 0)) {
+            // 2. if Cells is within Board (zero-Cell checking)
+            if (source.isNotZeroCell() & dest.isNotZeroCell()) {
 
-                // 3. if Cells is within Board (zero-Cell checking)
-                if (source.isNotZeroCell() & dest.isNotZeroCell()) {
+                // ! counter calculation depends on Figure behavior
+                int counter = Math.abs(source.getFile() - dest.getFile());
+                int position = 0;
+                Cell[] cells = new Cell[counter];
 
-                    // 4. checking whether the destination Cell is on the way
-                    while (rank <= Board.DIMENSION & file <= Board.DIMENSION) {
+                // 3. checking whether the destination Cell is on the way
+                while (rank <= Board.DIMENSION & file <= Board.DIMENSION) {
 
-                        // if Bishop can reach the destination
-                        if (rank == dest.getRank() & file == dest.getFile()) {
-                            result = true;
-                            break;
-                        }
-                        // this is how the Bishop moving
-                        rank += wayMask[0];
-                        file += wayMask[1];
+                    // if Bishop can reach the destination
+                    if (rank == dest.getRank() & file == dest.getFile()) {
+                        result = cells;
+                        break;
                     }
-                } else {
-                    throw new ImpossibleMoveException("Cell is out of Board");
+                    if (position == counter) {
+                        throw new ImpossibleMoveException("The Bishop can't go that way");
+                    }
+                    // this is how the Bishop moving
+                    rank += rankDelta;
+                    file += fileDelta;
+                    cells[position++] = new Cell(rank, file);
                 }
             } else {
-                throw new ImpossibleMoveException("Bishop can't go this way.");
+                throw new ImpossibleMoveException("Cell is out of Board");
             }
+
         } else {
             throw new ImpossibleMoveException("The destination and source cells are the same.");
-        }
-
-        return result;
-    }
-
-    // fills in Cell[] when isPossibleToMove == true
-    private Cell[] route(Cell source, Cell dest) {
-
-        // ! counter calculation depends on Figure behavior
-        int counter = Math.abs(source.getFile() - dest.getFile());
-
-        int rank = source.getRank();
-        int file = source.getFile();
-
-        Cell[] result = new Cell[counter];
-
-        for (int i = 0; i < counter; i++) {
-            rank += wayMask[0];
-            file += wayMask[1];
-            result[i] = new Cell(rank, file);
         }
 
         return result;
