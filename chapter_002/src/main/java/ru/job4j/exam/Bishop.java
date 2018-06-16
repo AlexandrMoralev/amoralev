@@ -32,7 +32,7 @@ public class Bishop extends Figure {
         if (result.length != 0) {
             return result;
         } else {
-            throw new ImpossibleMoveException("The " + this.getClass().getSimpleName() + " can't move this way.");
+            throw new ImpossibleMoveException(String.format("The %s can't move this way.", this.getClass().getSimpleName()));
         }
     }
 

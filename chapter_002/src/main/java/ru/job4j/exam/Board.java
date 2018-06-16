@@ -9,17 +9,14 @@ package ru.job4j.exam;
  */
 public class Board {
 
-    // number of Figures
     final static int FIGURES = 32;
-
-    // board dimension
     final static int DIMENSION = 8;
-
     private Figure[] figures = new Figure[FIGURES];
     private int position = 0;
 
     /**
      * Method add - adds Figure on the Board
+     * if the Board is full of Figures, prints error message to console
      * @param figure Figure to add
      */
     void add(Figure figure) {
@@ -33,6 +30,7 @@ public class Board {
 
     /**
      * Method move - moves the Figure on Board
+     * checks is there Figure at source Cell, is the Figure able to move to destination Cell, is any other Figures on the way
      * @param source initial Cell to move
      * @param destination destination Cell
      * @return true if thr Figure moved successful, false if it's not
@@ -42,49 +40,36 @@ public class Board {
      */
     boolean move(Cell source, Cell destination) throws ImpossibleMoveException, OccupiedWayException, FigureNotFoundException {
 
-        boolean result = false;
         int figurePosition;
         Cell[] wayToMove;
 
-        // is there Figure at source Cell?
-        // else FNF exception
         figurePosition = figureAtCell(source);
 
-        if (figurePosition < FIGURES) {
-
-            wayToMove = figures[figurePosition].way(source, destination); // throws ImpossibleMoveException()
-
-            // is the Figure able to move to destination Cell
-            // return Cell[] path or IM exception
-            if (null != wayToMove) {
-
-                // is any other Figures on the way?
-                // else throws OccupiedWayException exception
-                if (isWayClean(wayToMove)) {
-                    this.figures[figurePosition] = this.figures[figurePosition].copy(destination);
-                    result = true;
-                }
-
-            } else {
-                throw new ImpossibleMoveException("The " + figures[figurePosition].getClass().getSimpleName() + " can't move to destination cell");
-            }
-
-        } else {
-            throw new FigureNotFoundException("There is no figure at " + source.getRank() + "-" + source.getFile());
+        if (figurePosition >= FIGURES) {
+            throw new FigureNotFoundException(String.format("There is no figure at %s - %s ", source.getRank(), source.getFile()));
         }
 
-        return result;
+        wayToMove = figures[figurePosition].way(source, destination);
+
+        if (null == wayToMove || !isWayClean(wayToMove)) {
+            throw new ImpossibleMoveException(String.format("The %s can't move to destination cell", figures[figurePosition].getClass().getSimpleName()));
+        }
+
+        this.figures[figurePosition] = this.figures[figurePosition].copy(destination);
+
+        return true;
     }
 
-    // returns int position of the Figure at the Board, if it's exists
-    // else returns int = 33 (out of bounds)
+    /**
+     * Method figureAtCell - checks is there a Figure at the Cell
+     * @param aCell Cell to check
+     * @return int position of the Figure at the Board, if it's exists, else returns int == FIGURES (out of bounds)
+     */
     private int figureAtCell(Cell aCell) {
 
-        int result = FIGURES; // init is out of array bounds
+        int result = FIGURES;
         int count = 0;
 
-        // is there Figure at source Cell?
-        // else FNF exception
         for (Figure figure : figures) {
             if (null == figure) {
                 break;
@@ -96,7 +81,6 @@ public class Board {
                 count++;
             }
         }
-
         return result;
     }
 
@@ -108,7 +92,6 @@ public class Board {
     public Figure getFigureAtCell(Cell aCell) {
 
         Figure result = null;
-
         int positionAtBoard = this.figureAtCell(aCell);
 
         if (positionAtBoard < Board.FIGURES) {
@@ -118,27 +101,27 @@ public class Board {
         return result;
     }
 
-    // returns true when way is clean, and false when it's not
-    // Knight doesn't occupy way
+    /**
+     * Method isWayClean
+     * @param wayToMove Cell[] way to check
+     * @return true when way is clean, and false when it's not
+     * @throws OccupiedWayException when there is any other Figure on the way (except Knight)
+     */
     private boolean isWayClean(Cell[] wayToMove) throws OccupiedWayException {
 
-        boolean result = false; // is reaches return statement
+        boolean result = false;
 
-        // is any other Figures on the way? (except Knight)
-        // else throws OW exception
         for (Cell cell : wayToMove) {
             for (Figure figure : figures) {
                 if (null == figure || figure.getClass().getSimpleName().equals("Knight")) {
                     break;
                 }
-                if (!cell.equals(figure.position)) {
-                    result = true;
-                } else {
-                    throw new OccupiedWayException("There is a figure on the way");
+                if (cell.equals(figure.position)) {
+                    throw new OccupiedWayException(String.format("There is a %s on the way", figure.getClass().getSimpleName()));
                 }
+                result = true;
             }
         }
-
         return result;
     }
 }

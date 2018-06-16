@@ -26,14 +26,13 @@ public class Cell {
 
     /**
      * Cell instance constructor
+     * when rank | file is incorrect, fields initialises with int 0
+     * and must be checked by isNotZeroCell()
      * @param rank int initial column
      * @param file int initial row
      */
-    // when rank | file is incorrect, field initialises with 0
-    // and must to be checked at isNotZeroCell()
     public Cell(int rank, int file) {
 
-        // initial Cell coordinates checking condition
         if (rank >= Cell.A & rank <= Board.DIMENSION) {
             if (file > 0 & file <= Board.DIMENSION) {
                 this.rank = rank;
@@ -62,7 +61,6 @@ public class Cell {
      * Method isNotZeroCell - checks default Cell coordinates zero-initialization
      * @return true when all right, false if initial Cell coordinates is out of Board
      */
-    // just checking for default field init in Cell constructor
     public boolean isNotZeroCell() {
         return (this.file != 0 & this.rank != 0);
     }
@@ -90,7 +88,6 @@ public class Cell {
      */
     @Override
     public int hashCode() {
-
         return Objects.hash(file, rank);
     }
 }

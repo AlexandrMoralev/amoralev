@@ -9,7 +9,6 @@ package ru.job4j.exam;
  */
 public abstract class Figure {
 
-    // Figure's position on the Board
     final Cell position;
 
     public abstract Cell[] way(Cell source, Cell destination) throws ImpossibleMoveException;

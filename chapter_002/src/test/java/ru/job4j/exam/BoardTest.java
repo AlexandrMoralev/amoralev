@@ -141,12 +141,12 @@ public class BoardTest {
     @Test
     public void whenMovingWayOccupiedByOtherFigureThenOWException() {
 
-        String errMSg = "There is a figure on the way";
-
         Board board = new Board();
 
         Bishop bishopF1 = new Bishop(new Cell(Cell.F, 1));
         Bishop bishopE2 = new Bishop(new Cell(Cell.E, 2));
+
+        String errMSg = String.format("There is a %s on the way", bishopE2.getClass().getSimpleName());
 
         board.add(bishopF1);
         board.add(bishopE2);
