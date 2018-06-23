@@ -1,5 +1,6 @@
 package ru.job4j.collections;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,5 +45,23 @@ public class ConvertList2Array {
             array[rowPosition][columnPosition++] = num;
         }
         return array;
+    }
+
+    /**
+     * Method convert - converts List<int[]> into List<Integer>
+     * @param list List<int[]> to convert
+     * @return List<Integer> converted from input List<int[]>,
+     * returns empty List<Integer>, when input List is empty
+     */
+    public List<Integer> convert (List<int[]> list) {
+
+        List<Integer> result = new ArrayList<>();
+
+        for (int[] array : list) {
+            for (int element : array) {
+                result.add(element);
+            }
+        }
+        return result;
     }
 }

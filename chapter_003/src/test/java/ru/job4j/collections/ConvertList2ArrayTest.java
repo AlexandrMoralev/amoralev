@@ -1,9 +1,13 @@
 package ru.job4j.collections;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -125,4 +129,41 @@ public class ConvertList2ArrayTest {
         }
     }
 
+    /**
+     * Test. Converting List<int[]> into List<Integer>.
+     */
+    @Test
+    public void whenListOfIntArraysThenListOfIntegers() {
+        ConvertList2Array converter = new ConvertList2Array();
+
+        List<int[]> list = new ArrayList<>();
+        list.add(new int[]{1, 2});
+        list.add(new int[]{});
+        list.add(new int[]{3, 4, 5, 6});
+
+        List<Integer> result = converter.convert(list);
+
+        List<Integer> expected = new ArrayList<>();
+        for (int i = 1; i < 7; i++) {
+            expected.add(i);
+        }
+        assertThat(result, is(expected));
+    }
+
+    /**
+     * Test. When input List is empty, returns empty List<Integers>.
+     */
+    @Test
+    public void whenListOfIntArraysIsEmptyThenEmptyListOfIntegers() {
+        ConvertList2Array converter = new ConvertList2Array();
+
+        List<int[]> list = new ArrayList<>();
+        list.add(new int[]{});
+
+        List<Integer> result = converter.convert(list);
+
+        List<Integer> expected = new ArrayList<>();
+
+        assertThat(result, is(expected));
+    }
 }
