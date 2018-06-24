@@ -53,7 +53,7 @@ public class ConvertList2Array {
      * @return List<Integer> converted from input List<int[]>,
      * returns empty List<Integer>, when input List is empty
      */
-    public List<Integer> convert (List<int[]> list) {
+    public List<Integer> convert(List<int[]> list) {
 
         List<Integer> result = new ArrayList<>();
 

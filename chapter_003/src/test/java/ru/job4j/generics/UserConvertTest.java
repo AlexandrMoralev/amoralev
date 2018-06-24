@@ -25,13 +25,9 @@ public class UserConvertTest {
     @Test
     public void whenInputListIsEmptyThenEmptyHashMap() {
         UserConvert converter = new UserConvert();
-
         HashMap<Integer, User> expected = new HashMap<>();
-
         List<User> users = Collections.EMPTY_LIST;
-
         HashMap<Integer, User> result = converter.process(users);
-
         assertThat(result, is(expected));
     }
 
@@ -41,7 +37,6 @@ public class UserConvertTest {
     @Test
     public void whenListW3UsersThenHashMapW3UsersById() {
         UserConvert converter = new UserConvert();
-
         User firstUser = new User(
                 1,
                 "Andrey",
@@ -57,19 +52,15 @@ public class UserConvertTest {
                 "Gennady",
                 "Omsk"
         );
-
         List<User> users = new ArrayList<>();
         users.add(firstUser);
         users.add(secondUser);
         users.add(thirdUser);
-
         HashMap<Integer, User> result = converter.process(users);
-
         HashMap<Integer, User> expected = new HashMap<>();
         expected.put(firstUser.getId(), firstUser);
         expected.put(secondUser.getId(), secondUser);
         expected.put(thirdUser.getId(), thirdUser);
-
         assertThat(result, is(expected));
     }
 }
