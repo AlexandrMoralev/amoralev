@@ -38,6 +38,24 @@ public class StartUI {
         }
         // init menu actions.
         menu.fillActions();
+        // adding new action to menu, using new anonymous class
+        UserAction voidAction = new UserAction() {
+            @Override
+            public int key() {
+                return 7;
+            }
+
+            @Override
+            public void execute(Input input, Tracker tracker) {
+            }
+
+            @Override
+            public String info() {
+                return "Do nothing. ";
+            }
+        };
+        menu.addAction(voidAction);
+
         // running application
         do {
             menu.show();

@@ -1,5 +1,6 @@
 package ru.job4j.tracker;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -11,8 +12,7 @@ import java.util.Random;
  */
 public class Tracker {
 
-    private final Item[] items = new Item[100];
-    private int position = 0;
+    private final ArrayList<Item> items = new ArrayList<>();
     private static final Random RANDOM = new Random();
 
     /**
@@ -21,15 +21,9 @@ public class Tracker {
      * @return Item, if item added; null if the Tracker overflowed
      */
     public Item add(Item item) {
-        Item result = null;
-
-        if (position < this.items.length) {
-            result = item;
-            result.setId(this.generateId());
-            this.items[position++] = result;
-        }
-
-        return result;
+        item.setId(this.generateId());
+        this.items.add(item);
+        return item;
     }
 
     /**
@@ -46,85 +40,53 @@ public class Tracker {
      * @param anItem - new Item for replacement
      */
     public void replace(String id, Item anItem) {
-
-        for (int itemsIndex = 0; itemsIndex < this.position; itemsIndex++) {
-            if (this.items[itemsIndex].getId().equals(id)) {
-                anItem.setId(this.items[itemsIndex].getId());
-                this.items[itemsIndex] = anItem;
+        int index = 0;
+        for (Item item : items) {
+            if (item.getId().equals(id)) {
+                anItem.setId(item.getId());
+                items.remove(index);
+                items.add(index, anItem);
                 break;
             }
+            index++;
         }
     }
 
     /**
      * Method delete - deleting Item from the Tracker by the Id
-     * next elements are moved one position to the beginning of this.items[]
      * @param id String id of deletable Item
      */
     public void delete(String id) {
-
-        for (int index = 0; index < this.position; index++) {
-            if (id.equals(this.items[index].getId())) {
-
-                this.items[index] = null;
-                System.arraycopy(
-                        this.items,
-                        index + 1,
-                        this.items,
-                        index,
-                        this.items.length - index - 1
-                );
-                this.items[--position] = null;
+        int index = 0;
+        for (Item item : items) {
+            if (id.equals(item.getId())) {
+                items.remove(index);
                 break;
             }
+            index++;
         }
     }
 
     /**
      * Method findAll - find all non-null Items in the Tracker
-     * @return Item[]; null if the Tracker without any Items
+     * @return ArrayList<Item>, empty if the Tracker without any Items
      */
-    public Item[] findAll() {
-        Item[] result = null;
-
-        if (this.position > 0) {
-            result = new Item[position];
-            System.arraycopy(this.items, 0, result, 0, this.position);
-        }
-
-        return result;
+    public ArrayList<Item> findAll() {
+        return this.items;
     }
 
     /**
      * Method findByName - find all Items by the name
      * @param key String name of Item
-     * @return Item[]; null if there is no Items with name = key, or if the Tracker is empty
+     * @return ArrayList<Item>, empty if there is no Items with name = key, or if the Tracker is empty
      */
-    public Item[] findByName(String key) {
-        Item[] result = null;
-        int counter = 0;
-
-        for (int index = 0; index < this.position; index++) {
-            if (this.items[index].getName().equals(key)) {
-                counter++;
+    public ArrayList<Item> findByName(String key) {
+        ArrayList<Item> result = new ArrayList<>();
+        for (Item item : this.items) {
+            if (key.equals(item.getName())){
+                result.add(item);
             }
         }
-
-        if (counter > 0) {
-            result = new Item[counter];
-            int searchStoppedPosition = 0;
-
-            for (int resultIndex = 0; resultIndex < result.length; resultIndex++) {
-                for (int itemsIndex = searchStoppedPosition; itemsIndex < this.position; itemsIndex++) {
-                    if (this.items[itemsIndex].getName().equals(key)) {
-                        result[resultIndex] = this.items[itemsIndex];
-                        searchStoppedPosition = itemsIndex + 1;
-                        break;
-                    }
-                }
-            }
-        }
-
         return result;
     }
 
@@ -135,10 +97,9 @@ public class Tracker {
      */
     public Item findById(String id) {
         Item result = null;
-
-        for (int index = 0; index < this.position; index++) {
-            if (id.equals(this.items[index].getId())) {
-                result = this.items[index];
+        for (Item item : this.items) {
+            if (id.equals(item.getId())) {
+                result = item;
                 break;
             }
         }

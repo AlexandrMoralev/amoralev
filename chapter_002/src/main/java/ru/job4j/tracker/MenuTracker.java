@@ -1,5 +1,6 @@
 package ru.job4j.tracker;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -95,7 +96,9 @@ public class MenuTracker {
     private final Tracker tracker;
 
     // actions on Tracker
-    private UserAction[] actions = new UserAction[7];
+    private ArrayList<UserAction> actions = new ArrayList<>();
+
+    private int position = 0;
 
     // StringBuilder instance to concatenate Strings inside loops
     private final StringBuilder stringBuilder = new StringBuilder(128);
@@ -118,13 +121,17 @@ public class MenuTracker {
      * !hardcode as is
      */
     public void fillActions() {
-        this.actions[0] = this.new AddItem(0, "Add the new item. ");
-        this.actions[1] = new MenuTracker.ShowAllItems(1, "Show all Items. ");
-        this.actions[2] = new EditItem(2, "Edit item. ");
-        this.actions[3] = new DeleteItem(3, "Delete item. ");
-        this.actions[4] = new FindItemById(4, "Find item by Id. ");
-        this.actions[5] = new FindItemByName(5, "Find item by name. ");
-        this.actions[6] = new ExitMenu(6, "Exit the program. ");
+        this.actions.add(new AddItem(0, "Add the new item. "));
+        this.actions.add(new MenuTracker.ShowAllItems(1, "Show all Items. "));
+        this.actions.add(new EditItem(2, "Edit item. "));
+        this.actions.add(new DeleteItem(3, "Delete item. "));
+        this.actions.add(new FindItemById(4, "Find item by Id. "));
+        this.actions.add(new FindItemByName(5, "Find item by name. "));
+        this.actions.add(new ExitMenu(6, "Exit the program. "));
+    }
+
+    public void addAction(UserAction userAction) {
+        this.actions.add(userAction);
     }
 
     /**
@@ -132,7 +139,11 @@ public class MenuTracker {
      * @param key int value, entered by user
      */
     public void select(int key) {
-        this.actions[key].execute(this.input, this.tracker);
+        for (UserAction action : actions) {
+            if (key == action.key()) {
+                action.execute(this.input, this.tracker);
+            }
+        }
     }
 
     /**
@@ -173,7 +184,7 @@ public class MenuTracker {
      * @return int number of menu actions to fill range of validation
      */
     public int getMenuSize() {
-        return this.actions.length;
+        return this.actions.size();
     }
 
     /**
@@ -181,7 +192,7 @@ public class MenuTracker {
      * @return boolean
      */
     public boolean timeToExit() {
-        exitMenu = (ExitMenu) this.actions[6];
+        exitMenu = (ExitMenu) this.actions.get(6);
         return exitMenu.isTimeToExit();
     }
 
@@ -245,20 +256,19 @@ public class MenuTracker {
         public void execute(Input input, Tracker tracker) {
 
             MenuTracker mt = new MenuTracker(input, tracker);
-            Item[] items = tracker.findAll();
+            ArrayList<Item> items = tracker.findAll();
             if (items == null) {
                 input.print(String.format("%s %s %s", input.EXCEPT_MSG_SEPARATOR, "Tracker is empty!", input.EXCEPT_MSG_SEPARATOR));
             } else {
                 input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " All tracker orders ", input.ACTION_RIGHT_SEPARATOR));
-                for (int counter = 0; counter < items.length; counter++) {
+                for (int counter = 0; counter < items.size(); counter++) {
                     System.out.print(String.valueOf(counter + 1));
-                    mt.printItem(items[counter]);
+                    mt.printItem(items.get(counter));
                 }
                 input.print(input.DIVIDING_LINE);
             }
         }
     }
-
 
     /**
      * DeleteItem.
@@ -358,7 +368,7 @@ public class MenuTracker {
         public void execute(Input input, Tracker tracker) {
             input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " Find orders by name ", input.ACTION_RIGHT_SEPARATOR));
             String name = input.ask("Enter order's name for the search: ");
-            Item[] items = tracker.findByName(name);
+            ArrayList<Item> items = tracker.findByName(name);
             if (items == null) {
                 input.print(String.format("%s %s %s %s", input.EXCEPT_MSG_SEPARATOR, " There is no orders with name = ", name, input.EXCEPT_MSG_SEPARATOR));
             } else {
