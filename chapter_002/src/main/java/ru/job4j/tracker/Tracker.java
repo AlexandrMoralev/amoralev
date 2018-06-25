@@ -56,13 +56,11 @@ public class Tracker {
      * @param id String id of deletable Item
      */
     public void delete(String id) {
-        int index = 0;
         for (Item item : items) {
             if (id.equals(item.getId())) {
-                items.remove(index);
+                items.remove(item);
                 break;
             }
-            index++;
         }
     }
 
