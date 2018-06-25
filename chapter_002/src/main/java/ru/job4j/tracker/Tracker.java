@@ -40,14 +40,12 @@ public class Tracker {
      * @param anItem - new Item for replacement
      */
     public void replace(String id, Item anItem) {
-        int index = 0;
         for (Item item : items) {
             if (item.getId().equals(id)) {
                 anItem.setId(item.getId());
-                items.set(index, anItem);
+                items.set(items.indexOf(item), anItem);
                 break;
             }
-            index++;
         }
     }
 
