@@ -44,8 +44,7 @@ public class Tracker {
         for (Item item : items) {
             if (item.getId().equals(id)) {
                 anItem.setId(item.getId());
-                items.remove(index);
-                items.add(index, anItem);
+                items.set(index, anItem);
                 break;
             }
             index++;
@@ -83,7 +82,7 @@ public class Tracker {
     public ArrayList<Item> findByName(String key) {
         ArrayList<Item> result = new ArrayList<>();
         for (Item item : this.items) {
-            if (key.equals(item.getName())){
+            if (key.equals(item.getName())) {
                 result.add(item);
             }
         }
