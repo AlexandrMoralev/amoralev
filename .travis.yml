@@ -1,0 +1,10 @@
+language: java
+sudo: false
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+notifications:
+  email:
+    recipients:
+      - moralev.alexandr@yandex.ru
+    on_success: never
+    on_failure: always
