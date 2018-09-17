@@ -24,9 +24,9 @@ public class TriangleTest {
                 is(
                         new StringBuilder()
                                 .append("  *  ")
-                                .append("\r\n")
+                                .append(System.lineSeparator())
                                 .append(" *** ")
-                                .append("\r\n")
+                                .append(System.lineSeparator())
                                 .append("*****")
                                 .toString()
                 )
