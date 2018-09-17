@@ -4,7 +4,7 @@ after_success:
   - bash <(curl -s https://codecov.io/bash)
 env:
   global:
-   - CODECOV_TOKEN=:301ac758-da71-4c24-9306-1c15e5a59fd6
+   - CODECOV_TOKEN="301ac758-da71-4c24-9306-1c15e5a59fd6"
 notifications:
   email:
     recipients:
