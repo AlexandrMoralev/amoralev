@@ -11,14 +11,42 @@ import java.util.*;
  */
 public class DepartmentSorter {
 
+    private Comparator<String> ascendingDeptComparator = new Comparator<String>() {
+
+        @Override
+        public int compare(String o1, String o2) {
+            return o1.compareTo(o2);
+        }
+    };
+
+    private Comparator<String> descendingDeptComparator = new Comparator<String>() {
+        @Override
+        public int compare(String o1, String o2) {
+            int compared = o1.compareTo(o2);
+            if (compared != 0) {
+                compared = -compared;
+            }
+            if (o1.indexOf(o2) == 0) {
+                compared = 1;
+            }
+            if (o2.indexOf(o1) == 0) {
+                compared = -1;
+            }
+            return compared;
+        }
+    };
+
+    private String[] parsedDepartments;
+
     /**
-     * Method ascendingSort -
+     * Method ascendingSort - sorting an String array in hierarchical ascending order.
      * @param departments String[] without null elements
      * @return sorted String[]
      */
-    public String[] ascendingSort(String[] departments) {
-        Arrays.sort(departments);
-        return departments;
+    public String[] ascendingSort(String[] departments) throws IllegalArgumentException {
+        this.validate(departments);
+        Arrays.sort(this.parsedDepartments, this.ascendingDeptComparator);
+        return this.parsedDepartments;
     }
 
     /**
@@ -27,89 +55,42 @@ public class DepartmentSorter {
      * @return sorted String[]
      */
     public String[] descendingSort(String[] departments) {
-        String[] result;
-        String[] indexes = getDeptIndexes(departments);
-
-        TreeMap<String, String> tm = new TreeMap<>(new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                int compareResult = 0;
-                int firstLength = o1.length();
-                int secondLength = o2.length();
-
-                if (firstLength == secondLength) {
-                    compareResult = compareDescendingIndex(o1, o2);
-                }
-                if (firstLength > secondLength) {
-                    if (o1.startsWith(o2)) {
-                        compareResult = 1;
-                    } else {
-                        compareResult = compareDescendingIndex(o1, o2);
-                    }
-                }
-                if (firstLength < secondLength) {
-                    if (o2.startsWith(o1)) {
-                        compareResult = -1;
-                    } else {
-                        compareResult =  compareDescendingIndex(o1, o2);
-                    }
-                }
-                return compareResult;
-            }
-        });
-        for (int i = 0; i < departments.length; i++) {
-            tm.put(indexes[i], departments[i]);
-        }
-        result = tm.values().toArray(new String[tm.values().size()]);
-        return result;
+        this.validate(departments);
+        Arrays.sort(this.parsedDepartments, this.descendingDeptComparator);
+        return this.parsedDepartments;
     }
 
     /**
-     * compareDescendingIndex - character-by-character string comparison
-     * @param o1 non-null String to compare
-     * @param o2 non-null String to compare
-     * @return int the value = 0, when both string arguments are equals
-     *          int value -1, when the first string
-     *          is less than the second string argument
-     *          int value 1, when the first string is
-     *          greater than the second  string argument.
+     * Method parse - String[] departments parsing.
+     * Constructs a new String array with hierarchy recovering.
+     * @param departments String[] departments to be parsed
      */
-    private int compareDescendingIndex(String o1, String o2) {
-        int result = 0;
-        int firstLength = o1.length();
-        int secondLength = o2.length();
-        int limiter = firstLength > secondLength ? secondLength : firstLength;
+    private void parse(String[] departments) {
+        Set<String> deptSet = new TreeSet<>();
+        char delimiter = '\\';
 
-        for (int i = 0; i < limiter; i++) {
-            if (o1.charAt(i) > o2.charAt(i)) {
-                result = -1;
-            }
-            if (o1.charAt(i) < o2.charAt(i)) {
-                result = 1;
-            }
-            if (o1.charAt(i) == o2.charAt(i)) {
-                if (firstLength == limiter - 1) {
-                    result = -1;
-                }
-                if (secondLength == limiter - 1) {
-                    result = 1;
-                }
-            }
-        }
-        return result;
-    }
-
-    /**
-     * getDeptIndexes
-     * @param departments String[] to extract indexes array
-     * @return String[] filled with department indexes only
-     */
-    private String[] getDeptIndexes(String[] departments) {
-        String[] result = new String[departments.length];
-        int counter = 0;
         for (String dept : departments) {
-            result[counter++] = dept.replaceAll("[^0-9]", "");
+            deptSet.add(dept);
+            for (int i = 0; i < dept.length(); i++) {
+                if (dept.charAt(i) == delimiter) {
+                    deptSet.add(dept.substring(0, i));
+                }
+            }
         }
-        return result;
+        this.parsedDepartments = deptSet.toArray(new String[0]);
+    }
+
+    /**
+     * Method validate - tests input String array for null-reference and doubling
+     * @param arr String[] array to be sorted
+     * @throws IllegalArgumentException if String[] reference is null
+     */
+    private void validate(String[] arr) throws IllegalArgumentException {
+        if (arr == null) {
+            throw new IllegalArgumentException("Null-reference of the String[]");
+        }
+        if (this.parsedDepartments == null | this.parsedDepartments != arr) {
+            this.parse(arr);
+        }
     }
 }

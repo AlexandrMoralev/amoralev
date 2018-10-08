@@ -14,6 +14,35 @@ import static org.junit.Assert.assertThat;
 public class DepartmentSorterTest {
 
     /**
+     * Test. parsingAndHierarchyRecoveringTest.
+     */
+    @Test
+    public void parsingAndHierarchyRecoveringTest() {
+        String[] departments = {
+                "K1\\SK2",
+                "K1\\SK1",
+                "K2\\SK1\\SSK1",
+                "K1\\SK1\\SSK2",
+                "K1\\SK1\\SSK1",
+                "K2\\SK1\\SSK2",
+        };
+        String[] expected = {
+                "K1",
+                "K1\\SK1",
+                "K1\\SK1\\SSK1",
+                "K1\\SK1\\SSK2",
+                "K1\\SK2",
+                "K2",
+                "K2\\SK1",
+                "K2\\SK1\\SSK1",
+                "K2\\SK1\\SSK2"
+        };
+        DepartmentSorter departmentSorter = new DepartmentSorter();
+        String[] result = departmentSorter.ascendingSort(departments);
+        assertThat(result, is(expected));
+    }
+
+    /**
      * Test. ascendingSortTest.
      */
     @Test
@@ -74,36 +103,6 @@ public class DepartmentSorterTest {
         };
         DepartmentSorter departmentSorter = new DepartmentSorter();
         String[] result = departmentSorter.descendingSort(departments);
-        assertThat(result, is(expected));
-    }
-
-    /**
-     * Test. equalsTest.
-     */
-    @Test
-    public void equalsTest() {
-        String[] expected = {
-                "K2",
-                "K2\\SK1",
-                "K2\\SK1\\SSK2",
-                "K2\\SK1\\SSK1",
-                "K1",
-                "K1\\SK2",
-                "K1\\SK1",
-                "K1\\SK1\\SSK2",
-                "K1\\SK1\\SSK1"
-        };
-        String[] result = {
-                "K2",
-                "K2\\SK1",
-                "K2\\SK1\\SSK2",
-                "K2\\SK1\\SSK1",
-                "K1",
-                "K1\\SK2",
-                "K1\\SK1",
-                "K1\\SK1\\SSK2",
-                "K1\\SK1\\SSK1"
-        };
         assertThat(result, is(expected));
     }
 }
