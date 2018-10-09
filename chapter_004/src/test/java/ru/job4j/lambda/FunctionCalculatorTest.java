@@ -39,7 +39,7 @@ public class FunctionCalculatorTest {
     @Test
     public void linearFunctionTest() {
         for (int i = start; i < end; i++) {
-            expected.add((double)i);
+            expected.add((double) i);
         }
         List<Double> result = calc.diapason(start, end, calc.linearFunction);
         assertThat(result, is(expected));
@@ -51,7 +51,7 @@ public class FunctionCalculatorTest {
     @Test
     public void quadraticFunctionTest() {
         for (int i = start; i < end; i++) {
-            expected.add((double) i*i);
+            expected.add((double) i * i);
         }
         List<Double> result = calc.diapason(start, end, calc.quadraticFunction);
         assertThat(result, is(expected));

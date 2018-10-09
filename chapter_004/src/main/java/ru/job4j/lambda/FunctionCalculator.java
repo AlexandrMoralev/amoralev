@@ -15,7 +15,7 @@ public class FunctionCalculator {
 
     public final Function<Double, Double> linearFunction = (Double value) -> value;
 
-    public final Function<Double, Double> quadraticFunction = (Double value) -> value*value;
+    public final Function<Double, Double> quadraticFunction = (Double value) -> value * value;
 
     public final Function<Double, Double> logarithmicFunction = (Double value) -> Math.log(value);
 
