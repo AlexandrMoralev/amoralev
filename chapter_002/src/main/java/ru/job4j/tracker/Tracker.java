@@ -2,6 +2,7 @@ package ru.job4j.tracker;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.function.BiPredicate;
 
 /**
  * Tracker
@@ -12,11 +13,14 @@ import java.util.Random;
  */
 public class Tracker {
 
+    private final BiPredicate<String, String> predicate = (s1, s2) -> s1.equals(s2);
+
     private final ArrayList<Item> items = new ArrayList<>();
     private static final Random RANDOM = new Random();
 
     /**
      * Method add - adding Item to the Tracker
+     *
      * @param item Item
      * @return Item, if item added; null if the Tracker overflowed
      */
@@ -28,6 +32,7 @@ public class Tracker {
 
     /**
      * Method generateId - Id generation for adding Item to the Tracker
+     *
      * @return String id
      */
     private String generateId() {
@@ -36,7 +41,8 @@ public class Tracker {
 
     /**
      * Method replace - replaces the Item to another Item by id
-     * @param id - String id of Item to replace
+     *
+     * @param id     - String id of Item to replace
      * @param anItem - new Item for replacement
      */
     public void replace(String id, Item anItem) {
@@ -51,6 +57,7 @@ public class Tracker {
 
     /**
      * Method delete - deleting Item from the Tracker by the Id
+     *
      * @param id String id of deletable Item
      */
     public void delete(String id) {
@@ -64,6 +71,7 @@ public class Tracker {
 
     /**
      * Method findAll - find all non-null Items in the Tracker
+     *
      * @return ArrayList<Item>, empty if the Tracker without any Items
      */
     public ArrayList<Item> findAll() {
@@ -72,13 +80,14 @@ public class Tracker {
 
     /**
      * Method findByName - find all Items by the name
+     *
      * @param key String name of Item
      * @return ArrayList<Item>, empty if there is no Items with name = key, or if the Tracker is empty
      */
     public ArrayList<Item> findByName(String key) {
         ArrayList<Item> result = new ArrayList<>();
         for (Item item : this.items) {
-            if (key.equals(item.getName())) {
+            if (this.predicate.test(key, item.getName())) {
                 result.add(item);
             }
         }
@@ -87,13 +96,14 @@ public class Tracker {
 
     /**
      * Method findById - find Item by the Id
+     *
      * @param id String id of the searched element
      * @return Item by id; null if the id does not belong to any item
      */
     public Item findById(String id) {
         Item result = null;
         for (Item item : this.items) {
-            if (id.equals(item.getId())) {
+            if (this.predicate.test(id, item.getId())) {
                 result = item;
                 break;
             }

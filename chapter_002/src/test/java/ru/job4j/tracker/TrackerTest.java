@@ -124,7 +124,7 @@ public class TrackerTest {
         tracker.add(new Item("C", "Description of C0"));
         tracker.add(new Item("A", "Description of A1"));
 
-        Item item =  tracker.add(new Item("C", "Description of C1"));
+        Item item = tracker.add(new Item("C", "Description of C1"));
         tracker.add(new Item("A", "Description of A2"));
 
         assertThat(tracker.findById(item.getId()).getDescription(), is("Description of C1"));
