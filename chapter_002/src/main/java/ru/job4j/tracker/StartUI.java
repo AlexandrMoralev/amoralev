@@ -1,5 +1,7 @@
 package ru.job4j.tracker;
 
+import java.util.function.Consumer;
+
 /**
  * StartUI
  *
@@ -13,6 +15,8 @@ public class StartUI {
     private Tracker tracker;
 
     private int[] range;
+
+   Consumer<MenuTracker> menuPrinter = o -> o.show();
 
     /**
      * StartUI instance constructor
@@ -58,7 +62,7 @@ public class StartUI {
 
         // running application
         do {
-            menu.show();
+            menuPrinter.accept(menu);
             menu.select(input.ask("Select: ", this.range));
         } while (!menu.timeToExit()  & !"y".equals(this.input.ask("Exit? (press \"y\") ")));
     }
