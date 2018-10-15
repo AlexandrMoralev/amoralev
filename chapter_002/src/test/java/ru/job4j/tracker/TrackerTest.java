@@ -1,6 +1,5 @@
 package ru.job4j.tracker;
 
-
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -54,12 +53,12 @@ public class TrackerTest {
     public void whenDeleteItemThenTrackerWithoutDeletedItem() {
         Tracker tracker = new Tracker();
 
-        Item deleteableItem = new Item("D", "Del");
+        Item deletableItem = new Item("D", "Del");
 
-        tracker.add(deleteableItem);
-        Item item = tracker.add(new Item("nonDeleteableItem", "NonDel"));
+        tracker.add(deletableItem);
+        Item item = tracker.add(new Item("nonDeletableItem", "NonDel"));
 
-        tracker.delete(deleteableItem.getId());
+        tracker.delete(deletableItem.getId());
 
         assertThat((tracker.findAll().get(0).getId()), is(item.getId()));
     }

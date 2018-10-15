@@ -2,7 +2,7 @@ package ru.job4j.tracker;
 
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 /**
  * Tracker
@@ -12,8 +12,6 @@ import java.util.function.BiPredicate;
  * @since 0.1
  */
 public class Tracker {
-
-    private final BiPredicate<String, String> predicate = (s1, s2) -> s1.equals(s2);
 
     private final ArrayList<Item> items = new ArrayList<>();
     private static final Random RANDOM = new Random();
@@ -86,11 +84,12 @@ public class Tracker {
      */
     public ArrayList<Item> findByName(String key) {
         ArrayList<Item> result = new ArrayList<>();
-        for (Item item : this.items) {
-            if (this.predicate.test(key, item.getName())) {
+        Predicate<Item> isNameMatched = item -> key.equals(item.getName());
+        items.forEach(item -> {
+            if (isNameMatched.test(item)) {
                 result.add(item);
             }
-        }
+        });
         return result;
     }
 
@@ -102,8 +101,10 @@ public class Tracker {
      */
     public Item findById(String id) {
         Item result = null;
+        Predicate<Item> isIdMatched = item -> id.equals(item.getId());
+
         for (Item item : this.items) {
-            if (this.predicate.test(id, item.getId())) {
+            if (isIdMatched.test(item)) {
                 result = item;
                 break;
             }
