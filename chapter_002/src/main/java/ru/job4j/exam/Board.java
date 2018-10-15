@@ -1,5 +1,8 @@
 package ru.job4j.exam;
 
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
+
 /**
  * Board
  *
@@ -17,10 +20,10 @@ public class Board {
     /**
      * Method add - adds Figure on the Board
      * if the Board is full of Figures, prints error message to console
+     *
      * @param figure Figure to add
      */
     void add(Figure figure) {
-
         if (this.position != FIGURES) {
             this.figures[position++] = figure;
         } else {
@@ -31,11 +34,12 @@ public class Board {
     /**
      * Method move - moves the Figure on Board
      * checks is there Figure at source Cell, is the Figure able to move to destination Cell, is any other Figures on the way
-     * @param source initial Cell to move
+     *
+     * @param source      initial Cell to move
      * @param destination destination Cell
      * @return true if thr Figure moved successful, false if it's not
      * @throws ImpossibleMoveException when it's impossible to move the Figure that way
-     * @throws OccupiedWayException when there is other Figure on the way
+     * @throws OccupiedWayException    when there is other Figure on the way
      * @throws FigureNotFoundException when there is no Figure in source Cell
      */
     boolean move(Cell source, Cell destination) throws ImpossibleMoveException, OccupiedWayException, FigureNotFoundException {
@@ -62,6 +66,7 @@ public class Board {
 
     /**
      * Method figureAtCell - checks is there a Figure at the Cell
+     *
      * @param aCell Cell to check
      * @return int position of the Figure at the Board, if it's exists, else returns int == FIGURES (out of bounds)
      */
@@ -86,6 +91,7 @@ public class Board {
 
     /**
      * Method getFigureAtCell
+     *
      * @param aCell target Cell to check on Figure
      * @return Figure at target Cell, or null if there is no Figure at the target Cell
      */
@@ -97,12 +103,12 @@ public class Board {
         if (positionAtBoard < Board.FIGURES) {
             result = this.figures[positionAtBoard];
         }
-
         return result;
     }
 
     /**
      * Method isWayClean
+     *
      * @param wayToMove Cell[] way to check
      * @return true when way is clean, and false when it's not
      * @throws OccupiedWayException when there is any other Figure on the way (except Knight)
@@ -113,10 +119,10 @@ public class Board {
 
         for (Cell cell : wayToMove) {
             for (Figure figure : figures) {
-                if (null == figure || figure.getClass().getSimpleName().equals("Knight")) {
+                if (routingExitPredicate.test(figure)) {
                     break;
                 }
-                if (cell.equals(figure.position)) {
+                if (routingOccupiedCellPredicate.test(cell, figure)) {
                     throw new OccupiedWayException(String.format("There is a %s on the way", figure.getClass().getSimpleName()));
                 }
                 result = true;
@@ -124,4 +130,7 @@ public class Board {
         }
         return result;
     }
+
+    private Predicate<Figure> routingExitPredicate = figure -> (null == figure || figure.getClass().getSimpleName().equals("Knight"));
+    private BiPredicate<Cell, Figure> routingOccupiedCellPredicate = (cell, figure) -> cell.equals(figure.position);
 }

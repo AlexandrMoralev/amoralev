@@ -21,13 +21,14 @@ public class Cell {
     final static int G = 7;
     final static int H = 8;
 
-    private int file; // == line
+    private int file; // == row
     private int rank; // == column
 
     /**
      * Cell instance constructor
      * when rank | file is incorrect, fields initialises with int 0
      * and must be checked by isNotZeroCell()
+     *
      * @param rank int initial column
      * @param file int initial row
      */
@@ -42,7 +43,8 @@ public class Cell {
     }
 
     /**
-     * getfile
+     * Method getFile
+     *
      * @return int Cell's row
      */
     public int getFile() {
@@ -50,7 +52,8 @@ public class Cell {
     }
 
     /**
-     * getRank
+     * Method getRank
+     *
      * @return int Cell's column
      */
     public int getRank() {
@@ -59,6 +62,7 @@ public class Cell {
 
     /**
      * Method isNotZeroCell - checks default Cell coordinates zero-initialization
+     *
      * @return true when all right, false if initial Cell coordinates is out of Board
      */
     public boolean isNotZeroCell() {
@@ -67,6 +71,7 @@ public class Cell {
 
     /**
      * Method equals
+     *
      * @param o Cell to compare
      * @return true when Cells are equal, false when Cells are different
      */
@@ -84,6 +89,7 @@ public class Cell {
 
     /**
      * Method hashCode
+     *
      * @return int hashCode, calculated by file and rank fields
      */
     @Override

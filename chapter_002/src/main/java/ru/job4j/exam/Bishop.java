@@ -11,6 +11,7 @@ public class Bishop extends Figure {
 
     /**
      * Bishop instance constructor
+     *
      * @param initCell initial Cell to place the Bishop
      */
     public Bishop(Cell initCell) {
@@ -19,7 +20,8 @@ public class Bishop extends Figure {
 
     /**
      * Method way - calculating moving route of the Bishop
-     * @param source initial cell of the Bishop's movement
+     *
+     * @param source      initial cell of the Bishop's movement
      * @param destination Bishop's movement destination Cell
      * @return Cell[] for Bishop's move
      * @throws ImpossibleMoveException when Figure can't move to dest Cell for any reason
@@ -38,6 +40,7 @@ public class Bishop extends Figure {
 
     /**
      * Method copy - movement realisation by copying Bishop to new Cell
+     *
      * @param dest destination Cell
      * @return new Figure at destination Cell
      */

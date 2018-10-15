@@ -17,6 +17,7 @@ public abstract class Figure {
 
     /**
      * Figure instance constructor
+     *
      * @param initCell initial Cell to place the Figure
      */
     public Figure(Cell initCell) {
