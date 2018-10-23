@@ -1,7 +1,9 @@
 package ru.job4j.exam;
 
 import org.junit.Test;
+
 import java.util.List;
+
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -15,6 +17,7 @@ import static org.hamcrest.core.Is.is;
 public class BankTest {
 
     //adding user
+
     /**
      * Test. whenAddingUserCorrectlyThenNewUser
      */
@@ -57,6 +60,7 @@ public class BankTest {
     }
 
     //user deleting
+
     /**
      * Test. whenDeletingExistingUserThenUserGone
      */
@@ -98,6 +102,7 @@ public class BankTest {
     }
 
     //adding accounts
+
     /**
      * Test. whenAddingAccountToExistingUserCorrectlyThenUserHasNewAccount
      */
@@ -112,40 +117,44 @@ public class BankTest {
     }
 
     /**
-     * Test. whenTryingToAddAccountToNotExistingUserThenIAException
+     * Test. whenTryingToAddAccountToNotExistingUserThenContinueRuntime
      */
     @Test
-    public void whenTryingToAddAccountToNotExistingUserThenIAException() {
+    public void whenTryingToAddAccountToNotExistingUserThenContinueRuntime() {
         Bank bank = new Bank();
         Account account = new Account(0L, "zxc");
-        String expectedErrMsg = "User verification failed";
         String eMsg = "";
         try {
             bank.addAccountToUser("qwerty", account);
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             eMsg = e.getMessage();
         } finally {
-            assertThat(eMsg, is(expectedErrMsg));
+            assertThat(bank.getUserAccounts("qwerty").remove(account) &
+                            !eMsg.isEmpty(),
+                    is(false)
+            );
         }
     }
 
     /**
-     * Test. whenTryingToAddAccountByWrongPassportThenIAException
+     * Test. whenTryingToAddAccountByWrongPassportThenContinueRuntimeWithoutAdding
      */
     @Test
-    public void whenTryingToAddAccountByWrongPassportThenIAException() {
+    public void whenTryingToAddAccountByWrongPassportThenContinueRuntimeWithoutAdding() {
         Bank bank = new Bank();
         User user = new User("Den", "qwerty");
         Account account = new Account(0L, "zxc");
         bank.addUser(user);
-        String expectedErrMsg = "User verification failed";
         String eMsg = "";
         try {
             bank.addAccountToUser("qwe", account);
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             eMsg = e.getMessage();
         } finally {
-            assertThat(eMsg, is(expectedErrMsg));
+            assertThat(bank.getUserAccounts("qwerty").remove(account) &
+                            !eMsg.isEmpty(),
+                    is(false)
+            );
         }
     }
 
@@ -169,6 +178,7 @@ public class BankTest {
     }
 
     //deleting accounts
+
     /**
      * Test. whenDeleteUserAccountCorrectlyThenAccountGone
      */
@@ -182,57 +192,61 @@ public class BankTest {
         bank.addAccountToUser("qwerty", firstAccount);
         bank.addAccountToUser("qwerty", secondAccount);
         bank.deleteAccountFromUser("qwerty", firstAccount);
-        assertThat(bank.getUserAccounts("qwerty").get(0), is(secondAccount));
+        assertThat(bank.getUserAccounts("qwerty").contains(firstAccount), is(false));
     }
 
     /**
-     * Test. whenTryingToDeleteUserAccountByWrongPassportThenIAException
+     * Test. whenTryingToDeleteUserAccountByWrongPassportThenContinueRuntime
      */
     @Test
-    public void whenTryingToDeleteUserAccountByWrongPassportThenIAException() {
+    public void whenTryingToDeleteUserAccountByWrongPassportThenContinueRuntime() {
         Bank bank = new Bank();
         User user = new User("Den", "qwerty");
         Account account = new Account(0L, "zxc");
         bank.addUser(user);
         bank.addAccountToUser("qwerty", account);
-        String expectedErrMsg = "User verification failed";
         String eMsg = "";
         try {
             bank.deleteAccountFromUser("qwe", account);
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             eMsg = e.getMessage();
         } finally {
-            assertThat(eMsg, is(expectedErrMsg));
+            assertThat(bank.getUserAccounts("qwerty").size() == 1 &
+                    eMsg.isEmpty(),
+                    is(true)
+            );
         }
     }
 
     /**
-     * Test. whenTryingToDeleteWrongUserAccountThenIAException
+     * Test. whenTryingToDeleteWrongUserAccountThenContinueRuntime
      */
     @Test
-    public void whenTryingToDeleteWrongUserAccountThenIAException() {
+    public void whenTryingToDeleteWrongUserAccountThenContinueRuntime() {
         Bank bank = new Bank();
         User user = new User("Den", "qwerty");
         Account account = new Account(0L, "zxc");
         Account wrongAccount = new Account(10000L, "asd");
         bank.addUser(user);
         bank.addAccountToUser("qwerty", account);
-        String expectedErrMsg = "User verification failed";
         String eMsg = "";
         try {
             bank.deleteAccountFromUser("qwe", wrongAccount);
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             eMsg = e.getMessage();
         } finally {
-            assertThat(eMsg, is(expectedErrMsg));
+            assertThat(bank.getUserAccounts("qwerty").get(0).getValue() == 0L &
+                    eMsg.isEmpty(),
+                    is(true)
+            );
         }
     }
 
     /**
-     * Test. whenTryingToDeleteAccountOfNotExistingUserThenIAException
+     * Test. whenTryingToDeleteAccountOfNotExistingUserThenContinueRuntime
      */
     @Test
-    public void whenTryingToDeleteAccountOfNotExistingUserThenIAException() {
+    public void whenTryingToDeleteAccountOfNotExistingUserThenContinueRuntime() {
         Bank bank = new Bank();
         User user = new User("Den", "qwerty");
         User otherUser = new User("Yan", "asdfgh");
@@ -241,18 +255,18 @@ public class BankTest {
         bank.addAccountToUser("qwerty", account);
         bank.addUser(otherUser);
         bank.deleteUser(user);
-        String expectedErrMsg = "User verification failed";
         String eMsg = "";
         try {
             bank.deleteAccountFromUser("qwerty", account);
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             eMsg = e.getMessage();
         } finally {
-            assertThat(eMsg, is(expectedErrMsg));
+            assertThat(eMsg.isEmpty(), is(true));
         }
     }
 
     //get User's List<Account>
+
     /**
      * Test. whenGettingAccountsOfExistingUserCorrectlyThenListOfAccounts
      */
@@ -267,8 +281,9 @@ public class BankTest {
         bank.addAccountToUser("qwerty", secondAccount);
         List<Account> accounts = bank.getUserAccounts("qwerty");
         assertThat(accounts.contains(firstAccount)
-                && accounts.contains(secondAccount)
-                && accounts.size() == 2, is(true)
+                        && accounts.contains(secondAccount)
+                        && accounts.size() == 2,
+                is(true)
         );
     }
 
@@ -276,17 +291,17 @@ public class BankTest {
      * Test. whenTryingToGetAccountsOfNonExistingUserThenIAException
      */
     @Test
-    public void whenTryingToGetAccountsOfNonExistingUserThenIAException() {
+    public void whenTryingToGetAccountsOfNonExistingUserThenContinueRuntime() {
         Bank bank = new Bank();
         User user = new User("Den", "qwerty");
-        String expectedErrMsg = "User verification failed";
         String eMsg = "";
+        List<Account> exp = null;
         try {
-            bank.getUserAccounts(user.getPassport());
+           exp = bank.getUserAccounts(user.getPassport());
         } catch (IllegalArgumentException e) {
             eMsg = e.getMessage();
         } finally {
-            assertThat(eMsg, is(expectedErrMsg));
+            assertThat(exp.isEmpty() & eMsg.isEmpty(), is(true));
         }
     }
 
@@ -294,24 +309,25 @@ public class BankTest {
      * Test. whenTryingToGetAccountsByWrongPassportThenIAException
      */
     @Test
-    public void whenTryingToGetAccountsByWrongPassportThenIAException() {
+    public void whenTryingToGetAccountsByWrongPassportThenContinueRuntime() {
         Bank bank = new Bank();
         User user = new User("Den", "qwerty");
         Account account = new Account(0L, "zxc");
         bank.addUser(user);
         bank.addAccountToUser("qwerty", account);
-        String expectedErrMsg = "User verification failed";
         String eMsg = "";
+        List<Account> exp = null;
         try {
-            bank.getUserAccounts("asdfgh");
-        } catch (IllegalArgumentException e) {
+            exp = bank.getUserAccounts("asdfgh");
+        } catch (Exception e) {
             eMsg = e.getMessage();
         } finally {
-            assertThat(eMsg, is(expectedErrMsg));
+            assertThat(exp.isEmpty() & eMsg.isEmpty(), is(true));
         }
     }
 
     // money transfer
+
     /**
      * Test. whenTransferCorrectlyThenSuccess
      */
@@ -340,7 +356,7 @@ public class BankTest {
      * Test. whenTransferWithWrongPassportsThenIAException
      */
     @Test
-    public void whenTransferWithWrongPassportsThenIAException() {
+    public void whenTransferWithWrongPassportsThenContinueRuntimeWithoutTransfer() {
         Bank bank = new Bank();
         User user = new User("Den", "qwerty");
         Account firstAccount = new Account(1000L, "qaz");
@@ -348,7 +364,6 @@ public class BankTest {
         bank.addUser(user);
         bank.addAccountToUser("qwerty", firstAccount);
         bank.addAccountToUser("qwerty", secondAccount);
-        String expectedErrMsg = "User verification failed";
         String eMsg = "";
         try {
             bank.transferMoney(user.getPassport(),
@@ -356,10 +371,14 @@ public class BankTest {
                     "zxcvbn",
                     secondAccount.getRequisites(),
                     1000L);
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             eMsg = e.getMessage();
         } finally {
-            assertThat(eMsg, is(expectedErrMsg));
+            assertThat(firstAccount.getValue() == 1000L &
+                    secondAccount.getValue() == 1000L &
+                    eMsg.isEmpty(),
+                    is(true)
+            );
         }
     }
 

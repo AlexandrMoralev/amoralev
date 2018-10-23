@@ -1,6 +1,11 @@
 package ru.job4j.exam;
 
-import java.util.*;
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Stream;
 
 /**
  * DepartmentSorter
@@ -11,18 +16,15 @@ import java.util.*;
  */
 public class DepartmentSorter {
 
-    private Comparator<String> descendingDeptComparator = new Comparator<String>() {
-        @Override
-        public int compare(String o1, String o2) {
-            int compared = o2.compareTo(o1);
-            if (o1.indexOf(o2) == 0) {
-                compared = 1;
-            }
-            if (o2.indexOf(o1) == 0) {
-                compared = -1;
-            }
-            return compared;
+    private Comparator<String> descendingDeptComparator = (o1, o2) -> {
+        int compared = o2.compareTo(o1);
+        if (o1.indexOf(o2) == 0) {
+            compared = 1;
         }
+        if (o2.indexOf(o1) == 0) {
+            compared = -1;
+        }
+        return compared;
     };
 
     private String[] parsedDepartments;
@@ -60,14 +62,14 @@ public class DepartmentSorter {
         Set<String> deptSet = new TreeSet<>();
         char delimiter = '\\';
 
-        for (String dept : departments) {
+        Stream.of(departments).forEach(dept -> {
             deptSet.add(dept);
             for (int i = 0; i < dept.length(); i++) {
                 if (dept.charAt(i) == delimiter) {
                     deptSet.add(dept.substring(0, i));
                 }
             }
-        }
+        });
         this.parsedDepartments = deptSet.toArray(new String[0]);
     }
 

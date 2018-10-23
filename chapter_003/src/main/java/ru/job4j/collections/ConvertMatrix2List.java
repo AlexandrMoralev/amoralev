@@ -14,6 +14,7 @@ public class ConvertMatrix2List {
 
     /**
      * Method toList - converts two-dimensional int[][] array into ArrayList<Integer>
+     *
      * @param array int[][] array to convert
      * @return ArrayList<Integer> converted from the source array
      */
@@ -30,7 +31,6 @@ public class ConvertMatrix2List {
                 list.add(num);
             }
         }
-
         return list;
     }
 }

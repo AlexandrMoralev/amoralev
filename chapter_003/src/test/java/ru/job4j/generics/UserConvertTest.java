@@ -2,10 +2,8 @@ package ru.job4j.generics;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Stream;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;

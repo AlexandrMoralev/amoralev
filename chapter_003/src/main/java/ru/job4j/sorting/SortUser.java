@@ -1,6 +1,7 @@
 package ru.job4j.sorting;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * SortUser
@@ -17,38 +18,24 @@ public class SortUser {
 
     /**
      * Method sortByNameLength - sorting Users by name length
+     *
      * @param userList List<User> to sort
      * @return List<User> sorted by name length
      */
     public List<User> sortByNameLength(List<User> userList) {
-        Comparator<User> nameLengthComparator = new Comparator<User>() {
-            @Override
-            public int compare(User o1, User o2) {
-                return o1.getName().length() - o2.getName().length();
-            }
-        };
-        Collections.sort(userList, nameLengthComparator);
-        return userList;
+        Comparator<User> nameLengthComparator = Comparator.comparingInt(o -> o.getName().length());
+        return userList.stream().sorted(nameLengthComparator).collect(Collectors.toList());
     }
 
     /**
      * Method sortByAllFields - sorting Users by all User fields
+     *
      * @param userList List<User> to sort
      * @return List<User> sorted by name first (lexicography), then by User's age
      */
     public List<User> sortByAllFields(List<User> userList) {
-        Comparator<User> allFieldsComparator = new Comparator<User>() {
-            @Override
-            public int compare(User o1, User o2) {
-                int result = o1.getName().compareTo(o2.getName());
-                if (result == 0) {
-                    result = Integer.compare(o1.getAge(), o2.getAge());
-                }
-                return result;
-            }
-        };
-        Collections.sort(userList, allFieldsComparator);
-        return userList;
+        Comparator<User> allFieldsComparator =  Comparator.comparing(User::getName).thenComparingInt(User::getAge);
+        return userList.stream().sorted(allFieldsComparator).collect(Collectors.toList());
     }
 
 }

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -30,16 +32,9 @@ public class SortUserTest {
         User second = new User("Afanasy", 42);
         User third = new User("Ivan", 12);
 
-        List<User> usersList = new ArrayList<>();
-        usersList.add(first);
-        usersList.add(second);
-        usersList.add(third);
+        Set<User> expected = Stream.of(second, third, first).collect(Collectors.toSet());
 
-        Set<User> expected = new TreeSet<>();
-        expected.add(second);
-        expected.add(third);
-        expected.add(first);
-
+        List<User> usersList = Stream.of(first, second, third).collect(Collectors.toList());
         Set<User> result = sortUser.sort(usersList);
 
         assertThat(result, is(expected));
@@ -56,10 +51,7 @@ public class SortUserTest {
         User second = new User("Afanasy", 33);
         User third = new User("Ivan", 30);
 
-        List<User> usersList = new ArrayList<>();
-        usersList.add(first);
-        usersList.add(second);
-        usersList.add(third);
+        List<User> usersList = Stream.of(first, second, third).collect(Collectors.toList());
 
         List<User> result = sortUser.sortByNameLength(usersList);
         boolean rsl = result.get(0).getName().equals("Ivan")
@@ -81,11 +73,7 @@ public class SortUserTest {
         User third = new User("Ivan", 30);
         User fourth = new User("Ivan", 17);
 
-        List<User> usersList = new ArrayList<>();
-        usersList.add(first);
-        usersList.add(second);
-        usersList.add(third);
-        usersList.add(fourth);
+        List<User> usersList = Stream.of(first, second, third, fourth).collect(Collectors.toList());
 
         List<User> result = sortUser.sortByAllFields(usersList);
         boolean rsl = result.get(0).getName().equals("Afanasii")

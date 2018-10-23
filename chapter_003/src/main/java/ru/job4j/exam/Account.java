@@ -1,5 +1,8 @@
 package ru.job4j.exam;
 
+import java.util.Optional;
+import java.util.function.BiPredicate;
+
 /**
  * Account
  *
@@ -14,7 +17,8 @@ public class Account {
 
     /**
      * Account instance constructor
-     * @param value Long value, in cents
+     *
+     * @param value      Long value, in cents
      * @param requisites String requisites
      */
     public Account(Long value, String requisites) {
@@ -24,6 +28,7 @@ public class Account {
 
     /**
      * getValue
+     *
      * @return Long value, in cents
      */
     Long getValue() {
@@ -32,6 +37,7 @@ public class Account {
 
     /**
      * setValue
+     *
      * @param value long, in cents
      */
     private void setValue(Long value) {
@@ -40,6 +46,7 @@ public class Account {
 
     /**
      * getRequisites
+     *
      * @return String or Null
      */
     String getRequisites() {
@@ -48,6 +55,7 @@ public class Account {
 
     /**
      * setRequisites
+     *
      * @param requisites String
      */
     private void setRequisites(String requisites) {
@@ -56,17 +64,21 @@ public class Account {
 
     /**
      * Method transfer
+     *
      * @param account destination Account for transfer
-     * @param value Long amount, in cents, for transfer
+     * @param value   Long amount, in cents, for transfer
      * @return boolean true, if transfer successful, false, if failed
      */
     boolean transfer(Account account, Long value) {
-        boolean result = false;
-        if (account != null && value > 0 && this.getValue() >= value) {
+
+        BiPredicate<Account, Long> transferPredicate = (acc, num) -> (acc != null && num > 0 && this.getValue() >= num);
+
+        boolean isTransferExecutable = transferPredicate.test(account, value);
+
+        if (isTransferExecutable) {
             this.setValue(this.getValue() - value);
             account.setValue(account.getValue() + value);
-            result = true;
         }
-        return result;
+        return isTransferExecutable;
     }
 }

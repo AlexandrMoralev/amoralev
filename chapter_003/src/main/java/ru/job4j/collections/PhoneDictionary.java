@@ -1,7 +1,10 @@
 package ru.job4j.collections;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * PhoneDictionary
@@ -16,6 +19,7 @@ public class PhoneDictionary {
 
     /**
      * Method add - adding new Person to the PhoneDictionary
+     *
      * @param person Person to add
      */
     public void add(Person person) {
@@ -24,31 +28,22 @@ public class PhoneDictionary {
 
     /**
      * Method find - returns List of Persons, that contains search key in any field.
+     *
      * @param key String search key.
      * @return List of Persons, in accordance to the search key.
      */
     public List<Person> find(String key) {
 
-        List<Person> result = new ArrayList<>();
-
-        if (!key.isEmpty()) {
-
-            String uniKey = key.toLowerCase();
-
-            for (Person person : this.persons) {
-
-                if (null == person) {
-                    break;
-                }
-                if (person.getName().toLowerCase().contains(uniKey)
-                        || person.getSurname().toLowerCase().contains(uniKey)
-                        || person.getPhone().toLowerCase().contains(uniKey)
-                        || person.getAddress().toLowerCase().contains(uniKey)) {
-                    result.add(person);
-                }
-            }
+        if (key == null || key.isEmpty()) {
+            return Collections.EMPTY_LIST;
         }
 
-        return result;
+        Predicate<Person> personPredicate = person ->
+                person.getName().toLowerCase().contains(key.toLowerCase())
+                        || person.getSurname().toLowerCase().contains(key.toLowerCase())
+                        || person.getPhone().toLowerCase().contains(key.toLowerCase())
+                        || person.getAddress().toLowerCase().contains(key.toLowerCase());
+
+        return this.persons.stream().filter(personPredicate).collect(Collectors.toList());
     }
 }

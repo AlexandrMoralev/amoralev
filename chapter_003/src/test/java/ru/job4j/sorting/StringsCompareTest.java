@@ -1,6 +1,7 @@
 package ru.job4j.sorting;
 
 import org.junit.Test;
+
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
@@ -20,8 +21,8 @@ public class StringsCompareTest {
      */
     @Test
     public void whenStringAreEqualThenZero() {
-        ListCompare compare = new ListCompare();
-        int result = compare.compare(
+        ListCompare stringComparator = new ListCompare();
+        int result = stringComparator.compare(
                 "Ivanov",
                 "Ivanov"
         );
@@ -33,8 +34,8 @@ public class StringsCompareTest {
      */
     @Test
     public void whenLeftLessThanRightResultShouldBeNegative() {
-        ListCompare compare = new ListCompare();
-        int result = compare.compare(
+        ListCompare stringComparator = new ListCompare();
+        int result = stringComparator.compare(
                 "Ivanov",
                 "Ivanova"
         );
@@ -46,8 +47,8 @@ public class StringsCompareTest {
      */
     @Test
     public void whenLeftGreaterThanRightResultShouldBePositive() {
-        ListCompare compare = new ListCompare();
-        int result = compare.compare(
+        ListCompare stringComparator = new ListCompare();
+        int result = stringComparator.compare(
                 "Petrov",
                 "Ivanova"
         );
@@ -59,8 +60,8 @@ public class StringsCompareTest {
      */
     @Test
     public void secondCharOfLeftGreaterThanRightResultShouldBePositive() {
-        ListCompare compare = new ListCompare();
-        int result = compare.compare(
+        ListCompare stringComparator = new ListCompare();
+        int result = stringComparator.compare(
                 "Petrov",
                 "Patrov"
         );
@@ -72,8 +73,8 @@ public class StringsCompareTest {
      */
     @Test
     public void secondCharOfLeftLessThanRightResultShouldBeNegative() {
-        ListCompare compare = new ListCompare();
-        int result = compare.compare(
+        ListCompare stringComparator = new ListCompare();
+        int result = stringComparator.compare(
                 "Patrova",
                 "Petrov"
         );

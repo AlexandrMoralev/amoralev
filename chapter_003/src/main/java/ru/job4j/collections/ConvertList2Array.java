@@ -56,7 +56,6 @@ public class ConvertList2Array {
     public List<Integer> convert(List<int[]> list) {
 
         List<Integer> result = new ArrayList<>();
-
         for (int[] array : list) {
             for (int element : array) {
                 result.add(element);

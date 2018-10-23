@@ -14,14 +14,13 @@ public class UserConvert {
     /**
      * Method process - converts List of User into HashMap<Integer, User>.
      * When input List isEmpty, method returns empty HashMap.
+     *
      * @param list List<User> to convert
-     * @return HashMap<Integer, User>, where K = User id, V = User
+     * @return HashMap<Integer   ,       User>, where K = User id, V = User
      */
     public HashMap<Integer, User> process(List<User> list) {
         HashMap<Integer, User> result = new HashMap<>();
-        for (User user : list) {
-            result.put(user.getId(), user);
-        }
+        list.forEach(user -> result.put(user.getId(), user));
         return result;
     }
 }
