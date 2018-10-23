@@ -129,8 +129,8 @@ public class BankTest {
         } catch (Exception e) {
             eMsg = e.getMessage();
         } finally {
-            assertThat(bank.getUserAccounts("qwerty").remove(account) &
-                            !eMsg.isEmpty(),
+            assertThat(bank.getUserAccounts("qwerty").remove(account)
+                            & !eMsg.isEmpty(),
                     is(false)
             );
         }
@@ -151,8 +151,8 @@ public class BankTest {
         } catch (Exception e) {
             eMsg = e.getMessage();
         } finally {
-            assertThat(bank.getUserAccounts("qwerty").remove(account) &
-                            !eMsg.isEmpty(),
+            assertThat(bank.getUserAccounts("qwerty").remove(account)
+                            & !eMsg.isEmpty(),
                     is(false)
             );
         }
@@ -211,8 +211,8 @@ public class BankTest {
         } catch (Exception e) {
             eMsg = e.getMessage();
         } finally {
-            assertThat(bank.getUserAccounts("qwerty").size() == 1 &
-                    eMsg.isEmpty(),
+            assertThat(bank.getUserAccounts("qwerty").size() == 1
+                            & eMsg.isEmpty(),
                     is(true)
             );
         }
@@ -235,8 +235,8 @@ public class BankTest {
         } catch (Exception e) {
             eMsg = e.getMessage();
         } finally {
-            assertThat(bank.getUserAccounts("qwerty").get(0).getValue() == 0L &
-                    eMsg.isEmpty(),
+            assertThat(bank.getUserAccounts("qwerty").get(0).getValue() == 0L
+                            & eMsg.isEmpty(),
                     is(true)
             );
         }
@@ -297,7 +297,7 @@ public class BankTest {
         String eMsg = "";
         List<Account> exp = null;
         try {
-           exp = bank.getUserAccounts(user.getPassport());
+            exp = bank.getUserAccounts(user.getPassport());
         } catch (IllegalArgumentException e) {
             eMsg = e.getMessage();
         } finally {
@@ -374,9 +374,9 @@ public class BankTest {
         } catch (Exception e) {
             eMsg = e.getMessage();
         } finally {
-            assertThat(firstAccount.getValue() == 1000L &
-                    secondAccount.getValue() == 1000L &
-                    eMsg.isEmpty(),
+            assertThat(firstAccount.getValue() == 1000L
+                            & secondAccount.getValue() == 1000L
+                            & eMsg.isEmpty(),
                     is(true)
             );
         }
