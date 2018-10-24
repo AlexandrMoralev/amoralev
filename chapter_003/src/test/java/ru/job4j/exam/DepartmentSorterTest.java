@@ -2,6 +2,9 @@ package ru.job4j.exam;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -105,5 +108,65 @@ public class DepartmentSorterTest {
         DepartmentSorter departmentSorter = new DepartmentSorter();
         String[] result = departmentSorter.descendingSort(departments);
         assertThat(result, is(expected));
+    }
+
+    @Test
+    public void whenParsingNullArrayThenIAException() {
+        String[] departments = null;
+        String[] expected = {
+                "K2",
+                "K2\\SK1",
+                "K2\\SK1\\SSK2",
+                "K2\\SK1\\SSK1",
+                "K1",
+                "K1\\SK2",
+                "K1\\SK1",
+                "K1\\SK1\\SSK2",
+                "K1\\SK1\\SSK1"
+        };
+        String[] result = null;
+        String errMsg = "";
+        String exp = "Parameter is empty or null-reference";
+        DepartmentSorter departmentSorter = new DepartmentSorter();
+        try {
+            result = departmentSorter.descendingSort(departments);
+        } catch (IllegalArgumentException e) {
+            errMsg = e.getMessage();
+        } finally {
+            assertThat(Arrays.equals(expected, result)
+                            & errMsg.equals(exp),
+                    is(false)
+            );
+        }
+    }
+
+    @Test
+    public void whenParsingEmptyArrayThenAIException() {
+        String[] departments = new String[10];
+        String[] expected = {
+                "K2",
+                "K2\\SK1",
+                "K2\\SK1\\SSK2",
+                "K2\\SK1\\SSK1",
+                "K1",
+                "K1\\SK2",
+                "K1\\SK1",
+                "K1\\SK1\\SSK2",
+                "K1\\SK1\\SSK1"
+        };
+        String[] result = null;
+        String errMsg = "";
+        String exp = "Parameter is empty or null-reference";
+        DepartmentSorter departmentSorter = new DepartmentSorter();
+        try {
+            result = departmentSorter.descendingSort(departments);
+        } catch (IllegalArgumentException e) {
+            errMsg = e.getMessage();
+        } finally {
+            assertThat(Arrays.equals(expected, result)
+                            & errMsg.equals(exp),
+                    is(false)
+            );
+        }
     }
 }

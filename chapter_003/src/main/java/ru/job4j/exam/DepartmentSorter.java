@@ -1,10 +1,8 @@
 package ru.job4j.exam;
 
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -37,7 +35,7 @@ public class DepartmentSorter {
      */
     public String[] ascendingSort(String[] departments) throws IllegalArgumentException {
         this.validate(departments);
-        return this.parsedDepartments;
+        return Stream.of(parsedDepartments).sorted().toArray(String[]::new);
     }
 
     /**
@@ -48,8 +46,7 @@ public class DepartmentSorter {
      */
     public String[] descendingSort(String[] departments) {
         this.validate(departments);
-        Arrays.sort(this.parsedDepartments, this.descendingDeptComparator);
-        return this.parsedDepartments;
+        return Stream.of(parsedDepartments).sorted(this.descendingDeptComparator).toArray(size -> new String[size]);
     }
 
     /**
@@ -62,7 +59,7 @@ public class DepartmentSorter {
         Set<String> deptSet = new TreeSet<>();
         char delimiter = '\\';
 
-        Stream.of(departments).forEach(dept -> {
+        Stream.of(departments).filter(Objects::nonNull).forEach(dept -> {
             deptSet.add(dept);
             for (int i = 0; i < dept.length(); i++) {
                 if (dept.charAt(i) == delimiter) {
@@ -80,8 +77,8 @@ public class DepartmentSorter {
      * @throws IllegalArgumentException if String[] reference is null
      */
     private void validate(String[] arr) throws IllegalArgumentException {
-        if (arr == null) {
-            throw new IllegalArgumentException("Null-reference of the String[]");
+        if (arr == null || arr.length == 0) {
+            throw new IllegalArgumentException("Parameter is empty or null-reference");
         }
         if (this.parsedDepartments == null || !Arrays.equals(this.parsedDepartments, arr)) {
             this.parse(arr);
