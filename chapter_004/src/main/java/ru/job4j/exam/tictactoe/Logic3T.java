@@ -11,64 +11,46 @@ public class Logic3T {
         this.table = table;
     }
 
-    public boolean isWinnerX() {
-        boolean result = false;
-
-        boolean isWinCondition;
-        boolean isAnotherWinCondition;
+    public boolean fillBy(Predicate<Figure3T> predicate,
+                          int startX,
+                          int startY,
+                          int deltaX,
+                          int deltaY
+    ) {
+        boolean result = true;
 
         for (int i = 0; i < this.table.length; i++) {
-            isWinCondition = true;
-            isAnotherWinCondition = true;
-            for (int j = 0; j < this.table[i].length; j++) {
-                isWinCondition &= table[i][j].hasMarkX();
-                isAnotherWinCondition &= table[j][i].hasMarkX();
-            }
-            if (isWinCondition || isAnotherWinCondition) {
-                result = true;
+            Figure3T cell = this.table[startX][startY];
+            startX += deltaX;
+            startY += deltaY;
+            if (!predicate.test(cell)) {
+                result = false;
                 break;
             }
-        }
-        if (!result) {
-            isWinCondition = true;
-            isAnotherWinCondition = true;
-            for (int i = 0; i < this.table.length; i++) {
-                isWinCondition &= table[i][i].hasMarkX();
-                isAnotherWinCondition &= table[table.length - 1 - i][i].hasMarkX();
-            }
-            result = isWinCondition || isAnotherWinCondition;
         }
         return result;
     }
 
+    public boolean isWinnerX() {
+        return this.fillBy(Figure3T::hasMarkX, 0, 0, 1, 0)
+                || this.fillBy(Figure3T::hasMarkX, 0, 0, 0, 1)
+                || this.fillBy(Figure3T::hasMarkX, 0, 0, 1, 1)
+                || this.fillBy(Figure3T::hasMarkX, this.table.length - 1, 0, -1, 1)
+                || this.fillBy(Figure3T::hasMarkX, this.table.length - 1, this.table.length - 1, -1, 0)
+                || this.fillBy(Figure3T::hasMarkX, this.table.length - 1, this.table.length - 1, 0, -1)
+                || this.fillBy(Figure3T::hasMarkX, (this.table.length - 1) / 2, 0, 0, 1)
+                || this.fillBy(Figure3T::hasMarkX, 0, (this.table.length - 1) / 2, 1, 0);
+    }
+
     public boolean isWinnerO() {
-        boolean result = false;
-
-        boolean isWinCondition;
-        boolean isAnotherWinCondition;
-
-        for (int i = 0; i < this.table.length; i++) {
-            isWinCondition = true;
-            isAnotherWinCondition = true;
-            for (int j = 0; j < this.table[i].length; j++) {
-                isWinCondition &= table[i][j].hasMarkO();
-                isAnotherWinCondition &= table[j][i].hasMarkO();
-            }
-            if (isWinCondition || isAnotherWinCondition) {
-                result = true;
-                break;
-            }
-        }
-        if (!result) {
-            isWinCondition = true;
-            isAnotherWinCondition = true;
-            for (int i = 0; i < this.table.length; i++) {
-                isWinCondition &= table[i][i].hasMarkO();
-                isAnotherWinCondition &= table[table.length - 1 - i][i].hasMarkO();
-            }
-            result = isWinCondition || isAnotherWinCondition;
-        }
-        return result;
+        return this.fillBy(Figure3T::hasMarkO, 0, 0, 1, 0)
+                || this.fillBy(Figure3T::hasMarkO, 0, 0, 0, 1)
+                || this.fillBy(Figure3T::hasMarkO, 0, 0, 1, 1)
+                || this.fillBy(Figure3T::hasMarkO, this.table.length - 1, 0, -1, 1)
+                || this.fillBy(Figure3T::hasMarkO, this.table.length - 1, this.table.length - 1, -1, 0)
+                || this.fillBy(Figure3T::hasMarkO, this.table.length - 1, this.table.length - 1, 0, -1)
+                || this.fillBy(Figure3T::hasMarkO, (this.table.length - 1) / 2, 0, 0, 1)
+                || this.fillBy(Figure3T::hasMarkO, 0, (this.table.length - 1) / 2, 1, 0);
     }
 
     public boolean hasGap() {

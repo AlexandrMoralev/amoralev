@@ -31,24 +31,58 @@ public class Logic3TTest {
 
     @Test
     public void whenHasXWinnerWithRow() {
-        Figure3T[][] table = {
+        Figure3T[][] firstTable = {
                 {new Figure3T(), new Figure3T(), new Figure3T()},
                 {new Figure3T(), new Figure3T(), new Figure3T()},
                 {new Figure3T(true), new Figure3T(true), new Figure3T(true)}
         };
-        Logic3T logic = new Logic3T(table);
-        assertThat(logic.isWinnerX(), is(true));
+        Figure3T[][] secondTable = {
+                {new Figure3T(), new Figure3T(), new Figure3T()},
+                {new Figure3T(true), new Figure3T(true), new Figure3T(true)},
+                {new Figure3T(), new Figure3T(), new Figure3T()}
+        };
+        Figure3T[][] thirdTable = {
+                {new Figure3T(true), new Figure3T(true), new Figure3T(true)},
+                {new Figure3T(), new Figure3T(), new Figure3T()},
+                {new Figure3T(), new Figure3T(), new Figure3T()}
+        };
+        Logic3T firstLogic = new Logic3T(firstTable);
+        Logic3T secondLogic = new Logic3T(secondTable);
+        Logic3T thirdLogic = new Logic3T(thirdTable);
+
+        assertThat(firstLogic.isWinnerX()
+                        & secondLogic.isWinnerX()
+                        & thirdLogic.isWinnerX(),
+                is(true)
+        );
     }
 
     @Test
     public void whenHasXWinnerWithColumn() {
-        Figure3T[][] table = {
+        Figure3T[][] firstTable = {
+                {new Figure3T(true), new Figure3T(), new Figure3T()},
+                {new Figure3T(true), new Figure3T(), new Figure3T()},
+                {new Figure3T(true), new Figure3T(), new Figure3T()}
+        };
+        Figure3T[][] secondTable = {
                 {new Figure3T(), new Figure3T(true), new Figure3T()},
                 {new Figure3T(), new Figure3T(true), new Figure3T()},
                 {new Figure3T(), new Figure3T(true), new Figure3T()}
         };
-        Logic3T logic = new Logic3T(table);
-        assertThat(logic.isWinnerX(), is(true));
+        Figure3T[][] thirdTable = {
+                {new Figure3T(), new Figure3T(), new Figure3T(true)},
+                {new Figure3T(), new Figure3T(), new Figure3T(true)},
+                {new Figure3T(), new Figure3T(), new Figure3T(true)}
+        };
+        Logic3T firstLogic = new Logic3T(firstTable);
+        Logic3T secondLogic = new Logic3T(secondTable);
+        Logic3T thirdLogic = new Logic3T(thirdTable);
+
+        assertThat(firstLogic.isWinnerX()
+                        & secondLogic.isWinnerX()
+                        & thirdLogic.isWinnerX(),
+                is(true)
+        );
     }
 
     @Test
@@ -86,24 +120,58 @@ public class Logic3TTest {
 
     @Test
     public void whenHasOWinnerWithRow() {
-        Figure3T[][] table = {
-                {new Figure3T(true), new Figure3T(true), new Figure3T(false)},
-                {new Figure3T(), new Figure3T(true), new Figure3T()},
+        Figure3T[][] firstTable = {
+                {new Figure3T(false), new Figure3T(false), new Figure3T(false)},
+                {new Figure3T(true), new Figure3T(), new Figure3T()},
+                {new Figure3T(), new Figure3T(true), new Figure3T(true)}
+        };
+        Figure3T[][] secondTable = {
+                {new Figure3T(), new Figure3T(), new Figure3T()},
+                {new Figure3T(false), new Figure3T(false), new Figure3T(false)},
+                {new Figure3T(), new Figure3T(), new Figure3T()}
+        };
+        Figure3T[][] thirdTable = {
+                {new Figure3T(), new Figure3T(), new Figure3T()},
+                {new Figure3T(), new Figure3T(), new Figure3T()},
                 {new Figure3T(false), new Figure3T(false), new Figure3T(false)}
         };
-        Logic3T logic = new Logic3T(table);
-        assertThat(logic.isWinnerO(), is(true));
+        Logic3T firstLogic = new Logic3T(firstTable);
+        Logic3T secondLogic = new Logic3T(secondTable);
+        Logic3T thirdLogic = new Logic3T(thirdTable);
+
+        assertThat(firstLogic.isWinnerO()
+                        & secondLogic.isWinnerO()
+                        & thirdLogic.isWinnerO(),
+                is(true)
+        );
     }
 
     @Test
     public void whenHasOWinnerWithColumn() {
-        Figure3T[][] table = {
-                {new Figure3T(true), new Figure3T(false), new Figure3T(true)},
-                {new Figure3T(true), new Figure3T(false), new Figure3T()},
-                {new Figure3T(false), new Figure3T(false), new Figure3T(true)}
+        Figure3T[][] firstTable = {
+                {new Figure3T(false), new Figure3T(true), new Figure3T()},
+                {new Figure3T(false), new Figure3T(), new Figure3T()},
+                {new Figure3T(false), new Figure3T(true), new Figure3T()}
         };
-        Logic3T logic = new Logic3T(table);
-        assertThat(logic.isWinnerO(), is(true));
+        Figure3T[][] secondTable = {
+                {new Figure3T(), new Figure3T(false), new Figure3T()},
+                {new Figure3T(), new Figure3T(false), new Figure3T(true)},
+                {new Figure3T(), new Figure3T(false), new Figure3T()}
+        };
+        Figure3T[][] thirdTable = {
+                {new Figure3T(), new Figure3T(), new Figure3T(false)},
+                {new Figure3T(true), new Figure3T(), new Figure3T(false)},
+                {new Figure3T(), new Figure3T(), new Figure3T(false)}
+        };
+        Logic3T firstLogic = new Logic3T(firstTable);
+        Logic3T secondLogic = new Logic3T(secondTable);
+        Logic3T thirdLogic = new Logic3T(thirdTable);
+
+        assertThat(firstLogic.isWinnerO()
+                        & secondLogic.isWinnerO()
+                        & thirdLogic.isWinnerO(),
+                is(true)
+        );
     }
 
     @Test
