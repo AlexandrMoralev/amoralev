@@ -116,6 +116,8 @@ public class Board {
     private boolean isWayClean(Cell[] wayToMove) throws OccupiedWayException {
 
         boolean result = false;
+        Predicate<Figure> routingExitPredicate = figure -> !(null == figure || figure.getClass().getSimpleName().equals("Knight"));
+        BiPredicate<Cell, Figure> routingOccupiedCellPredicate = (cell, figure) -> !cell.equals(figure.position);
 
         for (Cell cell : wayToMove) {
             for (Figure figure : figures) {
@@ -130,7 +132,4 @@ public class Board {
         }
         return result;
     }
-
-    private Predicate<Figure> routingExitPredicate = figure -> (null == figure || figure.getClass().getSimpleName().equals("Knight"));
-    private BiPredicate<Cell, Figure> routingOccupiedCellPredicate = (cell, figure) -> cell.equals(figure.position);
 }

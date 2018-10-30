@@ -131,7 +131,7 @@ public class BoardTest {
         } catch (ImpossibleMoveException e) {
             assertThat(e.getMessage(), containsString(errMsg));
         } catch (OccupiedWayException | FigureNotFoundException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 

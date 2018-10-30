@@ -1,5 +1,7 @@
 package ru.job4j.exam;
 
+import java.util.function.Predicate;
+
 /**
  * Bishop
  *
@@ -51,6 +53,16 @@ public class Bishop extends Figure {
 
     private Cell[] route(Cell source, Cell dest) throws ImpossibleMoveException {
 
+        Predicate<Cell> isSameCell = cell -> cell.equals(dest);
+        Predicate<Cell> isZeroCell = cell -> !cell.isNotZeroCell();
+
+        if (isSameCell.test(source)) {
+            throw new ImpossibleMoveException("The destination and source cells are the same.");
+        }
+        if (isZeroCell.test(source) || isZeroCell.test(dest)) {
+            throw new ImpossibleMoveException("Cell is out of Board");
+        }
+
         Cell[] result = new Cell[0];
 
         // using source Cell coordinates as cell counters at while() cycle
@@ -61,42 +73,27 @@ public class Bishop extends Figure {
         int rankDelta = -Integer.compare(source.getRank(), dest.getRank());
         int fileDelta = -Integer.compare(source.getFile(), dest.getFile());
 
-        // checking move ability
-        // 1. if source Cell != destination Cell then figure can move
-        if (!source.equals(dest)) {
+        // ! counter calculation depends on Figure behavior
+        int counter = Math.abs(source.getFile() - dest.getFile());
+        int position = 0;
+        Cell[] cells = new Cell[counter];
 
-            // 2. if Cells is within Board (zero-Cell checking)
-            if (source.isNotZeroCell() & dest.isNotZeroCell()) {
+        // 3. checking whether the destination Cell is on the way
+        while (rank <= Board.DIMENSION & file <= Board.DIMENSION) {
 
-                // ! counter calculation depends on Figure behavior
-                int counter = Math.abs(source.getFile() - dest.getFile());
-                int position = 0;
-                Cell[] cells = new Cell[counter];
-
-                // 3. checking whether the destination Cell is on the way
-                while (rank <= Board.DIMENSION & file <= Board.DIMENSION) {
-
-                    // if Bishop can reach the destination
-                    if (rank == dest.getRank() & file == dest.getFile()) {
-                        result = cells;
-                        break;
-                    }
-                    if (position == counter) {
-                        throw new ImpossibleMoveException("The Bishop can't go that way");
-                    }
-                    // this is how the Bishop moving
-                    rank += rankDelta;
-                    file += fileDelta;
-                    cells[position++] = new Cell(rank, file);
-                }
-            } else {
-                throw new ImpossibleMoveException("Cell is out of Board");
+            // if Bishop can reach the destination
+            if (rank == dest.getRank() & file == dest.getFile()) {
+                result = cells;
+                break;
             }
-
-        } else {
-            throw new ImpossibleMoveException("The destination and source cells are the same.");
+            if (position == counter) {
+                throw new ImpossibleMoveException("The Bishop can't go that way");
+            }
+            // this is how the Bishop moving
+            rank += rankDelta;
+            file += fileDelta;
+            cells[position++] = new Cell(rank, file);
         }
-
         return result;
     }
 }
