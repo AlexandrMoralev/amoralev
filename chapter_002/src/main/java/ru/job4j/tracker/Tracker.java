@@ -1,8 +1,11 @@
 package ru.job4j.tracker;
 
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Tracker
@@ -44,13 +47,14 @@ public class Tracker {
      * @param anItem - new Item for replacement
      */
     public void replace(String id, Item anItem) {
-        for (Item item : items) {
-            if (item.getId().equals(id)) {
-                anItem.setId(item.getId());
-                items.set(items.indexOf(item), anItem);
-                break;
-            }
-        }
+        Predicate<Item> itemPredicate = item -> Objects.equals(id, item.getId());
+        Consumer<Item> replaceItem = item -> {
+            anItem.setId(item.getId());
+            items.set(items.indexOf(item), anItem);
+        };
+        Stream.of(this.items)
+                .flatMap(itemArrayList -> itemArrayList.stream().filter(itemPredicate))
+                .forEach(replaceItem);
     }
 
     /**
@@ -83,32 +87,23 @@ public class Tracker {
      * @return ArrayList<Item>, empty if there is no Items with name = key, or if the Tracker is empty
      */
     public ArrayList<Item> findByName(String key) {
-        ArrayList<Item> result = new ArrayList<>();
         Predicate<Item> isNameMatched = item -> key.equals(item.getName());
-        items.forEach(item -> {
-            if (isNameMatched.test(item)) {
-                result.add(item);
-            }
-        });
-        return result;
+        Function<ArrayList<Item>, Stream<Item>> listMapper = itemArrayList -> itemArrayList.stream().filter(isNameMatched);
+
+        return Stream.of(this.items)
+                .flatMap(listMapper)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**
      * Method findById - find Item by the Id
      *
      * @param id String id of the searched element
-     * @return Item by id; null if the id does not belong to any item
+     * @return Item by id; Item with empty fields, if the id does not belong to any item
      */
     public Item findById(String id) {
-        Item result = null;
-        Predicate<Item> isIdMatched = item -> id.equals(item.getId());
-
-        for (Item item : this.items) {
-            if (isIdMatched.test(item)) {
-                result = item;
-                break;
-            }
-        }
-        return result;
+        Item stub = new Item("", "");
+        Predicate<Item> isIdMatched = item -> Objects.equals(item.getId(), id);
+        return this.items.stream().filter(Objects::nonNull).filter(isIdMatched).findFirst().orElse(stub);
     }
 }
