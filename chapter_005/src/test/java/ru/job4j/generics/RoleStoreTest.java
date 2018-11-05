@@ -14,7 +14,7 @@ import static org.junit.Assert.assertThat;
  */
 public class RoleStoreTest {
 
-    private final RoleStore<Role> roleStore = new RoleStore<>(3);
+    private final RoleStore roleStore = new RoleStore(3);
     private final Role first = new Role("first");
     private final Role second = new Role("second");
     private final Role third = new Role("third");
