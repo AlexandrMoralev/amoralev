@@ -41,7 +41,9 @@ public class SimpleArray<T> implements Iterable<T> {
             System.arraycopy(this.array,
                     index + 1,
                     this.array, index,
-                    position - index - 2);
+                    position - index - 1
+            );
+            position -= 1;
         }
         return result;
     }
@@ -53,10 +55,15 @@ public class SimpleArray<T> implements Iterable<T> {
         return (T) this.array[index];
     }
 
+    public int size() {
+        return this.position;
+    }
+
     @Override
     public Iterator<T> iterator() {
         return new Iterator<T>() {
             private int index = 0;
+
             @Override
             public boolean hasNext() {
                 return index < position;
