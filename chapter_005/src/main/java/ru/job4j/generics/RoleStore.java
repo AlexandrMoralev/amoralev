@@ -7,7 +7,7 @@ package ru.job4j.generics;
  * @version $Id$
  * @since 0.1
  */
-public class RoleStore<T extends Role> extends AbstractStore<T> {
+public class RoleStore extends AbstractStore<Role> {
 
     public RoleStore(int size) {
         super(size);
