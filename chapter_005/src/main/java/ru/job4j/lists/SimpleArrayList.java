@@ -30,10 +30,14 @@ public class SimpleArrayList<E> {
      * @return deleted element
      */
     public E delete() {
-        Node<E> result = this.first;
-        this.first = first.next;
-        this.size--;
-        return result.data;
+        Node<E> node = this.first;
+        E result = null;
+        if (node != null) {
+            this.first = first.next;
+            this.size--;
+            result = node.data;
+        }
+        return result;
     }
 
     /**

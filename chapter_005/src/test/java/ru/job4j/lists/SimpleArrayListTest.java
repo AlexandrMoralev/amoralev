@@ -44,4 +44,18 @@ public class SimpleArrayListTest {
                 is(true)
         );
     }
+
+    @Test
+    public void whenDeleteElementFromEmptyListThenReturnsNull() {
+        Integer first = list.delete();
+        Integer second = list.delete();
+        Integer third = list.delete();
+        Integer fourth = list.delete();
+        assertThat(first == 3
+                        && second == 2
+                        && third == 1
+                        && fourth == null,
+                is(true)
+        );
+    }
 }
