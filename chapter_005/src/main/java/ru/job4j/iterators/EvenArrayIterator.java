@@ -22,24 +22,24 @@ public class EvenArrayIterator implements Iterator {
 
     @Override
     public boolean hasNext() {
-        return this.iterate() != null;
+        return this.iterate() != -1;
     }
 
     @Override
     public Integer next() {
-        if (!this.hasNext()) {
+        if (this.position == -1) {
             throw new NoSuchElementException("No more even elements");
         }
-        Integer result = this.iterate();
-        this.position++;
+        int result = this.array[position++];
         return result;
     }
 
-    private Integer iterate() {
-        Integer result = null;
+    private int iterate() {
+        int result = -1;
         for (int i = position; i < this.array.length; i++) {
             if (this.array[i] % 2 == 0) {
-                result = this.array[i];
+                position = i;
+                result = i;
                 break;
             }
         }
