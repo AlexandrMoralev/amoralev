@@ -2,7 +2,6 @@ package ru.job4j.lists;
 
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
 /**
@@ -27,7 +26,6 @@ public class DynamicList<E> implements Iterable<E> {
         this.last = null;
         this.counter = 0;
         this.modified = 0;
-        LinkedList l = new LinkedList();
     }
 
     /**
@@ -60,9 +58,17 @@ public class DynamicList<E> implements Iterable<E> {
         if (index < 0 || index > counter) {
             throw new NoSuchElementException("No such element");
         }
-        Node<E> result = first;
-        for (int i = 0; i != index; i++) {
-            result = result.next;
+        Node<E> result;
+        if (index < (counter >> 1)) {
+            result = first;
+            for (int i = 0; i != index; i++) {
+                result = result.next;
+            }
+        } else {
+            result = last;
+            for (int i = size() - 1; i != index; i--) {
+                result = result.prev;
+            }
         }
         return result.data;
     }
