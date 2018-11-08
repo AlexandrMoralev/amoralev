@@ -29,7 +29,27 @@ public class DynamicList<E> implements Iterable<E> {
     }
 
     /**
-     * Method add - adds e as last element of this list
+     * Method addFirst - adds value as the first element of this list
+     *
+     * @param value E
+     */
+    public void addFirst(E value) {
+        Node<E> newNode;
+        if (this.first == null) {
+            newNode = new Node<>(value, null, null);
+            this.first = newNode;
+            this.last = newNode;
+        } else {
+            newNode = new Node<>(value, null, this.first);
+            this.first.prev = newNode;
+            this.first = newNode;
+        }
+        counter++;
+        modified++;
+    }
+
+    /**
+     * Method add - adds value as last element of this list
      *
      * @param value E
      */
@@ -71,6 +91,37 @@ public class DynamicList<E> implements Iterable<E> {
             }
         }
         return result.data;
+    }
+
+    /**
+     * Method getFirst - returns the first element of this list
+     * @return E element+
+     */
+    public E getFirst() {
+        if (first == null) {
+            throw new NoSuchElementException("No such element");
+        }
+        return this.first.data;
+    }
+
+    /**
+     * Method deleteFirst - removes first element of the list
+     */
+    public void deleteFirst() {
+        if (counter == 0) {
+            throw new NoSuchElementException("No such element");
+        }
+        Node<E> second = this.first.next;
+        if (second == null) {
+            this.first.next = null;
+            this.first = null;
+        } else {
+            second.prev = null;
+            this.first.next = null;
+            this.first = second;
+        }
+        counter--;
+        modified++;
     }
 
     public int size() {

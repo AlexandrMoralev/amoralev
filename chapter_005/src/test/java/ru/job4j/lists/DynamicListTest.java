@@ -29,6 +29,7 @@ public class DynamicListTest {
         it = list.iterator();
     }
 
+    // adding tests
     @Test
     public void whenAddThreeElementsShouldGetThreeElements() {
         assertThat(list.get(0), is("first"));
@@ -38,17 +39,66 @@ public class DynamicListTest {
     }
 
     @Test
+    public void whenAddFirstThreeElementsShouldGetThreeElements() {
+        DynamicList<String> dynamicList = new DynamicList<>();
+        dynamicList.add("first");
+        dynamicList.add("second");
+        dynamicList.add("third");
+        assertThat(dynamicList.get(0), is("first"));
+        assertThat(dynamicList.get(1), is("second"));
+        assertThat(dynamicList.get(2), is("third"));
+        assertThat(dynamicList.size(), is(3));
+    }
+
+    @Test
     public void whenAddElementsShouldGetFirstAndLastCorrectly() {
         assertThat(list.get(0), is("first"));
         assertThat(list.get(list.size() - 1), is("third"));
     }
 
+    //deleting tests
+    @Test
+    public void whenDeleteSingleElementThenListIsEmpty() {
+        DynamicList<String> dynamicList = new DynamicList<>();
+        dynamicList.add("first");
+        dynamicList.deleteFirst();
+        assertThat(dynamicList.size(), is(0));
+    }
+
+    @Test
+    public void whenDeleteAllElementsThenListIsEmpty() {
+        list.deleteFirst();
+        list.deleteFirst();
+        list.deleteFirst();
+        assertThat(list.size(), is(0));
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void whenDeleteElementFromEmptyListShouldThrowNSEException() {
+        DynamicList<String> anotherList = new DynamicList<>();
+        anotherList.deleteFirst();
+    }
+
+    // getting tests
     @Test(expected = NoSuchElementException.class)
     public void whenGetNonExistingElementThenThrowsNSEException() {
         list.get(-1);
         list.get(list.size() + 1);
     }
 
+    @Test
+    public void whenGetFirstElementShouldReturnFirstElement() {
+        assertThat(list.getFirst(), is("first"));
+        assertThat(list.size(), is(3));
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void whenGettingFirstElementOfEmptyListShouldThrowNSEException() {
+        DynamicList<String> anotherList = new DynamicList<>();
+        anotherList.getFirst();
+    }
+
+    //iterator tests
     @Test
     public void whenListIteratorGetNextThenReturnsElement() {
         assertThat(it.next(), is("first"));
