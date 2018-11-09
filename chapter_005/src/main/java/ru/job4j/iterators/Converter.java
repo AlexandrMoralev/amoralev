@@ -13,25 +13,36 @@ import java.util.NoSuchElementException;
 public class Converter {
     Iterator<Integer> convert(Iterator<Iterator<Integer>> it) {
         return new Iterator<Integer>() {
-            Iterator actual = it.next();
+            Iterator<Integer> actual = (it != null && it.hasNext()) ? it.next() : null;
+
+            boolean isActual;
+            boolean isIterable;
+            boolean hasNext;
+            int iteration = 0;
 
             @Override
             public boolean hasNext() {
-                return actual.hasNext() || it.next().hasNext();
+                check();
+                return hasNext;
             }
 
             @Override
             public Integer next() {
-                if (!(it.hasNext() && actual.hasNext())) {
+                check();
+                if (!hasNext) {
                     throw new NoSuchElementException("No such element");
                 }
-                Integer result = null;
-                if (actual.hasNext()) {
-                    result = (Integer) actual.next();
-                } else {
+                if (!isActual) {
                     actual = it.next();
                 }
-                return result;
+                iteration++;
+                return actual.next();
+            }
+
+            private void check() {
+                isActual = actual != null & actual.hasNext();
+                isIterable = it.hasNext() & iteration != 0;
+                hasNext = isActual || isIterable;
             }
         };
     }
