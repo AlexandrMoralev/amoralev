@@ -46,13 +46,12 @@ public class UserMapTest {
         assertThat(result.length, is(2));
     }
 
-
+    @Ignore
     @Test
     public void whenOverrideOnlyHashcode() {
         assertThat(result.length, is(2));
     }
 
-    @Ignore
     @Test
     public void whenOverrideOnlyEquals() {
         assertThat(result.length, is(2));

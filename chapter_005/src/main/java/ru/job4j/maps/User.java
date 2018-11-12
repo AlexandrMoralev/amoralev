@@ -51,9 +51,16 @@ public class User {
     }
 
     @Override
-    public int hashCode() {
-        return this.name.hashCode() * 31
-                + this.children * 19
-                + this.birthday.hashCode() * 11;
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof User)) {
+            return false;
+        }
+        User user = (User) obj;
+        return this.children == user.getChildren()
+                && this.name.equals(user.getName())
+                && this.birthday.equals(user.getBirthday());
     }
 }
