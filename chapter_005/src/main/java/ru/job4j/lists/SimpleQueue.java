@@ -33,7 +33,7 @@ public class SimpleQueue<T> {
         if (size == 0) {
             throw new NoSuchElementException();
         }
-        if (size > 0) {
+        if (size > 0 && this.receiver.size() != 0) {
             convert(this.receiver, this.supplier);
         }
         size--;
@@ -49,7 +49,7 @@ public class SimpleQueue<T> {
         if (value == null) {
             throw new IllegalArgumentException();
         }
-        if (size > 0) {
+        if (size > 0 && this.supplier.size() != 0) {
             convert(this.supplier, this.receiver);
         }
         size++;
