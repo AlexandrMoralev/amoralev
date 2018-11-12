@@ -15,6 +15,13 @@ public class User {
     private int children;
     private Calendar birthday;
 
+    /**
+     * User instance constructor
+     *
+     * @param name     String
+     * @param children int
+     * @param birthday Calendar birth date
+     */
     public User(String name, int children, Calendar birthday) {
         this.name = name;
         this.children = children;
@@ -22,23 +29,23 @@ public class User {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public int getChildren() {
-        return children;
+        return this.children;
     }
 
     public Calendar getBirthday() {
-        return birthday;
+        return this.birthday;
     }
 
     @Override
     public String toString() {
         return "User{"
-                + "name='" + name + '\''
-                + ", children=" + children
-                + ", birthday=" + birthday
+                + "name='" + this.name + '\''
+                + ", children=" + this.children
+                + ", birthday=" + this.birthday
                 + '}';
     }
 }
