@@ -40,6 +40,7 @@ public class UserMapTest {
             System.out.println(user);
         }
     }
+
     @Ignore
     @Test
     public void whenDoesntOverrideEqualsAndHashcode() {
@@ -52,12 +53,12 @@ public class UserMapTest {
         assertThat(result.length, is(2));
     }
 
+    @Ignore
     @Test
     public void whenOverrideOnlyEquals() {
         assertThat(result.length, is(2));
     }
 
-    @Ignore
     @Test
     public void whenOverrideEqualsAndHashcode() {
         assertThat(result.length, is(1));
