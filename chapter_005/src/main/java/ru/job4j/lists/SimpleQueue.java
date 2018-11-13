@@ -33,8 +33,11 @@ public class SimpleQueue<T> {
         if (size == 0) {
             throw new NoSuchElementException();
         }
-        if (size > 0 && this.receiver.size() != 0) {
-            convert(this.receiver, this.supplier);
+        if (this.supplier.size() == 0) {
+            while (this.receiver.size() > 0) {
+                T poll = receiver.poll();
+                supplier.push(poll);
+            }
         }
         size--;
         return this.supplier.poll();
@@ -49,9 +52,6 @@ public class SimpleQueue<T> {
         if (value == null) {
             throw new IllegalArgumentException();
         }
-        if (size > 0 && this.supplier.size() != 0) {
-            convert(this.supplier, this.receiver);
-        }
         size++;
         this.receiver.push(value);
     }
@@ -63,12 +63,5 @@ public class SimpleQueue<T> {
      */
     public int size() {
         return this.size;
-    }
-
-    private void convert(SimpleStack<T> source, SimpleStack<T> dest) {
-        int counter = source.size();
-        for (int i = 0; i < counter; i++) {
-            dest.push(source.poll());
-        }
     }
 }
