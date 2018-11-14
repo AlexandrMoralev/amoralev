@@ -24,7 +24,6 @@ public class SimpleSetTest {
     String first = "first";
     String second = "second";
     String third = "third";
-    String anotherFirst = "first";
 
     @Before
     public void init() {

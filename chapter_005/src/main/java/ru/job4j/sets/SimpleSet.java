@@ -2,9 +2,7 @@ package ru.job4j.sets;
 
 import ru.job4j.lists.DynamicArray;
 
-import java.util.ConcurrentModificationException;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 /**
  * SimpleSet
@@ -16,14 +14,12 @@ import java.util.NoSuchElementException;
 public class SimpleSet<E> implements Iterable<E> {
 
     private DynamicArray<E> storage;
-    private int modCounter;
 
     /**
      * Constructs empty SimpleSet
      */
     public SimpleSet() {
         this.storage = new DynamicArray<>();
-        this.modCounter = 0;
     }
 
     /**
@@ -37,7 +33,6 @@ public class SimpleSet<E> implements Iterable<E> {
         }
         if (isAbsent(e)) {
             storage.add(e);
-            modCounter++;
         }
     }
 
@@ -63,30 +58,6 @@ public class SimpleSet<E> implements Iterable<E> {
 
     @Override
     public Iterator<E> iterator() {
-        return new Iterator<E>() {
-            private int counter = 0;
-            private int modifications = modCounter;
-
-            @Override
-            public boolean hasNext() {
-                isModified();
-                return counter != storage.size();
-            }
-
-            @Override
-            public E next() {
-                if (storage.size() == 0) {
-                    throw new NoSuchElementException();
-                }
-                isModified();
-                return storage.get(counter++);
-            }
-
-            private void isModified() {
-                if (modifications != modCounter) {
-                    throw new ConcurrentModificationException("ConcurrentModification state");
-                }
-            }
-        };
+        return this.storage.iterator();
     }
 }
