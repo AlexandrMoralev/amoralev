@@ -37,6 +37,19 @@ public class SimpleHashMapTest {
         bucket = null;
     }
 
+    @Test
+    public void whenInsertSomeValuesShouldReturnThemWithIterator() {
+        SimpleHashMap<Integer, String> table = new SimpleHashMap<>();
+        table.insert(5, "5");
+        table.insert(7, "7");
+        table.insert(9, "9");
+        table.insert(11, "11");
+        Iterator<SimpleHashMap.Bucket> iterator = table.iterator();
+        while (iterator.hasNext()) {
+            System.out.println(iterator.next().getValue());
+        }
+    }
+
     // Inserting tests
     @Test
     public void whenInsertTwoElementsThenSizeIsTwo() {

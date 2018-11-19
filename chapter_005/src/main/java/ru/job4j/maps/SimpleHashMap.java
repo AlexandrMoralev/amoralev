@@ -30,6 +30,7 @@ public class SimpleHashMap<K, V> {
 
     /**
      * SimpleHashMap instance constructor
+     *
      * @param initSize int initial table length
      */
     public SimpleHashMap(int initSize) {
@@ -40,10 +41,11 @@ public class SimpleHashMap<K, V> {
 
     /**
      * Method insert - adds a key-value pair to this table
-     * @param key non-null key
+     *
+     * @param key   non-null key
      * @param value value
      * @return boolean true, when pair added
-     *                 false, when collision occurred in this table
+     * false, when collision occurred in this table
      */
     public boolean insert(K key, V value) {
         validate(key);
@@ -60,6 +62,7 @@ public class SimpleHashMap<K, V> {
 
     /**
      * Method get - returns pair's value, by the key
+     *
      * @param key non-null key
      * @return V value, when this key-value pair is in the table
      */
@@ -74,9 +77,10 @@ public class SimpleHashMap<K, V> {
 
     /**
      * Method delete - removes K-V pair, by the key
+     *
      * @param key non-null K key
      * @return boolean true, when pair deleted successfully
-     *                 false, when there is no pair with this key in the table
+     * false, when there is no pair with this key in the table
      */
     public boolean delete(K key) {
         validate(key);
@@ -94,6 +98,7 @@ public class SimpleHashMap<K, V> {
 
     /**
      * Method getSize
+     *
      * @return number of pairs in the table
      */
     public int getSize() {
@@ -162,7 +167,7 @@ public class SimpleHashMap<K, V> {
                     if (table[i] != null) {
                         itemsTaken++;
                         result = table[i];
-                        position++;
+                        position = ++i;
                         break;
                     }
                 }
@@ -179,6 +184,7 @@ public class SimpleHashMap<K, V> {
 
     /**
      * Buscket - storage of K-V pair
+     *
      * @param <K> non-null key
      * @param <V> value
      */
@@ -186,13 +192,11 @@ public class SimpleHashMap<K, V> {
         private K key;
         private V value;
         private int hash;
-        private int index;
 
         public Bucket(K key, V value) {
             this.key = key;
             this.value = value;
             this.hash = Objects.hashCode(key);
-            this.index = this.reIndex();
         }
 
         public K getKey() {
@@ -207,13 +211,8 @@ public class SimpleHashMap<K, V> {
             return hash;
         }
 
-        public int getIndex() {
-            return index;
-        }
-
         public int reIndex() {
-            this.index = Math.abs(this.hash) % table.length;
-            return this.index;
+            return Math.abs(this.hash) % table.length;
         }
     }
 }
