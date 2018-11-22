@@ -13,36 +13,53 @@ import java.util.NoSuchElementException;
 public class Converter {
     Iterator<Integer> convert(Iterator<Iterator<Integer>> it) {
         return new Iterator<Integer>() {
-            Iterator<Integer> actual = (it != null && it.hasNext()) ? it.next() : null;
-
-            boolean isActual;
-            boolean isIterable;
-            boolean hasNext;
-            int iteration = 0;
+            Iterator<Integer> actual = checkNext(it) ? it.next() : null;
 
             @Override
             public boolean hasNext() {
-                check();
-                return hasNext;
+                return checkNext(actual) || isNextExist();
             }
 
             @Override
             public Integer next() {
-                check();
-                if (!hasNext) {
+                if (!actual.hasNext() & !it.hasNext()) {
                     throw new NoSuchElementException("No such element");
                 }
-                if (!isActual) {
-                    actual = it.next();
+                Integer result;
+                if (checkNext(actual)) {
+                    result = actual.next();
+                } else {
+                    result = findNext();
                 }
-                iteration++;
-                return actual.next();
+                return result;
             }
 
-            private void check() {
-                isActual = actual != null & actual.hasNext();
-                isIterable = it.hasNext() & iteration != 0;
-                hasNext = isActual || isIterable;
+            private boolean checkNext(Iterator iterator) {
+                return iterator != null && iterator.hasNext();
+            }
+
+            private Integer findNext() {
+                Integer result = null;
+                while (it.hasNext()) {
+                    actual = it.next();
+                    if (checkNext(actual)) {
+                        result = actual.next();
+                        break;
+                    }
+                }
+                return result;
+            }
+
+            private boolean isNextExist() {
+                boolean result = false;
+                while (it.hasNext()) {
+                    actual = it.next();
+                    if (checkNext(actual)) {
+                        result = true;
+                        break;
+                    }
+                }
+                return result;
             }
         };
     }
