@@ -27,6 +27,7 @@ public class TreeTest {
         tree = new Tree<>(1);
     }
 
+    // adding tests
     @Test
     public void when6ElFindLastThen6() {
         assertThat(tree.add(1, 2), is(true));
@@ -90,6 +91,31 @@ public class TreeTest {
         tree.add(1, null);
     }
 
+    // isBinary tests
+    @Test
+    public void whenElementsHasLessThan2LeavesThenIsBinaryReturnsTrue() {
+        assertThat(tree.add(1, 2), is(true));
+        assertThat(tree.add(1, 3), is(true));
+        assertThat(tree.add(2, 4), is(true));
+        assertThat(tree.add(2, 5), is(true));
+        assertThat(tree.add(5, 6), is(true));
+        assertThat(tree.add(4, 7), is(true));
+        assertThat(tree.isBinary(), is(true));
+    }
+
+    @Test
+    public void whenElementsHasMoreThan2LeavesThenIsBinaryReturnsFalse() {
+        assertThat(tree.add(1, 2), is(true));
+        assertThat(tree.add(1, 3), is(true));
+        assertThat(tree.add(2, 4), is(true));
+        assertThat(tree.add(2, 5), is(true));
+        assertThat(tree.add(5, 6), is(true));
+        assertThat(tree.add(5, 7), is(true));
+        assertThat(tree.add(5, 8), is(true));
+        assertThat(tree.isBinary(), is(false));
+    }
+
+    // iterator tests
     @Test
     public void whenTreeIteratorHasNextThenReturnsTrue() {
         tree.add(1, 2);

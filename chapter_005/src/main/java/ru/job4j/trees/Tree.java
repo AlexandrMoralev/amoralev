@@ -51,7 +51,7 @@ public class Tree<E extends Comparable<E>> implements SimpleTree<E> {
      * Method findBy - returns Optional of Node by value
      *
      * @param value E value of the search element
-     * @return Optional<Node       <       E>
+     * @return Optional<Node < E>>
      */
     @Override
     public Optional<Node<E>> findBy(E value) {
@@ -67,6 +67,29 @@ public class Tree<E extends Comparable<E>> implements SimpleTree<E> {
             }
             for (Node<E> child : el.leaves()) {
                 data.offer(child);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Method isBinary - checks, if the tree is binary
+     *
+     * @return true, if all nodes has less than 2 children nodes
+     * false, if this tree is not binary
+     */
+    public boolean isBinary() {
+        boolean result = true;
+        Queue<Node<E>> data = new LinkedList<>();
+        data.offer(this.root);
+        while (!data.isEmpty()) {
+            Node<E> el = data.poll();
+            if (el.leaves().size() > 2) {
+                result = false;
+                break;
+            }
+            for (Node<E> leaf : el.leaves()) {
+                data.offer(leaf);
             }
         }
         return result;
