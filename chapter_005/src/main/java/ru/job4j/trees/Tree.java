@@ -23,7 +23,7 @@ public class Tree<E extends Comparable<E>> implements SimpleTree<E> {
     public Tree(E value) {
         this.root = new Node<>(value);
         this.modCount = 0;
-        this.size = 0;
+        this.size = 1;
     }
 
     /**
@@ -54,7 +54,7 @@ public class Tree<E extends Comparable<E>> implements SimpleTree<E> {
      * Method findBy - returns Optional of Node by value
      *
      * @param value E value of the search element
-     * @return Optional<Node<E>>
+     * @return Optional<Node   <   E>>
      */
     @Override
     public Optional<Node<E>> findBy(E value) {
@@ -110,13 +110,12 @@ public class Tree<E extends Comparable<E>> implements SimpleTree<E> {
         return new Iterator<E>() {
             private int expectedModCount = modCount;
             private int index = 0;
-            private Queue<Node<E>> queue = new ArrayDeque<>();
-            private Queue<Node<E>> leafQueue = new ArrayDeque<>();
+            private Queue<Node<E>> queue = new ArrayDeque<>(Collections.singletonList(root));
 
             @Override
             public boolean hasNext() {
                 checkModified();
-                return index <= size;
+                return index < size;
             }
 
             @Override
@@ -124,26 +123,12 @@ public class Tree<E extends Comparable<E>> implements SimpleTree<E> {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
-                Optional<Node<E>> result;
-                if (queue.isEmpty()) {
-                    queue.offer(root);
-                    fillQueue(root);
-                }
-                result = Optional.of(queue.poll());
+                Node<E> poll = queue.poll();
                 index++;
-                return result.isPresent() ? result.get().getValue() : null;
-            }
-
-            private void fillQueue(Node<E> element) {
-                for (Node<E> leaf : element.leaves()) {
-                    queue.offer(leaf);
-                    if (!leaf.leaves().isEmpty()) {
-                        leafQueue.offer(leaf);
-                    }
+                if (!poll.leaves().isEmpty()) {
+                    queue.addAll(poll.leaves());
                 }
-                while (!leafQueue.isEmpty()) {
-                    fillQueue(leafQueue.poll());
-                }
+                return poll.getValue();
             }
 
             @Override
