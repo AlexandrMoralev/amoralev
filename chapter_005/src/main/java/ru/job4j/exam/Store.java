@@ -14,8 +14,6 @@ import java.util.Objects;
  */
 public class Store {
 
-    private Map<Integer, String> prev;
-
     /**
      * Method diff - returns statistics about collection changes
      *
@@ -30,13 +28,13 @@ public class Store {
         int usersDeleted = !previous.isEmpty() && current.isEmpty() ? previous.size() : 0;
 
         if (!previous.isEmpty() && !current.isEmpty()) {
-            fillMap(previous);
-            for (User user : current) {
-                int id = user.getId();
-                if (!prev.containsKey(id)) {
+            Map<Integer, String> prevUsers = fillMap(previous);
+            for (User currentUser : current) {
+                int id = currentUser.getId();
+                if (!prevUsers.containsKey(id)) {
                     usersAdded++;
                 } else {
-                    if (!user.getName().equals(prev.get(id))) {
+                    if (!currentUser.getName().equals(prevUsers.get(id))) {
                         usersUpdated++;
                     }
                 }
@@ -46,11 +44,12 @@ public class Store {
         return new Info(usersAdded, usersUpdated, usersDeleted);
     }
 
-    private void fillMap(final List<User> previous) {
-        this.prev = new HashMap<>();
+    private Map<Integer, String> fillMap(final List<User> previous) {
+        Map<Integer, String> prevUsers = new HashMap<>();
         for (User user : previous) {
-            prev.put(user.getId(), user.getName());
+            prevUsers.put(user.getId(), user.getName());
         }
+        return prevUsers;
     }
 
     private void validate(final List<User> first, final List<User> second) {
@@ -74,10 +73,6 @@ public class Store {
 
         public String getName() {
             return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
         }
 
         @Override
