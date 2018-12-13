@@ -23,7 +23,7 @@ public class RectangleMove implements Runnable {
         Integer dX = 5;
         Integer dY = 0;
         int delta;
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
             this.rect.setX(this.rect.getX() + dX);
             this.rect.setY(this.rect.getY() + dY);
             if (this.rect.getX() >= framing.getWidth() || this.rect.getX() <= 0) {
@@ -39,11 +39,10 @@ public class RectangleMove implements Runnable {
                 dX = dX > 0 ? dX + delta : dX + delta;
                 dX = dX == 0 && delta >= 5 ? dX + delta : dX - delta;
             }
-
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
         }
     }
