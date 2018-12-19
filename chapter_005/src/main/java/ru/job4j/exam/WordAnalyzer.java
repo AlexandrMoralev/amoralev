@@ -11,9 +11,6 @@ import java.util.*;
  */
 public class WordAnalyzer {
 
-    private Set<Character> firstSet;
-    private Set<Character> secondSet;
-
 // Задание 1: Даны 2 слова, проверить, что они состоят из одинаковых символов, и найти кол-во дубликатов
 
     /**
@@ -27,8 +24,14 @@ public class WordAnalyzer {
     public boolean hasSameSymbols(final String first, final String second) {
         boolean result = false;
         if (isArgValid(first) && isArgValid(second)) {
-            this.initCharSets(first, second);
-            result = !Collections.disjoint(firstSet, secondSet);
+            char[] firstArr = first.toLowerCase().trim().toCharArray();
+            HashSet<Character> secondSet = (HashSet<Character>) convertStringToCharCollection(second, new HashSet<>());
+            for (Character ch : firstArr) {
+                if (secondSet.contains(ch)) {
+                    result = true;
+                    break;
+                }
+            }
         }
         return result;
     }
@@ -45,9 +48,10 @@ public class WordAnalyzer {
         boolean result = false;
         if (isArgValid(first) && isArgValid(second)
                 && first.length() == second.length()) {
-            this.initCharSets(first, second);
-            firstSet.removeAll(secondSet);
-            result = firstSet.size() == 0;
+            List<Character> firstList = (List<Character>) convertStringToCharCollection(first, new ArrayList<>());
+            Set<Character> secondSet = (Set<Character>) convertStringToCharCollection(second, new HashSet<>());
+            firstList.removeAll(secondSet);
+            result = firstList.isEmpty();
         }
         return result;
     }
@@ -62,7 +66,8 @@ public class WordAnalyzer {
     public int countCharMatches(final String first, final String second) {
         int result = 0;
         if (isArgValid(first) && isArgValid(second)) {
-            this.initCharSets(first, second);
+            Set<Character> firstSet = (Set<Character>) convertStringToCharCollection(first, new HashSet<>());
+            Set<Character> secondSet = (Set<Character>) convertStringToCharCollection(second, new HashSet<>());
             result = firstSet.size() >= secondSet.size()
                     ? countCharMatches(firstSet, secondSet)
                     : countCharMatches(secondSet, firstSet);
@@ -83,17 +88,12 @@ public class WordAnalyzer {
         return setSizeBefore - firstSet.size();
     }
 
-    private Collection<Character> convert(String word, Collection<Character> chars) {
+    private Collection<Character> convertStringToCharCollection(String word, Collection<Character> chars) {
         char[] charArray = word.toLowerCase().trim().toCharArray();
         for (Character ch : charArray) {
             chars.add(ch);
         }
         return chars;
-    }
-
-    private void initCharSets(String first, String second) {
-        firstSet = (Set<Character>) this.convert(first, new HashSet<>());
-        secondSet = (Set<Character>) this.convert(second, new HashSet<>());
     }
 
 //  Задание 2: Дано слово, найти все повторяющиеся символы и кол-во вхождений дубликатов
@@ -129,7 +129,7 @@ public class WordAnalyzer {
         Map<Character, Integer> result = new HashMap<>();
         Collection<Character> chars;
         if (this.isArgValid(word)) {
-            chars = this.convert(word, new ArrayList<>());
+            chars = this.convertStringToCharCollection(word, new ArrayList<>());
             for (Character ch : chars) {
                 int freq = Collections.frequency(chars, ch);
                 if (freq > 1) {

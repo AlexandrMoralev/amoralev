@@ -73,6 +73,8 @@ public class WordAnalyzerTest {
     public void whenWordsIsNotAnagramShouldReturnFalse() {
         assertThat(wordAnalyzer.isAnagram(fgh, nbvcxz), is(false));
         assertThat(wordAnalyzer.isAnagram(bbccaa, fgh), is(false));
+        assertThat(wordAnalyzer.isAnagram("zxcvbk", nbvcxz), is(false));
+        assertThat(wordAnalyzer.isAnagram("hgs", fgh), is(false));
     }
 
     @Test
