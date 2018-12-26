@@ -32,7 +32,11 @@ public class SimpleBlockingQueueTest {
         });
         consumer = new Thread(() -> {
             for (int i = 0; i < result.length; i++) {
-                result[i] = queue.poll();
+                try {
+                    result[i] = queue.poll();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
