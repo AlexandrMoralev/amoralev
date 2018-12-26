@@ -63,7 +63,7 @@ public class SimpleBlockingQueue<T> {
      *
      * @return T value or null if this queue is empty
      */
-    public T poll() {
+    public T poll() throws InterruptedException {
         synchronized (this) {
             T result;
             while (this.queue.isEmpty()) {
@@ -71,6 +71,7 @@ public class SimpleBlockingQueue<T> {
                     wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    throw new InterruptedException(e.getMessage());
                 }
             }
             result = queue.poll();
