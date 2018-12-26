@@ -1,7 +1,5 @@
 package ru.job4j.waitnotify;
 
-import java.util.Objects;
-
 /**
  * ParallelSearch
  *
@@ -12,31 +10,24 @@ import java.util.Objects;
 public class ParallelSearch {
 
     public static void main(String[] args) {
-        final Integer poisonPill = Integer.MIN_VALUE;
         SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>();
         final Thread consumer = new Thread(
                 () -> {
-                    while (!Thread.interrupted()) {
-                        synchronized (queue) {
+                    synchronized (queue) {
+                        while (!Thread.interrupted()) {
                             try {
                                 if (queue.isEmpty()) {
                                     queue.wait();
                                 }
-                                Integer item = queue.poll();
-                                if (Objects.equals(item, poisonPill)) {
-                                    Thread.currentThread().interrupt();
-                                } else {
-                                    System.out.println(item);
-                                }
+                                System.out.println(queue.poll());
                             } catch (InterruptedException e) {
-                                e.printStackTrace();
                                 Thread.currentThread().interrupt();
                             }
                         }
+                        queue.notifyAll();
                     }
                 }
         );
-
         consumer.start();
         new Thread(
                 () -> {
@@ -50,7 +41,12 @@ public class ParallelSearch {
                             }
                             queue.notifyAll();
                         }
-                        queue.offer(poisonPill);
+                        try {
+                            queue.wait();
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                        consumer.interrupt();
                     }
                 }
         ).start();
