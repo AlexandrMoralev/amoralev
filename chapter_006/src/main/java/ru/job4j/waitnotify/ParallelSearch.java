@@ -8,46 +8,37 @@ package ru.job4j.waitnotify;
  * @since 0.1
  */
 public class ParallelSearch {
-
     public static void main(String[] args) {
         SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>();
         final Thread consumer = new Thread(
                 () -> {
-                    synchronized (queue) {
-                        while (!Thread.interrupted()) {
-                            try {
-                                if (queue.isEmpty()) {
+                    while (!Thread.currentThread().isInterrupted()) {
+                        try {
+                            while (queue.isEmpty()) {
+                                synchronized (queue) {
                                     queue.wait();
                                 }
-                                System.out.println(queue.poll());
-                            } catch (InterruptedException e) {
-                                Thread.currentThread().interrupt();
                             }
+                            System.out.println(queue.poll());
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
                         }
-                        queue.notifyAll();
+
                     }
                 }
         );
         consumer.start();
         new Thread(
                 () -> {
-                    synchronized (queue) {
-                        for (int i = 0; i != 3; i++) {
-                            queue.offer(i);
-                            try {
-                                Thread.sleep(500);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            queue.notifyAll();
-                        }
+                    for (int index = 0; index != 3; index++) {
+                        queue.offer(index);
                         try {
-                            queue.wait();
+                            Thread.sleep(500);
                         } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
+                            e.printStackTrace();
                         }
-                        consumer.interrupt();
                     }
+                    consumer.interrupt();
                 }
         ).start();
     }
