@@ -12,20 +12,10 @@ public class Bomberman extends GameObject {
     /**
      * Bomberman default instance constructor
      *
-     * @param position Ce
+     * @param position initial Cell
      */
     public Bomberman(final Cell position) {
         super(position);
-    }
-
-    /**
-     * Constructs Bomberman instance by the initial cell coordinates
-     *
-     * @param x int x
-     * @param y int y
-     */
-    public Bomberman(final int x, final int y) {
-        this(new Cell(x, y));
     }
 
     /**

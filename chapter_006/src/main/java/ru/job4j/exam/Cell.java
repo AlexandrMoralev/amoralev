@@ -15,6 +15,7 @@ public class Cell {
 
     /**
      * Constructs Cell instance
+     *
      * @param x int x-coordinate
      * @param y int y-coordinate
      */

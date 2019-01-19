@@ -10,10 +10,29 @@ import org.junit.Test;
  * @since 0.1
  */
 public class GameTest {
-    private final Game game = new Game(10);
 
     @Test
-    public void whenThen() {
-        game.startGame();
+    public void whenBoardSizeThenDefaultBoard() {
+        new Game(-1, 0, "wtf").startGame();
+    }
+
+    @Test
+    public void whenBoard1000ThenGameRuns() {
+        new Game(1000, 0, null).startGame();
+    }
+
+    @Test
+    public void whenPlaceIncorrectNumberOfMonstersThenGameRunsWithoutMonsters() {
+        new Game(10, -2, "").startGame();
+    }
+
+    @Test
+    public void whenStartingPlayerModeThenGameRunsPlayerMode() {
+        new Game(100, 100, GameSettings.PLAYER_MODE).startGame();
+    }
+
+    @Test
+    public void whenStartingDemoModeThenGameRunsDemoMode() {
+        new Game(100, 100, GameSettings.DEMO_MODE).startGame();
     }
 }

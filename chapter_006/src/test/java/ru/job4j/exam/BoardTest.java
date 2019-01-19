@@ -20,8 +20,8 @@ public class BoardTest {
 
     @Before
     public void init() {
-        board = new Board(10);
-        bomberman = new Bomberman(0, 0);
+        board = new Board(GameSettings.DEFAULT_BOARD_SIZE);
+        bomberman = new Bomberman(GameSettings.HERO_INIT_POSITION);
         board.add(bomberman);
     }
 
