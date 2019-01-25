@@ -90,6 +90,16 @@ public class Board {
     public int size() {
         return this.board.length;
     }
+
+    /**
+     * Method hasQueuedThreads - queries whether other threads are waiting to take this Cell.
+     *
+     * @param position not-null Cell to be checked
+     * @return true if there may be other threads waiting to take this Cell.
+     */
+    public final boolean hasQueuedThreads(final Cell position) {
+        return this.board[position.getX()][position.getY()].hasQueuedThreads();
+    }
 }
 
 

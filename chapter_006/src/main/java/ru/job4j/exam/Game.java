@@ -69,10 +69,14 @@ public class Game {
         bomberman.setName(GameSettings.HERO_NAME);
         Thread enemies = initMovingLogic(this.enemies);
         enemies.setName(GameSettings.ENEMIES_NAME);
+        enemies.setDaemon(true);
         bomberman.start();
         enemies.start();
         try {
             Thread.sleep(GameSettings.GAME_TIMEOUT);
+            if (!bomberman.isAlive()) {
+                Thread.currentThread().interrupt();
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
@@ -124,6 +128,9 @@ public class Game {
             while (!Thread.currentThread().isInterrupted()) {
                 try {
                     currentPosition = gameObject.getPosition();
+                    if (isDead(currentPosition)) {
+                        Thread.currentThread().interrupt();
+                    }
                     nextPosition = movementControl.nextStep(currentPosition);
                     moved = board.move(currentPosition, nextPosition);
                     if (moved) {
@@ -135,6 +142,10 @@ public class Game {
                 }
             }
         });
+    }
+
+    private boolean isDead(final Cell position) {
+        return this.board.hasQueuedThreads(position);
     }
 
     /**
