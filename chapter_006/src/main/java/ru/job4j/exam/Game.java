@@ -117,7 +117,7 @@ public class Game {
     private Thread initMovingLogic(final GameObject gameObject) {
         return new Thread(() -> {
             this.board.add(gameObject);
-            MovementControl movementControl = gameObject.toString().toLowerCase().contains("bomberman") ? heroMovementControl : enemiesMovementControl;
+            MovementControl movementControl = defineBehavior(gameObject);
             Cell currentPosition;
             Cell nextPosition;
             boolean moved;
@@ -146,10 +146,12 @@ public class Game {
     private Thread initMovingLogic(final List<GameObject> gameObjects) {
         return new Thread(() -> {
             placeMonsters();
-            MovementControl movementControl = gameObjects.size() > 0
-                    && gameObjects.get(0).toString().toLowerCase().contains("bomberman")
-                    ? heroMovementControl
-                    : enemiesMovementControl;
+            MovementControl movementControl = null;
+            if (gameObjects.size() > 0) {
+                movementControl = defineBehavior(gameObjects.get(0));
+            } else {
+                Thread.currentThread().interrupt();
+            }
             Cell currentPosition;
             Cell nextPosition;
             boolean moved;
@@ -169,5 +171,9 @@ public class Game {
                 }
             }
         });
+    }
+
+    private MovementControl defineBehavior(final GameObject gameObject) {
+        return gameObject.toString().toLowerCase().contains("bomberman") ? heroMovementControl : enemiesMovementControl;
     }
 }
