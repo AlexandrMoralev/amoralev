@@ -1,0 +1,117 @@
+CREATE DATABASE cars_storage
+WITH
+OWNER = postgres
+ENCODING = 'UTF8'
+LC_COLLATE = 'Russian_Russia.1251'
+LC_CTYPE = 'Russian_Russia.1251'
+TABLESPACE = pg_default
+CONNECTION LIMIT = -1;
+
+-- 1 Создать структур данных в базе. Таблицы. Кузов. Двигатель, Коробка передач.
+
+CREATE TABLE car_bodies (
+  body_id SERIAL PRIMARY KEY,
+  type    VARCHAR(30) NOT NULL,
+  model   VARCHAR(30) NOT NULL,
+  cost    INT
+);
+
+CREATE TABLE engines (
+  engine_id SERIAL PRIMARY KEY,
+  type      VARCHAR(30) NOT NULL,
+  model     VARCHAR(30) NOT NULL,
+  hp        INT,
+  cost      INT
+);
+
+CREATE TABLE transmissions (
+  transmission_id SERIAL PRIMARY KEY,
+  type            VARCHAR(30) NOT NULL,
+  model           VARCHAR(30) NOT NULL,
+  cost            INT
+);
+
+-- 2 Создать структуру Машина. Машина не может существовать без данных из п.1.
+
+CREATE TABLE cars (
+  car_id          SERIAL PRIMARY KEY,
+  name            VARCHAR(30)                                    NOT NULL,
+  model           VARCHAR(20)                                    NOT NULL,
+  cost            INT,
+  body_id         INT REFERENCES car_bodies (body_id)            NOT NULL,
+  engine_id       INT REFERENCES engines (engine_id)             NOT NULL,
+  transmission_id INT REFERENCES transmissions (transmission_id) NOT NULL
+);
+
+-- 3 Заполнить таблицы через insert.
+
+INSERT INTO car_bodies (type, model, cost) VALUES ('hardtop', 'ht2017', 1000);
+INSERT INTO car_bodies (type, model, cost) VALUES ('coupe', 'cp1977', 3000);
+INSERT INTO car_bodies (type, model, cost) VALUES ('cabriolet', 'cb1969', 2000);
+INSERT INTO car_bodies (type, model, cost) VALUES ('hatchback ', 'hb2011', 900);
+INSERT INTO car_bodies (type, model, cost) VALUES ('pickup ', 'pk2010', 1800);
+INSERT INTO car_bodies (type, model, cost) VALUES ('suv ', 'sv2010', 2400);
+
+INSERT INTO engines (type, model, hp, cost) VALUES ('petrol', '1.4G4', 75, 200);
+INSERT INTO engines (type, model, hp, cost) VALUES ('petrol', '3.0V6', 180, 500);
+INSERT INTO engines (type, model, hp, cost) VALUES ('petrol', '4.8V8', 500, 1200);
+INSERT INTO engines (type, model, hp, cost) VALUES ('gas', '1.8G4', 150, 300);
+INSERT INTO engines (type, model, hp, cost) VALUES ('diesel', '2.0D3', 200, 700);
+INSERT INTO engines (type, model, hp, cost) VALUES ('diesel', '3.2D6', 300, 1400);
+INSERT INTO engines (type, model, hp, cost) VALUES ('diesel', '6.0D12', 600, 1800);
+
+INSERT INTO transmissions (type, model, cost) VALUES ('manual', 'm2x4', 100);
+INSERT INTO transmissions (type, model, cost) VALUES ('manual', 'm2x5', 250);
+INSERT INTO transmissions (type, model, cost) VALUES ('manual', 'm4x7', 380);
+INSERT INTO transmissions (type, model, cost) VALUES ('auto', 'a4x6', 320);
+INSERT INTO transmissions (type, model, cost) VALUES ('robot', 'r2x4', 300);
+INSERT INTO transmissions (type, model, cost) VALUES ('robot', 'r2d2', 500);
+INSERT INTO transmissions (type, model, cost) VALUES ('auto', 'a3x7', 410);
+
+INSERT INTO cars (name, model, cost, body_id, engine_id, transmission_id)
+VALUES ('ceed', 'c17', 11000, 1, 4, 2);
+INSERT INTO cars (name, model, cost, body_id, engine_id, transmission_id)
+VALUES ('logan', 'l17', 9000, 1, 1, 1);
+INSERT INTO cars (name, model, cost, body_id, engine_id, transmission_id)
+VALUES ('camaro', 'c77', 29000, 2, 3, 3);
+INSERT INTO cars (name, model, cost, body_id, engine_id, transmission_id)
+VALUES ('prado', 'p200', 20000, 6, 6, 6);
+INSERT INTO cars (name, model, cost, body_id, engine_id, transmission_id)
+VALUES ('boxter', 'b718', 35000, 3, 2, 5);
+INSERT INTO cars (name, model, cost, body_id, engine_id, transmission_id)
+VALUES ('hilux', 'Tiv', 22000, 5, 5, 4);
+
+-- Создать SQL запросы:
+-- 1. Вывести список всех машин и все привязанные к ним детали.
+
+SELECT
+  cars.name  AS car_name,
+  cars.model AS car_model,
+  cars.cost  AS car_cost,
+  body.model AS body_model,
+  body.type  AS body_type,
+  e.model    AS engine,
+  e.type     AS engine_type,
+  e.hp       AS engine_power,
+  t.model    AS transmission,
+  t.type     AS transmission_type
+FROM cars
+  INNER JOIN car_bodies body ON cars.body_id = body.body_id
+  INNER JOIN engines e ON cars.engine_id = e.engine_id
+  INNER JOIN transmissions t ON cars.transmission_id = t.transmission_id;
+
+-- 2 Вывести отдельно детали,
+--  которые не используются в машине, кузова, двигатели, коробки передач.
+
+SELECT
+  body.model AS body_model,
+  body.type  AS body_type,
+  e.model    AS engine,
+  e.type     AS engine_type,
+  t.model    AS transmission,
+  t.type     AS transmission_type
+FROM cars
+  RIGHT JOIN car_bodies body ON cars.body_id = body.body_id
+  FULL JOIN engines e ON cars.engine_id = e.engine_id
+  FULL JOIN transmissions t ON cars.transmission_id = t.transmission_id
+WHERE cars.car_id IS NULL;
