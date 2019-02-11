@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  * @version $Id$
  * @since 0.1
  */
-public class Tracker {
+public class Tracker implements ITracker {
 
     private final ArrayList<Item> items = new ArrayList<>();
     private static final Random RANDOM = new Random();
@@ -76,7 +76,7 @@ public class Tracker {
      *
      * @return ArrayList<Item>, empty if the Tracker without any Items
      */
-    public ArrayList<Item> findAll() {
+    public List<Item> findAll() {
         return this.items;
     }
 
@@ -86,7 +86,7 @@ public class Tracker {
      * @param key String name of Item
      * @return ArrayList<Item>, empty if there is no Items with name = key, or if the Tracker is empty
      */
-    public ArrayList<Item> findByName(String key) {
+    public List<Item> findByName(String key) {
         Predicate<Item> isNameMatched = item -> key.equals(item.getName());
         Function<ArrayList<Item>, Stream<Item>> listMapper = itemArrayList -> itemArrayList.stream().filter(isNameMatched);
 

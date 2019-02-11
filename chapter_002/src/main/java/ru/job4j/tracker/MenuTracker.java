@@ -1,7 +1,9 @@
 package ru.job4j.tracker;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  * EditItem - external class, in accordance with the technical specifications
@@ -27,7 +29,7 @@ class EditItem extends BaseAction {
      * then new Item reference replaces existing Item reference
      */
     @Override
-    public void execute(Input input, Tracker tracker) {
+    public void execute(Input input, ITracker tracker) {
         input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " Replace the order with another by id ", input.ACTION_RIGHT_SEPARATOR));
         String id = input.ask("Enter ID of the order to be replaced: ");
         if (tracker.findById(id) != null) {
@@ -77,7 +79,7 @@ class ExitMenu extends BaseAction {
      *
      */
     @Override
-    public void execute(Input input, Tracker tracker) {
+    public void execute(Input input, ITracker tracker) {
         this.isTimeToExit = true;
     }
 
@@ -93,12 +95,10 @@ class ExitMenu extends BaseAction {
 public class MenuTracker {
 
     private final Input input;
-    private final Tracker tracker;
+    private final ITracker tracker;
 
     // actions on Tracker
     private ArrayList<UserAction> actions = new ArrayList<>();
-
-    private int position = 0;
 
     // StringBuilder instance to concatenate Strings inside loops
     private final StringBuilder stringBuilder = new StringBuilder(128);
@@ -111,7 +111,7 @@ public class MenuTracker {
      * @param input NonNull Input instance
      * @param tracker NonNull Tracker instance
      */
-    MenuTracker(Input input, Tracker tracker) {
+    MenuTracker(Input input, ITracker tracker) {
         this.input = input;
         this.tracker = tracker;
     }
@@ -220,7 +220,7 @@ public class MenuTracker {
          *  then the order ID is displayed on the console
          */
         @Override
-        public void execute(Input input, Tracker tracker) {
+        public void execute(Input input, ITracker tracker) {
             input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, "New order creation", input.ACTION_RIGHT_SEPARATOR));
             String name = input.ask("Enter the order name: ");
             String description = input.ask("Enter the order description: ");
@@ -253,11 +253,11 @@ public class MenuTracker {
          * calls printItem() method
          */
         @Override
-        public void execute(Input input, Tracker tracker) {
+        public void execute(Input input, ITracker tracker) {
 
             MenuTracker mt = new MenuTracker(input, tracker);
-            ArrayList<Item> items = tracker.findAll();
-            if (items == null) {
+            List<Item> items = tracker.findAll();
+            if (items.isEmpty()) {
                 input.print(String.format("%s %s %s", input.EXCEPT_MSG_SEPARATOR, "Tracker is empty!", input.EXCEPT_MSG_SEPARATOR));
             } else {
                 input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " All tracker orders ", input.ACTION_RIGHT_SEPARATOR));
@@ -292,7 +292,7 @@ public class MenuTracker {
          * Method execute - finds item by id and delete if it exists
          */
         @Override
-        public void execute(Input input, Tracker tracker) {
+        public void execute(Input input, ITracker tracker) {
             input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " Delete the order by id ", input.ACTION_RIGHT_SEPARATOR));
             String id = input.ask("Enter ID of the order to be deleted: ");
             Item anItem = tracker.findById(id);
@@ -328,7 +328,7 @@ public class MenuTracker {
          * calls printItem() method
          */
         @Override
-        public void execute(Input input, Tracker tracker) {
+        public void execute(Input input, ITracker tracker) {
             input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " Find order by id ", input.ACTION_RIGHT_SEPARATOR));
             String id = input.ask("Enter ID for the order search: ");
             Item anItem = tracker.findById(id);
@@ -365,11 +365,11 @@ public class MenuTracker {
          * calls printItem() method
          */
         @Override
-        public void execute(Input input, Tracker tracker) {
+        public void execute(Input input, ITracker tracker) {
             input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " Find orders by name ", input.ACTION_RIGHT_SEPARATOR));
             String name = input.ask("Enter order's name for the search: ");
-            ArrayList<Item> items = tracker.findByName(name);
-            if (items == null) {
+            List<Item> items = tracker.findByName(name);
+            if (items.isEmpty()) {
                 input.print(String.format("%s %s %s %s", input.EXCEPT_MSG_SEPARATOR, " There is no orders with name = ", name, input.EXCEPT_MSG_SEPARATOR));
             } else {
                 for (Item item : items) {

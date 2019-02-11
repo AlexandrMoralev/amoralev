@@ -11,18 +11,18 @@ import java.util.function.Consumer;
  */
 public class StartUI {
 
-    private Input input;
-    private Tracker tracker;
+    private final Input input;
+    private final ITracker tracker;
 
     private int[] range;
 
-   Consumer<MenuTracker> menuPrinter = o -> o.show();
+   private final Consumer<MenuTracker> menuPrinter = o -> o.show();
 
     /**
      * StartUI instance constructor
      * @param input @NotNull Input instance
      */
-    StartUI(Input input, Tracker tracker) {
+    StartUI(Input input, ITracker tracker) {
         this.input = input;
         this.tracker = tracker;
     }
@@ -50,7 +50,7 @@ public class StartUI {
             }
 
             @Override
-            public void execute(Input input, Tracker tracker) {
+            public void execute(Input input, ITracker tracker) {
             }
 
             @Override

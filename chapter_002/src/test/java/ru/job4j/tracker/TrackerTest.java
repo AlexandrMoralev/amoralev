@@ -2,7 +2,7 @@ package ru.job4j.tracker;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -100,7 +100,7 @@ public class TrackerTest {
         tracker.add(new Item("C", "Description of C1"));
         tracker.add(new Item("A", "Description of A2"));
 
-        ArrayList<Item> result = tracker.findByName("A");
+        List<Item> result = tracker.findByName("A");
 
         boolean resultIs = false;
 
