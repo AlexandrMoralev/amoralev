@@ -30,6 +30,11 @@ FROM product
 WHERE type_id = (SELECT id
                  FROM type
                  WHERE type.name = 'СЫР');
+      -- w JOIN
+SELECT *
+FROM product
+  INNER JOIN type t ON product.type_id = t.id
+WHERE t.name = 'СЫР';
 
 -- 2  Написать запрос получения всех продуктов, у кого в имени есть слово "мороженное"
 
@@ -55,7 +60,7 @@ FROM product
 ORDER BY price DESC
 LIMIT 1;
 
-    -- или
+      -- или
 SELECT *
 FROM product
 WHERE price = (SELECT MAX(price)
@@ -75,6 +80,12 @@ WHERE type_id IN
       (SELECT id
        FROM type
        WHERE type.name = 'СЫР' OR type.name = 'МОЛОКО');
+
+      -- w JOIN
+SELECT *
+FROM product
+  INNER JOIN type t ON product.type_id = t.id
+WHERE t.name = 'СЫР' OR t.name = 'МОЛОКО';
 
 -- 7 Написать запрос, который выводит тип продуктов, которых осталось меньше 10 штук.
 
