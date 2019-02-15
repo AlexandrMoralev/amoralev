@@ -16,7 +16,7 @@ import java.util.stream.Stream;
  */
 public class Tracker implements ITracker {
 
-    private final ArrayList<Item> items = new ArrayList<>();
+    private final List<Item> items = new ArrayList<>();
     private static final Random RANDOM = new Random();
 
     /**
@@ -53,7 +53,7 @@ public class Tracker implements ITracker {
             items.set(items.indexOf(item), anItem);
         };
         Stream.of(this.items)
-                .flatMap(itemArrayList -> itemArrayList.stream().filter(itemPredicate))
+                .flatMap(itemList -> itemList.stream().filter(itemPredicate))
                 .forEach(replaceItem);
     }
 
@@ -74,7 +74,7 @@ public class Tracker implements ITracker {
     /**
      * Method findAll - find all non-null Items in the Tracker
      *
-     * @return ArrayList<Item>, empty if the Tracker without any Items
+     * @return List<Item>, empty if the Tracker without any Items
      */
     public List<Item> findAll() {
         return this.items;
@@ -84,11 +84,11 @@ public class Tracker implements ITracker {
      * Method findByName - find all Items by the name
      *
      * @param key String name of Item
-     * @return ArrayList<Item>, empty if there is no Items with name = key, or if the Tracker is empty
+     * @return List<Item>, empty if there is no Items with name = key, or if the Tracker is empty
      */
     public List<Item> findByName(String key) {
         Predicate<Item> isNameMatched = item -> key.equals(item.getName());
-        Function<ArrayList<Item>, Stream<Item>> listMapper = itemArrayList -> itemArrayList.stream().filter(isNameMatched);
+        Function<List<Item>, Stream<Item>> listMapper = itemList -> itemList.stream().filter(isNameMatched);
 
         return Stream.of(this.items)
                 .flatMap(listMapper)
