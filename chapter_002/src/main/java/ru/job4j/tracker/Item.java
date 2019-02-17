@@ -23,10 +23,18 @@ public class Item {
      * @param description String short description of the Item
      *                    created long, in ms - date of Item creation
      */
-    Item(String name, String description) {
+    public Item(final String name, final String description) {
         this.name = name;
         this.description = description;
         this.created = System.currentTimeMillis();
+    }
+
+    public Item(final String id, final String name, final String description, final long created, final String[] comments) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.created = created;
+        this.comments = comments;
     }
 
     /**
