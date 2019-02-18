@@ -89,7 +89,6 @@ public class Tracker implements ITracker {
     public List<Item> findByName(String key) {
         Predicate<Item> isNameMatched = item -> key.equals(item.getName());
         Function<List<Item>, Stream<Item>> listMapper = itemList -> itemList.stream().filter(isNameMatched);
-
         return Stream.of(this.items)
                 .flatMap(listMapper)
                 .collect(Collectors.toCollection(ArrayList::new));

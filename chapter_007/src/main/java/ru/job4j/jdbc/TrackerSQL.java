@@ -7,7 +7,10 @@ import ru.job4j.tracker.Item;
 
 import java.io.InputStream;
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * TrackerSQL
@@ -17,10 +20,18 @@ import java.util.*;
  * @since 0.1
  */
 public class TrackerSQL implements ITracker, AutoCloseable {
-    private static final Logger log = LoggerFactory.getLogger(TrackerSQL.class);
-    private static final String tableName = "items";
+    private static final Logger LOG = LoggerFactory.getLogger(TrackerSQL.class);
+    private static final String TABLE_NAME = "items";
     private Connection connection;
 
+    /**
+     * Method init - initializing of the TrackerSQL
+     * loads config from a properties file, gets the DB connection using DriverManager,
+     * if the db table doesn't exists a new one is created
+     *
+     * @return boolean true, if initialisation is successful,
+     * false otherwise
+     */
     public boolean init() {
         try (InputStream in = TrackerSQL.class
                 .getClassLoader()
@@ -35,7 +46,7 @@ public class TrackerSQL implements ITracker, AutoCloseable {
             );
             checkTable();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             throw new IllegalStateException(e);
         }
         return this.connection != null;
@@ -45,8 +56,8 @@ public class TrackerSQL implements ITracker, AutoCloseable {
         String ls = System.lineSeparator();
         try (PreparedStatement ps = this.connection
                 .prepareStatement(new StringBuilder().append("CREATE TABLE IF NOT EXISTS ")
-                        .append(TrackerSQL.tableName + " (").append(ls)
-                        .append(" item_id BIGINT PRIMARY KEY NOT NULL,").append(ls)
+                        .append(TrackerSQL.TABLE_NAME + " (").append(ls)
+                        .append(" item_id SERIAL PRIMARY KEY,").append(ls)
                         .append(" name VARCHAR(30) NOT NULL,").append(ls)
                         .append(" description VARCHAR(100) NOT NULL,").append(ls)
                         .append(" created BIGINT NOT NULL,").append(ls)
@@ -56,7 +67,7 @@ public class TrackerSQL implements ITracker, AutoCloseable {
         ) {
             ps.execute();
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
     }
 
@@ -65,19 +76,25 @@ public class TrackerSQL implements ITracker, AutoCloseable {
         validateArg(item);
         try (PreparedStatement ps = connection
                 .prepareStatement(
-                        String.format("INSERT INTO %s (%s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?)",
-                                TrackerSQL.tableName, "item_id", "name", "description", "created", "comments")
-                )
+                        String.format("INSERT INTO %s (%s, %s, %s, %s) VALUES (?, ?, ?, ?)",
+                                TrackerSQL.TABLE_NAME, "name", "description", "created", "comments"),
+                        Statement.RETURN_GENERATED_KEYS)
         ) {
-            ps.setLong(1, Long.parseLong(item.getId()));
-            ps.setString(2, item.getName());
-            ps.setString(3, item.getDescription());
-            ps.setLong(4, item.getCreated());
+            ps.setString(1, item.getName());
+            ps.setString(2, item.getDescription());
+            ps.setLong(3, item.getCreated());
             Array array = connection.createArrayOf("VARCHAR", item.getComments());
-            ps.setArray(5, array);
-            ps.executeUpdate();
+            ps.setArray(4, array);
+            int updated = ps.executeUpdate();
+            if (updated == 1) {
+                ResultSet generatedId = ps.getGeneratedKeys();
+                generatedId.next();
+                item.setId(generatedId.getString("item_id"));
+            } else {
+                throw new IllegalStateException();
+            }
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
         return item;
     }
@@ -89,7 +106,7 @@ public class TrackerSQL implements ITracker, AutoCloseable {
         try (PreparedStatement ps = connection
                 .prepareStatement(
                         String.format("UPDATE %s SET %s = ?, %s = ?, %s = ? WHERE %s = ?;",
-                                TrackerSQL.tableName, "name", "description", "comments", "item_id")
+                                TrackerSQL.TABLE_NAME, "name", "description", "comments", "item_id")
                 )
         ) {
             ps.setString(1, item.getName());
@@ -99,7 +116,7 @@ public class TrackerSQL implements ITracker, AutoCloseable {
             ps.setLong(4, Long.parseLong(item.getId()));
             ps.executeUpdate();
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
     }
 
@@ -109,13 +126,13 @@ public class TrackerSQL implements ITracker, AutoCloseable {
         try (PreparedStatement ps = connection
                 .prepareStatement(
                         String.format("DELETE * FROM %s WHERE %s = ?",
-                                TrackerSQL.tableName, "item_id")
+                                TrackerSQL.TABLE_NAME, "item_id")
                 )
         ) {
             ps.setLong(1, Long.parseLong(id));
             ps.executeUpdate();
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
     }
 
@@ -124,14 +141,14 @@ public class TrackerSQL implements ITracker, AutoCloseable {
         List<Item> result = new ArrayList<>();
         try (PreparedStatement ps = connection
                 .prepareStatement(
-                        String.format("SELECT %s, %s, %s FROM %s",
-                                "name", "description", "comments", TrackerSQL.tableName)
+                        String.format("SELECT %s, %s, %s, %s, %s FROM %s",
+                                "item_id", "name", "description", "created", "comments", TrackerSQL.TABLE_NAME)
                 )
         ) {
             ResultSet rs = ps.executeQuery();
             result = convertResultSetToList(rs, result);
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
         return result.isEmpty() ? Collections.EMPTY_LIST : result;
     }
@@ -143,14 +160,14 @@ public class TrackerSQL implements ITracker, AutoCloseable {
         try (PreparedStatement ps = connection
                 .prepareStatement(
                         String.format("SELECT * FROM %s WHERE %s = ?;",
-                                TrackerSQL.tableName, "name")
+                                TrackerSQL.TABLE_NAME, "name")
                 )
         ) {
             ps.setString(1, key);
             ResultSet rs = ps.executeQuery();
             result = convertResultSetToList(rs, result);
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
         return result.isEmpty() ? Collections.EMPTY_LIST : result;
     }
@@ -161,7 +178,7 @@ public class TrackerSQL implements ITracker, AutoCloseable {
         Item result = null;
         try (PreparedStatement ps = connection
                 .prepareStatement(
-                        String.format("SELECT * FROM %s WHERE %s = ?;", TrackerSQL.tableName, "item_id")
+                        String.format("SELECT * FROM %s WHERE %s = ?;", TrackerSQL.TABLE_NAME, "item_id")
                 )
         ) {
             ps.setString(1, id);
@@ -174,7 +191,7 @@ public class TrackerSQL implements ITracker, AutoCloseable {
             }
 
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
         return result;
     }
@@ -198,8 +215,7 @@ public class TrackerSQL implements ITracker, AutoCloseable {
     }
 
     private Item buildItem(ResultSet resultSet) throws SQLException {
-        return new Item(
-                Objects.toString(resultSet.getLong("item_id")),
+        return new Item(resultSet.getString("item_id"),
                 resultSet.getString("name"),
                 resultSet.getString("description"),
                 resultSet.getLong("created"),

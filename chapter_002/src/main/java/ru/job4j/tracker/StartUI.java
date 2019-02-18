@@ -13,10 +13,7 @@ public class StartUI {
 
     private final Input input;
     private final ITracker tracker;
-
-    private int[] range;
-
-   private final Consumer<MenuTracker> menuPrinter = o -> o.show();
+    private final Consumer<MenuTracker> menuPrinter = MenuTracker::show;
 
     /**
      * StartUI instance constructor
@@ -36,9 +33,9 @@ public class StartUI {
     void init() {
         MenuTracker menu = new MenuTracker(this.input, this.tracker);
         // getting actions range[] from menu.
-        this.range = new int[menu.getMenuSize()];
+        int[] range = new int[menu.getMenuSize()];
         for (int i = 0; i < range.length; i++) {
-            this.range[i] = i;
+            range[i] = i;
         }
         // init menu actions.
         menu.fillActions();
@@ -63,12 +60,11 @@ public class StartUI {
         // running application
         do {
             menuPrinter.accept(menu);
-            menu.select(input.ask("Select: ", this.range));
+            menu.select(input.ask("Select: ", range));
         } while (!menu.timeToExit()  & !"y".equals(this.input.ask("Exit? (press \"y\") ")));
     }
 
     public static void main(String[] args) {
-
         new StartUI(
                 new ValidateInput(
                         new ConsoleInput()

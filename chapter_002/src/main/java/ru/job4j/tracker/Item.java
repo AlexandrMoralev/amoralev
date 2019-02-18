@@ -10,6 +10,7 @@ import java.util.Objects;
  * @since $Id$
  */
 public class Item {
+    private static final int INIT_COMMENTS_SIZE = 16;
     private String id;
     private String name;
     private String description;
@@ -17,7 +18,7 @@ public class Item {
     private String[] comments;
 
     /**
-     * Instance constructor of the Item class
+     * Default instance constructor of the Item class
      *
      * @param name        String name of the Item
      * @param description String short description of the Item
@@ -27,9 +28,24 @@ public class Item {
         this.name = name;
         this.description = description;
         this.created = System.currentTimeMillis();
+        this.comments = new String[INIT_COMMENTS_SIZE];
     }
 
-    public Item(final String id, final String name, final String description, final long created, final String[] comments) {
+    /**
+     * Constructs Item instance by initializing all fields
+     *
+     * @param id          String item id
+     * @param name        String name of the Item
+     * @param description String short description of the Item
+     * @param created     long, in ms - date of Item creation
+     * @param comments    String[] comments to the Item
+     */
+    public Item(final String id,
+                final String name,
+                final String description,
+                final long created,
+                final String[] comments
+    ) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -47,7 +63,7 @@ public class Item {
     /**
      * @param id String id of the Item
      */
-    void setId(String id) {
+    public void setId(String id) {
         this.id = id;
     }
 
