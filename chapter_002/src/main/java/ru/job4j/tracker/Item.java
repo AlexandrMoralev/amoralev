@@ -15,7 +15,7 @@ public class Item {
     private String name;
     private String description;
     private long created;
-    private String[] comments;
+    private Comment[] comments;
 
     /**
      * Default instance constructor of the Item class
@@ -28,7 +28,7 @@ public class Item {
         this.name = name;
         this.description = description;
         this.created = System.currentTimeMillis();
-        this.comments = new String[INIT_COMMENTS_SIZE];
+        this.comments = new Comment[INIT_COMMENTS_SIZE];
     }
 
     /**
@@ -38,13 +38,13 @@ public class Item {
      * @param name        String name of the Item
      * @param description String short description of the Item
      * @param created     long, in ms - date of Item creation
-     * @param comments    String[] comments to the Item
+     * @param comments    Comment[] comments to the Item
      */
     public Item(final String id,
                 final String name,
                 final String description,
                 final long created,
-                final String[] comments
+                final Comment[] comments
     ) {
         this.id = id;
         this.name = name;
@@ -63,7 +63,7 @@ public class Item {
     /**
      * @param id String id of the Item
      */
-    public void setId(String id) {
+    public void setId(final String id) {
         this.id = id;
     }
 
@@ -77,7 +77,7 @@ public class Item {
     /**
      * @param name String name of the Item
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -91,7 +91,7 @@ public class Item {
     /**
      * @param description String
      */
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
@@ -105,22 +105,26 @@ public class Item {
     /**
      * @param created long, in ms
      */
-    private void setCreated(long created) {
+    private void setCreated(final long created) {
         this.created = created;
     }
 
     /**
      * @return String[] of Item comments
      */
-    public String[] getComments() {
+    public Comment[] getComments() {
         return comments;
     }
 
     /**
      * @param comments String[] of Item comments
      */
-    public void setComments(String[] comments) {
+    public void setComments(final Comment[] comments) {
         this.comments = comments;
+    }
+
+    public static int getCommentsSize() {
+        return Item.INIT_COMMENTS_SIZE;
     }
 
     @Override
