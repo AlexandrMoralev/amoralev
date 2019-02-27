@@ -71,6 +71,7 @@
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>3.7</version>
                 <configuration>
+                    <printFallingErrors>true</printFallingErrors>
                 </configuration>
             </plugin>
             <plugin>

@@ -1,6 +1,7 @@
 package ru.job4j.test;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -48,7 +49,7 @@ public class DeadLockTest {
         assertThat(latch.getCount() > 0,
                 is(true));
     }
-
+    @Ignore
     @Test
     public void whenRepeatingTestsThenResultIsGuaranteed() throws InterruptedException {
         for (int i = 0; i < 20; i++) {
