@@ -1,16 +1,13 @@
 package ru.job4j.jdbc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.job4j.tracker.Comment;
 import ru.job4j.tracker.ITracker;
 import ru.job4j.tracker.Item;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * TrackerSQL
@@ -23,6 +20,71 @@ public class TrackerSQL implements ITracker, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(TrackerSQL.class);
     private final Comment[] comments = new Comment[0];
     private Connection connection;
+
+    //private final BasicDataSource source;
+
+    private final Map<Class<?>, TripleConsumerEx<Integer, PreparedStatement, Object>> dispatch = new HashMap<>();
+
+    public TrackerSQL() { //BasicDataSource source
+        //this.source = source;
+        this.init();
+        this.dispatch.put(String.class, (index, ps, value) -> ps.setString(index, (String) value));
+        this.dispatch.put(Long.class, (index, ps, value) -> ps.setLong(index, (Long) value));
+
+    }
+
+    private <T> void forIndex(List<T> list,
+                              BiConsumerEx<Integer, T> consumer) throws Exception {
+        for (int index = 0; index != list.size(); index++) {
+            consumer.accept(index, list.get(index));
+        }
+    }
+
+    private <R> Optional<R> db(String sql,
+                               List<Object> params,
+                               FunctionEx<PreparedStatement, R> fun,
+                               int key
+    ) {
+        Optional<R> result = Optional.empty();
+        try (PreparedStatement pr =  this.connection           //this.source
+                                                                //.getConnection()
+                .prepareStatement(sql, key)) {
+            this.forIndex(
+                    params,
+                    (index, value) -> dispatch
+                            .get(value
+                                    .getClass()
+                                    .accept(index + 1, pr, value)
+                            )
+            );
+            result = Optional.of(fun.apply(pr));
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return result;
+    }
+
+
+    private <R> void db(String sql,
+                        List<Object> params,
+                        ConsumerEx<PreparedStatement> fun
+    ) {
+        this.db(sql, params, fun, Statement.NO_GENERATED_KEYS);
+    }
+
+    private <E> void db(String sql,
+                        List<Object> params,
+                        ConsumerEx<PreparedStatement> fun,
+                        int key
+    ) {
+        this.db(sql, params,
+                ps -> {
+                    fun.accept(ps);
+                    Optional.empty();
+                }, key
+        );
+    }
+
 
     /**
      * Method init - initializing of the TrackerSQL
@@ -101,7 +163,21 @@ public class TrackerSQL implements ITracker, AutoCloseable {
                 LOG.error(e.getMessage(), e);
             }
         }
-        return item;
+       // return item;
+
+        this.db(
+                DBNaming.ADD_TO_ITEMS,
+                List.of(item.getName(), item.getDescription(), item.getCreated()),
+                ps -> {
+                    int add = ps.executeUpdate();
+                    if (add == 1) {
+                        ResultSet generatedId = ps.getGeneratedKeys();
+                        generatedId.next();
+                        item.setId(generatedId.getString(DBNaming.ITEMS_ID));
+                    }
+                }
+        );
+
     }
 
     @Override
@@ -134,6 +210,14 @@ public class TrackerSQL implements ITracker, AutoCloseable {
                 }
             }
         }
+
+        this.db(
+                DBNaming.REPLACE_FROM_ITEMS,
+                List.of(item.getName(), item.getDescription(), Long.parseLong(item.getId())),
+                ps -> {
+                    ps.executeUpdate();
+                }
+        );
     }
 
     @Override
@@ -158,6 +242,15 @@ public class TrackerSQL implements ITracker, AutoCloseable {
                 LOG.error(e.getMessage(), e);
             }
         }
+
+        this.db(
+                DBNaming.DELETE_FROM_ITEMS,
+                List.of(Long.parseLong(id)),
+                ps -> {
+                    ps.executeUpdate();
+                }
+        );
+
     }
 
     @Override
@@ -225,7 +318,7 @@ public class TrackerSQL implements ITracker, AutoCloseable {
         try (PreparedStatement ps = connection
                 .prepareStatement(DBNaming.FIND_ITEM_BY_ID_FROM_ITEMS)
         ) {
-            ps.setString(1, id);
+            ps.setLong(1, Long.parseLong(id));
             itemsRS = ps.executeQuery();
             result = buildItem(itemsRS);
         } catch (SQLException e) {
@@ -240,7 +333,16 @@ public class TrackerSQL implements ITracker, AutoCloseable {
         } catch (SQLException e) {
             LOG.error(e.getMessage(), e);
         }
-        return result;
+        //    return result;
+
+        return this.db(
+                DBNaming.FIND_ITEM_BY_ID_FROM_ITEMS,
+                List.of(Long.parseLong(id)),
+                ps -> {
+                    return buildItem(ps.executeUpdate());
+                }
+        );
+
     }
 
     @Override
