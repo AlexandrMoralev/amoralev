@@ -1,7 +1,7 @@
 package ru.job4j.jdbc;
 
 /**
- * FunctionEx - functional interface, takes two params with a possible exception
+ * FunctionEx - functional interface with a possible exception
  *
  * @author Alexandr Moralev (moralev.alexandr@yandex.ru)
  * @version $Id$
@@ -9,5 +9,5 @@ package ru.job4j.jdbc;
  */
 public interface FunctionEx<T, R> {
 
-    R apply(T arg);
+    R apply(T arg) throws Exception;
 }
