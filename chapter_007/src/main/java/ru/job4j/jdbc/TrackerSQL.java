@@ -1,16 +1,14 @@
 package ru.job4j.jdbc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.job4j.tracker.Comment;
 import ru.job4j.tracker.ITracker;
 import ru.job4j.tracker.Item;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import java.io.InputStream;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * TrackerSQL
@@ -23,10 +21,19 @@ public class TrackerSQL implements ITracker, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(TrackerSQL.class);
     private final Comment[] comments = new Comment[0];
     private Connection connection;
+    private final Map<Class<?>, TripleConsumerEx<Integer, PreparedStatement, Object>> dispatch = new HashMap<>();
 
     /**
-     * Method init - initializing of the TrackerSQL
-     * loads config from a properties file, gets the DB connection using DriverManager,
+     * Constructs TrackerSQL instance, prepares for DB using and
+     */
+    public TrackerSQL() {
+        this.init();
+        this.dispatch.put(String.class, (index, ps, value) -> ps.setString(index, (String) value));
+        this.dispatch.put(Long.class, (index, ps, value) -> ps.setLong(index, (Long) value));
+    }
+
+    /**
+     * Method init - loads config from a properties file, gets the DB connection using DriverManager,
      * if the db table doesn't exists a new one is created
      *
      * @return boolean true, if initialisation is successful,
@@ -53,11 +60,74 @@ public class TrackerSQL implements ITracker, AutoCloseable {
     }
 
     private void checkTables() {
-        try (PreparedStatement ps = this.connection
-                .prepareStatement(DBNaming.CREATE_TABLES)
+        this.db(DBNaming.CREATE_TABLES,
+                List.of(),
+                (ConsumerEx<PreparedStatement>) PreparedStatement::execute
+        );
+    }
+
+    private <T> void forIndex(List<T> list,
+                              BiConsumerEx<Integer, T> consumer) throws Exception {
+        for (int index = 0; index != list.size(); index++) {
+            consumer.accept(index, list.get(index));
+        }
+    }
+
+    private <R> Optional<R> db(String sql,
+                               List<Object> params,
+                               FunctionEx<PreparedStatement, R> fun,
+                               int key
+    ) {
+        Optional<R> result = Optional.empty();
+        try (PreparedStatement pr = this.connection
+                .prepareStatement(sql, key)
         ) {
-            ps.execute();
-        } catch (SQLException e) {
+            this.forIndex(params, (index, value) -> dispatch
+                    .get(value.getClass())
+                    .accept(index + 1, pr, value)
+            );
+            result = Optional.of(fun.apply(pr));
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return result;
+    }
+
+    // overloaded without key
+    private <R> Optional<R> db(String sql,
+                               List<Object> params,
+                               FunctionEx<PreparedStatement, R> fun
+    ) {
+        return this.db(sql, params, fun, Statement.NO_GENERATED_KEYS);
+    }
+
+    // the same DB without return value
+    private <E> void db(String sql,
+                        List<Object> params,
+                        ConsumerEx<PreparedStatement> fun,
+                        int key
+    ) {
+        this.db(sql, params,
+                ps -> {
+                    ex(() -> fun.accept(ps));
+                    return Optional.empty();
+                }, key
+        );
+    }
+
+    // overloaded DB without return value
+    private <R> void db(String sql,
+                        List<Object> params,
+                        ConsumerEx<PreparedStatement> fun
+    ) {
+        this.db(sql, params, fun, Statement.NO_GENERATED_KEYS);
+    }
+
+    // wrapper to catch exceptions
+    private void ex(UnaryEx unary) {
+        try {
+            unary.action();
+        } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
     }
@@ -65,42 +135,33 @@ public class TrackerSQL implements ITracker, AutoCloseable {
     @Override
     public Item add(final Item item) {
         validateArg(item);
-        int added = -1;
-        try (PreparedStatement ps = connection
-                .prepareStatement(DBNaming.ADD_TO_ITEMS, Statement.RETURN_GENERATED_KEYS)
-        ) {
-            ps.setString(1, item.getName());
-            ps.setString(2, item.getDescription());
-            ps.setLong(3, item.getCreated());
-            added = ps.executeUpdate();
-            if (added == 1) {
-                ResultSet generatedId = ps.getGeneratedKeys();
-                generatedId.next();
-                item.setId(generatedId.getString(DBNaming.ITEMS_ID));
-            } else {
-                throw new IllegalStateException();
-            }
-        } catch (SQLException e) {
-            LOG.error(e.getMessage(), e);
-        }
-        if (added == 1) {
-            try (PreparedStatement ps = connection
-                    .prepareStatement(DBNaming.ADD_TO_COMMENTARIES, Statement.RETURN_GENERATED_KEYS)
-            ) {
-                for (Comment comment : item.getComments()) {
-                    ps.setString(1, comment.getComment());
-                    ps.setString(2, item.getId());
-                    int updated = ps.executeUpdate();
-                    if (updated == 1) {
-                        ResultSet generatedId = ps.getGeneratedKeys();
-                        generatedId.next();
-                        comment.setId(generatedId.getInt(DBNaming.COMMENTARIES_COMMENT_ID));
+        this.db(
+                DBNaming.ADD_TO_ITEMS,
+                List.of(item.getName(), item.getDescription(), item.getCreated()),
+                psi -> {
+                    if (psi.executeUpdate() == 1) {
+                        ResultSet itemId = psi.getGeneratedKeys();
+                        itemId.next();
+                        String id = itemId.getString(DBNaming.ITEMS_ID);
+                        item.setId(id);
+                        for (Comment comment : item.getComments()) {
+                            this.db(
+                                    DBNaming.ADD_TO_COMMENTARIES,
+                                    List.of(comment.getComment(), id),
+                                    psc -> {
+                                        if (psc.executeUpdate() == 1) {
+                                            ResultSet commentId = psc.getGeneratedKeys();
+                                            commentId.next();
+                                            comment.setId(commentId.getInt(DBNaming.COMMENTARIES_COMMENT_ID));
+                                        }
+                                    },
+                                    Statement.RETURN_GENERATED_KEYS
+                            );
+                        }
                     }
-                }
-            } catch (SQLException e) {
-                LOG.error(e.getMessage(), e);
-            }
-        }
+                },
+                Statement.RETURN_GENERATED_KEYS
+        );
         return item;
     }
 
@@ -108,82 +169,65 @@ public class TrackerSQL implements ITracker, AutoCloseable {
     public void replace(final String id, final Item item) {
         validateArg(id);
         validateArg(item);
-        int replaced = -1;
-        try (PreparedStatement ps = connection
-                .prepareStatement(DBNaming.REPLACE_FROM_ITEMS)
-        ) {
-            ps.setString(1, item.getName());
-            ps.setString(2, item.getDescription());
-            ps.setLong(3, Long.parseLong(item.getId()));
-            replaced = ps.executeUpdate();
-        } catch (SQLException e) {
-            LOG.error(e.getMessage(), e);
-        }
-        if (replaced == 1) {
-            Comment[] comments = item.getComments();
-            for (Comment comment : comments) {
-                try (PreparedStatement ps = connection
-                        .prepareStatement(DBNaming.REPLACE_FROM_COMMENTARIES)
-                ) {
-                    ps.setString(1, comment.getComment());
-                    ps.setInt(2, comment.getId());
-                    ps.setLong(3, comment.getItemId());
-                    ps.executeUpdate();
-                } catch (SQLException e) {
-                    LOG.error(e.getMessage(), e);
+        this.db(
+                DBNaming.REPLACE_FROM_ITEMS,
+                List.of(item.getName(), item.getDescription(), Long.parseLong(item.getId())),
+                psi -> {
+                    if (psi.executeUpdate() == 1) {
+                        for (Comment comment : item.getComments()) {
+                            this.db(
+                                    DBNaming.REPLACE_FROM_COMMENTARIES,
+                                    List.of(comment.getComment(), comment.getId(), comment.getItemId()),
+                                    (ConsumerEx<PreparedStatement>) PreparedStatement::executeUpdate
+                            );
+                        }
+                    }
                 }
-            }
-        }
+        );
     }
 
     @Override
     public void delete(final String id) {
         validateArg(id);
-        int deleted = -1;
-        try (PreparedStatement ps = connection
-                .prepareStatement(DBNaming.DELETE_FROM_ITEMS)
-        ) {
-            ps.setLong(1, Long.parseLong(id));
-            deleted = ps.executeUpdate();
-        } catch (SQLException e) {
-            LOG.error(e.getMessage(), e);
-        }
-        if (deleted == 1) {
-            try (PreparedStatement ps = connection
-                    .prepareStatement(DBNaming.DELETE_FROM_COMMENTARIES)
-            ) {
-                ps.setLong(1, Long.parseLong(id));
-                ps.executeUpdate();
-            } catch (SQLException e) {
-                LOG.error(e.getMessage(), e);
-            }
-        }
+        final Long longId = Long.parseLong(id);
+        this.db(
+                DBNaming.DELETE_FROM_ITEMS,
+                List.of(longId),
+                psi -> {
+                    if (psi.executeUpdate() == 1) {
+                        this.db(DBNaming.DELETE_FROM_COMMENTARIES,
+                                List.of(longId),
+                                (ConsumerEx<PreparedStatement>) PreparedStatement::executeUpdate
+                        );
+                    }
+                }
+        );
+
     }
 
     @Override
     public List<Item> findAll() {
-        List<Item> result = new ArrayList<>();
-        try (PreparedStatement ps = connection
-                .prepareStatement(DBNaming.FIND_ALL_FROM_ITEMS)
-        ) {
-            ResultSet rs = ps.executeQuery();
-            result = convertResultSetToList(rs, result);
-        } catch (SQLException e) {
-            LOG.error(e.getMessage(), e);
-        }
-        if (!result.isEmpty()) {
-            for (Item item : result) {
-                try (PreparedStatement ps = connection
-                        .prepareStatement(DBNaming.FIND_ALL_FROM_COMMENTARIES)
-                ) {
-                    ps.setLong(1, Long.parseLong(item.getId()));
-                    ResultSet resultSet = ps.executeQuery();
-                    item.setComments(addCommentsToItem(resultSet));
-                } catch (SQLException e) {
-                    LOG.error(e.getMessage(), e);
+        final List<Item> result = new ArrayList<>();
+        this.db(
+                DBNaming.FIND_ALL_FROM_ITEMS,
+                List.of(),
+                psi -> {
+                    ResultSet rsi = psi.executeQuery();
+                    convertResultSetToList(rsi, result);
+                    if (!result.isEmpty()) {
+                        for (Item item : result) {
+                            this.db(
+                                    DBNaming.FIND_ALL_FROM_COMMENTARIES,
+                                    List.of(Long.parseLong(item.getId())),
+                                    psc -> {
+                                        ResultSet rsc = psc.executeQuery();
+                                        item.setComments(addCommentsToItem(rsc));
+                                    }
+                            );
+                        }
+                    }
                 }
-            }
-        }
+        );
         return result.isEmpty() ? Collections.EMPTY_LIST : result;
     }
 
@@ -191,56 +235,51 @@ public class TrackerSQL implements ITracker, AutoCloseable {
     public List<Item> findByName(final String key) {
         validateArg(key);
         List<Item> result = new ArrayList<>();
-        try (PreparedStatement ps = connection
-                .prepareStatement(DBNaming.FIND_ITEM_BY_NAME_FROM_ITEMS)
-        ) {
-            ps.setString(1, key);
-            ResultSet rs = ps.executeQuery();
-            result = convertResultSetToList(rs, result);
-        } catch (SQLException e) {
-            LOG.error(e.getMessage(), e);
-        }
-        if (!result.isEmpty()) {
-            for (Item item : result) {
-                try (PreparedStatement ps = connection
-                        .prepareStatement(DBNaming.FIND_ITEM_BY_NAME_FROM_COMMENTARIES)
-                ) {
-                    ps.setLong(1, Long.parseLong(item.getId()));
-                    ResultSet resultSet = ps.executeQuery();
-                    item.setComments(addCommentsToItem(resultSet));
-                } catch (SQLException e) {
-                    LOG.error(e.getMessage(), e);
+        this.db(
+                DBNaming.FIND_ITEM_BY_NAME_FROM_ITEMS,
+                List.of(key),
+                psi -> {
+                    ResultSet rsi = psi.executeQuery();
+                    convertResultSetToList(rsi, result);
+                    if (!result.isEmpty()) {
+                        for (Item item : result) {
+                            this.db(
+                                    DBNaming.FIND_ITEM_BY_NAME_FROM_COMMENTARIES,
+                                    List.of(Long.parseLong(item.getId())),
+                                    psc -> {
+                                        ResultSet rsc = psc.executeQuery();
+                                        item.setComments(addCommentsToItem(rsc));
+                                    }
+                            );
+                        }
+                    }
                 }
-            }
-        }
+        );
         return result.isEmpty() ? Collections.EMPTY_LIST : result;
     }
 
     @Override
     public Item findById(final String id) {
         validateArg(id);
-        Item result = null;
-        ResultSet itemsRS;
-        ResultSet commentsRS;
-        try (PreparedStatement ps = connection
-                .prepareStatement(DBNaming.FIND_ITEM_BY_ID_FROM_ITEMS)
-        ) {
-            ps.setString(1, id);
-            itemsRS = ps.executeQuery();
-            result = buildItem(itemsRS);
-        } catch (SQLException e) {
-            LOG.error(e.getMessage(), e);
-        }
-        try (PreparedStatement ps = connection
-                .prepareStatement(DBNaming.FIND_ITEM_BY_ID_FROM_COMMENTARIES)
-        ) {
-            ps.setLong(1, Long.parseLong(id));
-            commentsRS = ps.executeQuery();
-            result.setComments(addCommentsToItem(commentsRS));
-        } catch (SQLException e) {
-            LOG.error(e.getMessage(), e);
-        }
-        return result;
+        final Long longId = Long.parseLong(id);
+        final Optional<Item> result = this.db(
+                DBNaming.FIND_ITEM_BY_ID_FROM_ITEMS,
+                List.of(longId),
+                psi -> {
+                    ResultSet rsi = psi.executeQuery();
+                    return this.db(
+                            DBNaming.FIND_ITEM_BY_ID_FROM_COMMENTARIES,
+                            List.of(longId),
+                            psc -> {
+                                ResultSet rsc = psc.executeQuery();
+                                Item rsl = buildItem(rsi);
+                                rsl.setComments(addCommentsToItem(rsc));
+                                return rsl;
+                            }
+                    );
+                }
+        ).get();
+        return result.get();
     }
 
     @Override
