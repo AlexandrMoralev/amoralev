@@ -18,7 +18,7 @@ public class StoreXML {
         this.target = target;
     }
 
-    public boolean save(List<XmlUsage.Entry> list) {
+    public boolean save(List<Entry> list) {
         return false;
     }
 /*
