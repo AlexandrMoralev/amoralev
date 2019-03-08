@@ -1,9 +1,10 @@
 package ru.job4j.jdbc.xslt;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 
-@XmlRootElement
+@XmlRootElement(name = "Entry")
 public class Entry {
     private int field;
 
@@ -20,6 +21,7 @@ public class Entry {
         this.field = field;
     }
 
+    @XmlElement(name = "field")
     public int getField() {
         return this.field;
     }
