@@ -7,8 +7,7 @@ import java.io.File;
 import java.util.List;
 
 /**
- * StoreXML - преобразует List<Entry> в XML и записывает их в файл,
- * передает имя XML файла в ConvertXSQT
+ * StoreXML - converts the List of DB-Items to XML-file
  *
  * @author Alexandr Moralev (moralev.alexandr@yandex.ru)
  * @version $Id$
@@ -16,19 +15,30 @@ import java.util.List;
  */
 public class StoreXML {
     private final File target;
-    // DEFAULT values
     private static final String FILE_PATH = "./";
     private static final String FILE_NAME = "file.xml";
 
+    /**
+     * StoreXML instance constructor with default filepath parameters
+     */
     public StoreXML() {
         this(new File(FILE_PATH + FILE_NAME));
     }
 
+    /**
+     * Constructs StoreXML instance with an output file reference
+     *
+     * @param target
+     */
     public StoreXML(final File target) {
         this.target = target;
     }
 
-    //сохраняет данные из list в файл target.
+    /**
+     * Saves the list of db-items to an output XML-file, using JAXB marshalling
+     *
+     * @param list notnull List of Entry
+     */
     public void save(final List<Entry> list) {
         if (list == null) {
             throw new NullPointerException();

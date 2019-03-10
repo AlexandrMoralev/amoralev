@@ -1,10 +1,15 @@
 package ru.job4j.jdbc.xslt;
 
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 
-@XmlRootElement(name = "Entry")
+/**
+ * Entry - POJO for data manipulation
+ *
+ * @author Alexandr Moralev (moralev.alexandr@yandex.ru)
+ * @version $Id$
+ * @since 0.1
+ */
 public class Entry {
     private int field;
 
@@ -12,12 +17,10 @@ public class Entry {
     }
 
     public Entry(int field) {
-
         this.field = field;
     }
 
     public void setField(int field) {
-
         this.field = field;
     }
 

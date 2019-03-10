@@ -1,14 +1,19 @@
 package ru.job4j.jdbc.xslt;
 
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.io.File;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * StoreSQL - генерит N записей в базе,
- * передает List<Entry> в StoreXML
+ * StoreSQL - class for creating a new SQLite database;
+ * generates, inserts and retrieves data from the database
  *
  * @author Alexandr Moralev (moralev.alexandr@yandex.ru)
  * @version $Id$
@@ -21,17 +26,29 @@ public class StoreSQL implements AutoCloseable {
     private Connection connect;
     private DatabaseMetaData metaData;
 
+    /**
+     * Creates StoreSQL instance, establishes a DB Connection,
+     * creates DB structure if it does not exists
+     *
+     * @param config Config instance
+     */
     public StoreSQL(final Config config) {
         this.config = config;
         setConnection();
         createDBStructure();
     }
 
-    public void generate(int size) throws SQLException {
+    /**
+     * Generates items in the database
+     *
+     * @param items number of db-items to be generated
+     * @throws SQLException
+     */
+    public void generate(int items) throws SQLException {
         checkConnection();
         try {
             if (metaData.supportsBatchUpdates()) {
-                insertUsingBatchUpdate(size);
+                insertUsingBatchUpdate(items);
             } else {
                 throw new IllegalStateException("DB doesnt support BatchUpdates");
             }
@@ -41,10 +58,16 @@ public class StoreSQL implements AutoCloseable {
         }
     }
 
-    private void insertUsingBatchUpdate(int size) throws SQLException {
+    /**
+     * Inserts items into DB-table
+     *
+     * @param number number of db-items to be generated
+     * @throws SQLException
+     */
+    private void insertUsingBatchUpdate(int number) throws SQLException {
         connect.setAutoCommit(false);
         final Statement statement = this.connect.createStatement();
-        for (int i = 1; i <= size; i++) {
+        for (int i = 1; i <= number; i++) {
             statement.addBatch(
                     String.format("INSERT INTO %s VALUES (%s)",
                             tableName, i)
@@ -54,6 +77,9 @@ public class StoreSQL implements AutoCloseable {
         connect.commit();
     }
 
+    /**
+     * Initializes config, establishes a db-connection and gets DatabaseMetaData
+     */
     private void setConnection() {
         config.init();
         final File dbfile = new File(".");
@@ -77,6 +103,10 @@ public class StoreSQL implements AutoCloseable {
         }
     }
 
+    /**
+     * Creates a new database and db-tables if it doesn't exists.
+     * Drop and creates a new db-table if it exists.
+     */
     private void createDBStructure() {
         tableName = this.config.get("tablename");
         fieldName = this.config.get("fieldname");
@@ -95,6 +125,12 @@ public class StoreSQL implements AutoCloseable {
         }
     }
 
+    /**
+     * Loads list of all items from the database
+     *
+     * @return List of db-items if the db contains any items,
+     * empty list otherwise
+     */
     public List<Entry> load() {
         List<Entry> result = new ArrayList<>();
         final String SELECT_ALL_FROM_TABLE = String
@@ -123,27 +159,36 @@ public class StoreSQL implements AutoCloseable {
         }
     }
 
-    public static void main(String[] args) throws SQLException {
-        long start = System.nanoTime() / 1000000;
-        System.out.println("start:" + start);
+    public static void main(String[] args) throws SQLException, TransformerException, IOException, SAXException, ParserConfigurationException {
+        int numberOfValues = 1_000_000;
 
         final String sourceFilepath = "./entries.xml";
         final String destFilepath = "./entriesConverted.xml";
-        final String schemeFilepath = "./schema.scm";
+        final String schemeFilepath = "./scheme.scm";
+
+        long start = System.nanoTime();
+        System.out.println("start executing...");
 
         StoreSQL storeSQL = new StoreSQL(new Config());
-        storeSQL.generate(1000);
+        storeSQL.generate(numberOfValues);
         Entries entries = new Entries(storeSQL.load());
 
         StoreXML storeXML = new StoreXML(new File(sourceFilepath));
         storeXML.save(entries.getEntries());
 
         ConvertXSQT convert = new ConvertXSQT();
-        convert.convert(new File(sourceFilepath), new File(destFilepath), new File(schemeFilepath));
+        File destFile = new File(destFilepath);
+        convert.convert(new File(sourceFilepath),
+                destFile,
+                new File(schemeFilepath)
+        );
+        SAXEntriesParser parser = new SAXEntriesParser(destFile);
 
-        long finish = System.nanoTime() / 1000000;
-        System.out.println("finish:" + finish);
-        System.out.println("time :" + (finish - start) + " ms");
+        long finish = System.nanoTime();
+        System.out.println("finished successfully!");
+        System.out.println(">>> arithmetic sum of all values: " + parser.parseSum());
+
+        System.out.println(String.format("parsing time: %s ms @%s items", (finish - start) / 1000000, numberOfValues));
     }
 
 }

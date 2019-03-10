@@ -4,7 +4,8 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * Config - для передачи настроек SQLite в StoreSQL
+ * Config - wrapper for a Properties
+ * transfers SQLite settings to Store StoreSQL
  *
  * @author Alexandr Moralev (moralev.alexandr@yandex.ru)
  * @version $Id$
