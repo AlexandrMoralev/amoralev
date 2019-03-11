@@ -22,6 +22,7 @@ public class StoreSQLTest {
         final StoreSQL storeSQL = new StoreSQL(new Config());
         storeSQL.generate(3);
         final List<Entry> result = storeSQL.load();
+        storeSQL.close();
         assertThat(result.get(0).getField(), is(1));
         assertThat(result.get(1).getField(), is(2));
         assertThat(result.get(2).getField(), is(3));
@@ -33,6 +34,7 @@ public class StoreSQLTest {
         final StoreSQL storeSQL = new StoreSQL(new Config());
         storeSQL.generate(0);
         final List<Entry> result = storeSQL.load();
+        storeSQL.close();
         assertThat(result.isEmpty(), is(true));
     }
 }

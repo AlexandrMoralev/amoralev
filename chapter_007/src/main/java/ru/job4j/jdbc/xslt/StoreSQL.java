@@ -1,11 +1,6 @@
 package ru.job4j.jdbc.xslt;
 
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import java.io.File;
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -158,37 +153,4 @@ public class StoreSQL implements AutoCloseable {
             }
         }
     }
-
-    public static void main(String[] args) throws SQLException, TransformerException, IOException, SAXException, ParserConfigurationException {
-        int numberOfValues = 1_000_000;
-
-        final String sourceFilepath = "./entries.xml";
-        final String destFilepath = "./entriesConverted.xml";
-        final String schemeFilepath = "./scheme.scm";
-
-        long start = System.nanoTime();
-        System.out.println("start executing...");
-
-        StoreSQL storeSQL = new StoreSQL(new Config());
-        storeSQL.generate(numberOfValues);
-        Entries entries = new Entries(storeSQL.load());
-
-        StoreXML storeXML = new StoreXML(new File(sourceFilepath));
-        storeXML.save(entries.getEntries());
-
-        ConvertXSQT convert = new ConvertXSQT();
-        File destFile = new File(destFilepath);
-        convert.convert(new File(sourceFilepath),
-                destFile,
-                new File(schemeFilepath)
-        );
-        SAXEntriesParser parser = new SAXEntriesParser(destFile);
-
-        long finish = System.nanoTime();
-        System.out.println("finished successfully!");
-        System.out.println(">>> arithmetic sum of all values: " + parser.parseSum());
-
-        System.out.println(String.format("parsing time: %s ms @%s items", (finish - start) / 1000000, numberOfValues));
-    }
-
 }

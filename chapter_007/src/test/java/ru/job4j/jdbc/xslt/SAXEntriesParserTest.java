@@ -31,7 +31,7 @@ public class SAXEntriesParserTest {
         storeSQL.generate(numberOfEntry);
 
         final Entries entries = new Entries(storeSQL.load());
-
+        storeSQL.close();
         final StoreXML storeXML = new StoreXML(new File(sourceFilepath));
         storeXML.save(entries.getEntries());
 
