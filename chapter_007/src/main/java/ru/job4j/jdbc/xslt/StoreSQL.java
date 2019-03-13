@@ -15,11 +15,8 @@ import java.util.List;
  * @since 0.1
  */
 public class StoreSQL implements AutoCloseable {
-    private String tableName;
-    private String fieldName;
     private final Config config;
     private Connection connect;
-    private DatabaseMetaData metaData;
 
     /**
      * Creates StoreSQL instance, establishes a DB Connection,
@@ -42,6 +39,7 @@ public class StoreSQL implements AutoCloseable {
     public void generate(int items) throws SQLException {
         checkConnection();
         try {
+            final DatabaseMetaData metaData = this.connect.getMetaData();
             if (metaData.supportsBatchUpdates()) {
                 insertUsingBatchUpdate(items);
             } else {
@@ -62,6 +60,7 @@ public class StoreSQL implements AutoCloseable {
     private void insertUsingBatchUpdate(int number) throws SQLException {
         connect.setAutoCommit(false);
         final Statement statement = this.connect.createStatement();
+        final String tableName = this.config.get("tablename");
         for (int i = 1; i <= number; i++) {
             statement.addBatch(
                     String.format("INSERT INTO %s VALUES (%s)",
@@ -73,7 +72,7 @@ public class StoreSQL implements AutoCloseable {
     }
 
     /**
-     * Initializes config, establishes a db-connection and gets DatabaseMetaData
+     * Initializes config, establishes a db-connection
      */
     private void setConnection() {
         config.init();
@@ -86,7 +85,6 @@ public class StoreSQL implements AutoCloseable {
                     config.get("username"),
                     config.get("password")
             );
-            this.metaData = this.connect.getMetaData();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -100,11 +98,11 @@ public class StoreSQL implements AutoCloseable {
 
     /**
      * Creates a new database and db-tables if it doesn't exists.
-     * Drop and creates a new db-table if it exists.
+     * Drops and creates a new db-table if it exists.
      */
     private void createDBStructure() {
-        tableName = this.config.get("tablename");
-        fieldName = this.config.get("fieldname");
+        final String tableName = this.config.get("tablename");
+        final String fieldName = this.config.get("fieldname");
         final String DROP_TABLE_IF_EXISTS = String
                 .format("DROP TABLE IF EXISTS '%s'",
                         tableName);
@@ -127,7 +125,9 @@ public class StoreSQL implements AutoCloseable {
      * empty list otherwise
      */
     public List<Entry> load() {
-        List<Entry> result = new ArrayList<>();
+        final String tableName = this.config.get("tablename");
+        final String fieldName = this.config.get("fieldname");
+        final List<Entry> result = new ArrayList<>();
         final String SELECT_ALL_FROM_TABLE = String
                 .format("SELECT * FROM '%s'",
                         tableName);
