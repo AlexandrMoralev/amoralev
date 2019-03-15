@@ -2,6 +2,7 @@
 [![codecov](https://codecov.io/gh/AlexandrMoralev/amoralev/branch/master/graph/badge.svg)](https://codecov.io/gh/AlexandrMoralev/amoralev)
 
 
+
 # amoralev
 This is an internship repository for keeping different projects and learning Java.
 
