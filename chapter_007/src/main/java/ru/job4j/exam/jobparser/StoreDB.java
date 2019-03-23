@@ -2,10 +2,7 @@ package ru.job4j.exam.jobparser;
 
 import java.io.File;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * StoreDB - class for interacting with the current database;
@@ -33,6 +30,7 @@ public class StoreDB implements AutoCloseable {
         final File dbFile = new File(".");
         loadDbDriver();
         Connection connect = null;
+        final int timeout = 50;
         for (int i = 0; i < this.db.attemptsToConnect; i++) {
             try {
                 connect = DriverManager.getConnection(
@@ -47,7 +45,7 @@ public class StoreDB implements AutoCloseable {
                 if (connect != null) {
                     break;
                 }
-                Thread.sleep(50);
+                Thread.sleep(timeout);
             } catch (SQLException | InterruptedException e) {
                 e.printStackTrace(); //TODO logger
             }
@@ -116,7 +114,7 @@ public class StoreDB implements AutoCloseable {
         return added;
     }
 
-    public int[] addAll(final List<Vacancy> vacancies) {
+    public int[] addAll(final Collection<Vacancy> vacancies) {
         validate(vacancies);
         int[] empty = new int[0];
         if (vacancies.isEmpty()) {
@@ -167,14 +165,45 @@ public class StoreDB implements AutoCloseable {
         return result;
     }
 
-    public List<Vacancy> findByDate(final String date) {
-
-        return Collections.emptyList();
+    public List<Vacancy> findByDate(final Timestamp date) {
+        validate(date);
+        checkConnection();
+        final String SELECT_BY_DATE = String.format("SELECT * FROM %s WHERE %s = %s;",
+                this.db.table,
+                this.db.itemDate,
+                date
+        );
+        List<Vacancy> result = new ArrayList<>();
+        try (PreparedStatement ps = this.connection.prepareStatement(SELECT_BY_DATE)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                result.add(createItem(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();  //TODO logger
+        }
+        return result.isEmpty() ? Collections.emptyList() : result;
     }
 
-    public List<Vacancy> findByPeriod(final String fromDate, final String toDate) {
-
-        return Collections.emptyList();
+    public List<Vacancy> findByPeriod(final Timestamp fromDate, final Timestamp toDate) {
+        validate(fromDate);
+        validate(toDate);
+        final String SELECT_BY_PERIOD = String.format("SELECT * FROM %s WHERE %s BETWEEN (%s AND %s);",
+                this.db.table,
+                this.db.itemDate,
+                fromDate,
+                toDate
+        );
+        List<Vacancy> result = new ArrayList<>();
+        try (PreparedStatement ps = this.connection.prepareStatement(SELECT_BY_PERIOD)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                result.add(createItem(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result.isEmpty() ? Collections.emptyList() : result;
     }
 
     public List<Vacancy> findRecent(final int number) {
@@ -208,6 +237,7 @@ public class StoreDB implements AutoCloseable {
         if (name.isBlank()) {
             return updated;
         }
+        checkConnection();
         final String DELETE = String.format("DELETE FROM %s WHERE %s = %s;",
                 this.db.table,
                 this.db.itemName,
@@ -221,19 +251,57 @@ public class StoreDB implements AutoCloseable {
         return updated;
     }
 
-    public int deleteOlderThan(final String date) {
-
-        return 0;
+    public int deleteOlderThan(final Timestamp date) {
+        validate(date);
+        checkConnection();
+        final String DELETE_OLDEST = String.format("DELETE FROM %s WHERE %s > %s;",
+                this.db.table,
+                this.db.itemDate,
+                date
+        );
+        int result = 0;
+        try (PreparedStatement ps = this.connection.prepareStatement(DELETE_OLDEST)) {
+            result = ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace(); //TODO logger
+        }
+        return result;
     }
 
-    public int deleteByDate(final String date) {
-
-        return 0;
+    public int deleteByDate(final Timestamp date) {
+        validate(date);
+        checkConnection();
+        final String DELETE_BY_DATE = String.format("DELETE FROM %s WHERE %s = %s;",
+                this.db.table,
+                this.db.itemDate,
+                date
+        );
+        int result = 0;
+        try (PreparedStatement ps = this.connection.prepareStatement(DELETE_BY_DATE)) {
+            result = ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace(); //TODO logger
+        }
+        return result;
     }
 
-    public int deleteByPeriod(final String fromDate, final String toDate) {
-
-        return 0;
+    public int deleteByPeriod(final Timestamp fromDate, final Timestamp toDate) {
+        validate(fromDate);
+        validate(toDate);
+        checkConnection();
+        final String DELETE_BY_PERIOD = String.format("DELETE FROM %s WHERE %s BETWEEN (%s AND %s);",
+                this.db.table,
+                this.db.itemDate,
+                fromDate,
+                toDate
+        );
+        int result = 0;
+        try (PreparedStatement ps = this.connection.prepareStatement(DELETE_BY_PERIOD)) {
+            result = ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace(); //TODO logger
+        }
+        return result;
     }
 
     private Vacancy createItem(final ResultSet resultSet) throws SQLException {
