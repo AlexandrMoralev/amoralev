@@ -20,7 +20,6 @@ public class StoreDB implements AutoCloseable {
 
     public StoreDB(final Config config) {
         this.config = config;
-        this.config.init();
         this.db = new DbProperties();
         this.connection = getConnection();
         checkDBStructure();
@@ -142,6 +141,20 @@ public class StoreDB implements AutoCloseable {
         return result != null ? result : empty;
     }
 
+    public Collection<Vacancy> findAll() {
+        final String SELECT_ALL = String.format("SELECT * FROM %s", this.db.table);
+        Collection<Vacancy> result = new ArrayDeque<>();
+        try(Statement st = this.connection.createStatement()) {
+            ResultSet rs = st.executeQuery(SELECT_ALL);
+            while (rs.next()) {
+                result.add(createItem(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();  //TODO logger
+        }
+        return result; //TODO realize
+    }
+
     public Optional<Vacancy> findByName(final String name) {
         validate(name);
         Optional<Vacancy> result = Optional.empty();
@@ -201,7 +214,7 @@ public class StoreDB implements AutoCloseable {
                 result.add(createItem(rs));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace();  //TODO logger
         }
         return result.isEmpty() ? Collections.emptyList() : result;
     }
@@ -298,6 +311,17 @@ public class StoreDB implements AutoCloseable {
         int result = 0;
         try (PreparedStatement ps = this.connection.prepareStatement(DELETE_BY_PERIOD)) {
             result = ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace(); //TODO logger
+        }
+        return result;
+    }
+
+    public int deleteAll() {
+        final String DELETE_ALL = String.format("TRUNCATE TABLE %s", this.db.table);
+        int result = 0;
+        try (Statement st = this.connection.createStatement()) {
+            result = st.executeUpdate(DELETE_ALL);
         } catch (SQLException e) {
             e.printStackTrace(); //TODO logger
         }

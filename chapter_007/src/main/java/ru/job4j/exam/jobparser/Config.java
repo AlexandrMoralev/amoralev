@@ -14,18 +14,25 @@ import java.util.Properties;
  */
 public class Config {
     //TODO add logger
-    private final Properties properties = new Properties();
+    private final Properties properties;
 
-    public void init() {
-        final String fileName = "jobparser_app.properties";
+    public Config(String propertiesFileName) {
+        this.properties = new Properties();
+        init(propertiesFileName);
+    }
+
+    private void init(String propertiesFileName) {
+        String defaultPropsFileName = "jobparser_app.properties";
+        String fileName = (propertiesFileName == null || propertiesFileName.isBlank())
+                ? defaultPropsFileName
+                : propertiesFileName;
         try (InputStream in = Config.class
                 .getClassLoader()
                 .getResourceAsStream(fileName)
         ) {
             properties.load(in);
         } catch (IOException e) {
-            //TODO add logging
-            e.printStackTrace();
+            e.printStackTrace(); //TODO add logging
         }
     }
 
