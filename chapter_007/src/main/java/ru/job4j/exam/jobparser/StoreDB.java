@@ -1,6 +1,8 @@
 package ru.job4j.exam.jobparser;
 
+
 import java.io.File;
+import java.io.InputStream;
 import java.sql.*;
 import java.util.*;
 
@@ -21,8 +23,29 @@ public class StoreDB implements AutoCloseable {
     public StoreDB(final Config config) {
         this.config = config;
         this.db = new DbProperties();
-        this.connection = getConnection();
-        checkDBStructure();
+/*         this.connection = getConnection();
+        checkDBStructure();*/
+
+        this.init();
+    }
+
+    private boolean init() {
+        try (InputStream in = StoreDB.class
+                .getClassLoader()
+                .getResourceAsStream("jobparser_app.properties")) {
+            Properties config = new Properties();
+            config.load(in);
+            Class.forName(config.getProperty("jdbc.driver"));
+            this.connection = DriverManager.getConnection(
+                    config.getProperty("jdbc.url"),
+                    config.getProperty("jdbc.username"),
+                    config.getProperty("jdbc.password")
+            );
+            checkDBStructure();
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+        return this.connection != null;
     }
 
     private Connection getConnection() {
@@ -30,24 +53,18 @@ public class StoreDB implements AutoCloseable {
         loadDbDriver();
         Connection connect = null;
         final int timeout = 50;
-        for (int i = 0; i < this.db.attemptsToConnect; i++) {
-            try {
-                connect = DriverManager.getConnection(
-                        String.format("%s%s%s%s",
+        try {
+            connect = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/vacancies_db; create=true", this.db.user, this.db.pass
+    /*                    String.format("%s%s",
                                 this.db.url,
-                                dbFile.getAbsolutePath(),
-                                File.pathSeparator,
+                                //dbFile.getAbsolutePath(),
+                                // File.pathSeparator,
                                 this.db.dbName),
                         this.db.user,
-                        this.db.pass
-                );
-                if (connect != null) {
-                    break;
-                }
-                Thread.sleep(timeout);
-            } catch (SQLException | InterruptedException e) {
-                e.printStackTrace(); //TODO logger
-            }
+                        this.db.pass*/
+            );
+        } catch (SQLException e) {
+            e.printStackTrace(); //TODO logger
         }
         return connect;
     }
@@ -71,6 +88,7 @@ public class StoreDB implements AutoCloseable {
     }
 
     private void checkDBStructure() {
+        // final String CREATE_DB = String.format("CREATE DATABASE %s", this.db.dbName);
         final String CREATE_TABLE_IF_NOT_EXISTS = String
                 .format("CREATE TABLE IF NOT EXISTS %s ( %s SERIAL PRIMARY KEY, %s VARCHAR(200) NOT NULL, %s TEXT NOT NULL, %s VARCHAR(512) NOT NULL, %s DATE NOT NULL CONSTRAINT %s UNIQUE);",
                         this.db.table,
@@ -81,11 +99,18 @@ public class StoreDB implements AutoCloseable {
                         this.db.itemDate,
                         this.db.itemName
                 );
+        try (Statement st = this.connection.createStatement()) {
+            // st.executeQuery(CREATE_DB);
+            st.execute(CREATE_TABLE_IF_NOT_EXISTS);
+        } catch (SQLException e) {
+            e.printStackTrace(); //TODO logger
+        }
+      /*
         try (PreparedStatement ps = this.connection.prepareStatement(CREATE_TABLE_IF_NOT_EXISTS)) {
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace(); //TODO logger
-        }
+        }*/
     }
 
     private void validate(Object object) {
@@ -144,7 +169,7 @@ public class StoreDB implements AutoCloseable {
     public Collection<Vacancy> findAll() {
         final String SELECT_ALL = String.format("SELECT * FROM %s", this.db.table);
         Collection<Vacancy> result = new ArrayDeque<>();
-        try(Statement st = this.connection.createStatement()) {
+        try (Statement st = this.connection.createStatement()) {
             ResultSet rs = st.executeQuery(SELECT_ALL);
             while (rs.next()) {
                 result.add(createItem(rs));
