@@ -47,7 +47,7 @@ public class UserServlet extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
         PrintWriter writer = new PrintWriter(resp.getOutputStream());
         String success = "Action completed successfully";
-        String reject = "Action was not be performed";
+        String reject = "Action was not performed";
         String answer = this.dispatcher.execute(req.getParameter("action"), req)
                 ? success
                 : reject;
@@ -57,7 +57,7 @@ public class UserServlet extends HttpServlet {
 
     private String buildResponse(Collection<User> users) {
         if (users == null || users.isEmpty()) {
-            return "empty";
+            return "empty response";
         }
         StringBuilder stringBuilder = new StringBuilder();
         String separator = System.lineSeparator();

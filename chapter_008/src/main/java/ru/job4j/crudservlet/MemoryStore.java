@@ -3,13 +3,11 @@ package ru.job4j.crudservlet;
 import net.jcip.annotations.ThreadSafe;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.stream.Collectors;
 
 /**
- * MemoryStore
+ * MemoryStore - persistence layout
  *
  * @author Alexandr Moralev (moralev.alexandr@yandex.ru)
  * @version $Id$
@@ -30,9 +28,8 @@ public enum MemoryStore implements Store {
     }
 
     @Override
-    public boolean update(long userId, User user) {
-        user.setId(userId);
-        this.users.removeIf(aUser -> userId == aUser.getId());
+    public boolean update(User user) {
+        this.users.removeIf(aUser -> user.getId() == aUser.getId());
         return users.add(user);
     }
 
@@ -46,9 +43,7 @@ public enum MemoryStore implements Store {
 
     @Override
     public Collection<User> findAll() {
-        return this.users.stream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        return this.users;
     }
 
     @Override

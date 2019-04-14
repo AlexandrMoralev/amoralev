@@ -14,7 +14,7 @@ public interface Store {
 
     boolean add(User user);
 
-    boolean update(long userId, User user);
+    boolean update(User user);
 
     void delete(long userId);
 

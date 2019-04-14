@@ -23,15 +23,45 @@ public enum ValidationService {
         return !this.store.findAll().contains(user) && this.store.add(user);
     }
 
-    public boolean update(long userId, User user) {
+    public boolean update(long userId, User diffUser) {
         validateInput(userId);
-        validateInput(user);
-        return !this.store.findAll().contains(user) && this.store.update(userId, user);
+        validateInput(diffUser);
+
+        Optional<User> current = this.store.findById(userId);
+        User updated = null;
+        if (current.isPresent() && !current.get().equals(diffUser)) {
+            updated = combine(current.get(), diffUser);
+            this.store.update(updated);
+        }
+        return updated != null;
     }
 
-    public void delete(long userId) {
+    private User combine(User current, User diffUser) {
+        long userId = current.getId();
+        String name = diffUser.getName() == null
+                || diffUser.getName().isBlank()
+                ? current.getName()
+                : diffUser.getName();
+        String login = diffUser.getLogin() == null
+                || diffUser.getLogin().isBlank()
+                ? current.getLogin()
+                : diffUser.getLogin();
+        String email = diffUser.getEmail() == null
+                || diffUser.getEmail().isBlank()
+                ? current.getEmail()
+                : diffUser.getEmail();
+        User updated = new User(name, login, email);
+        updated.setId(userId);
+        return updated;
+    }
+
+    public boolean delete(long userId) {
         validateInput(userId);
-        this.store.delete(userId);
+        boolean result = this.store.findById(userId).isPresent();
+        if (result) {
+            this.store.delete(userId);
+        }
+        return result;
     }
 
     public Collection<User> findAll() {

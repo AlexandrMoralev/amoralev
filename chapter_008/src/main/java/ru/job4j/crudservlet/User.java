@@ -5,14 +5,14 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * User
+ * User - data model
  *
  * @author Alexandr Moralev (moralev.alexandr@yandex.ru)
  * @version $Id$
  * @since 0.1
  */
 public class User implements Comparable<User> {
-    private static final AtomicLong idCounter = new AtomicLong(0L);
+    private static final AtomicLong ID_COUNTER = new AtomicLong(0L);
     private long id;
     private final String name;
     private final String login;
@@ -20,7 +20,7 @@ public class User implements Comparable<User> {
     private final LocalDateTime created;
 
     public User(String name, String login, String email) {
-        this.id = idCounter.getAndIncrement();
+        this.id = ID_COUNTER.getAndIncrement();
         this.name = name;
         this.login = login;
         this.email = email;
@@ -75,12 +75,8 @@ public class User implements Comparable<User> {
 
     @Override
     public String toString() {
-        return "User{"
-                + "id=" + id
-                + ", name='" + name + '\''
-                + ", login='" + login + '\''
-                + ", email='" + email + '\''
-                + ", created=" + created + '}';
+        return String.format("User{ id=%s, name=%s , login=%s, email=%s, created=%s }",
+                id, name, login, email, created);
     }
 
     @Override
