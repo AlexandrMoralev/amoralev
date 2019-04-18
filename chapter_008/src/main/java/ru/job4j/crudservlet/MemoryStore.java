@@ -4,7 +4,8 @@ import net.jcip.annotations.ThreadSafe;
 
 import java.util.Collection;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * MemoryStore - persistence layout
@@ -16,40 +17,40 @@ import java.util.concurrent.ConcurrentSkipListSet;
 @ThreadSafe
 public enum MemoryStore implements Store {
     INSTANCE;
-    private final ConcurrentSkipListSet<User> users;
+    private static final AtomicInteger ID_COUNTER = new AtomicInteger(1);
+    private final ConcurrentHashMap<Integer, User> users;
 
     MemoryStore() {
-        this.users = new ConcurrentSkipListSet<>();
+        this.users = new ConcurrentHashMap<>();
     }
 
     @Override
     public boolean add(User user) {
-        return users.add(user);
+        boolean result = !this.users.contains(user);
+        if (result) {
+            user.setId(ID_COUNTER.getAndIncrement());
+            this.users.put(user.getId(), user);
+        }
+        return result;
     }
 
     @Override
     public boolean update(User user) {
-        this.users.removeIf(aUser -> user.getId() == aUser.getId());
-        return users.add(user);
+        return this.users.replace(user.getId(), user) != null;
     }
 
     @Override
-    public void delete(long userId) {
-        this.users.stream()
-                .filter(user -> userId == user.getId())
-                .findFirst()
-                .ifPresent(this.users::remove);
+    public void delete(int userId) {
+        this.users.remove(userId);
     }
 
     @Override
     public Collection<User> findAll() {
-        return this.users;
+        return this.users.values();
     }
 
     @Override
-    public Optional<User> findById(long userId) {
-        return this.users.stream()
-                .filter(user -> userId == user.getId())
-                .findFirst();
+    public Optional<User> findById(int userId) {
+        return Optional.of(this.users.get(userId));
     }
 }

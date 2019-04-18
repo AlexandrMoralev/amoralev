@@ -96,14 +96,14 @@ public class UserServlet extends HttpServlet {
                 String name = request.getParameter("name");
                 String login = request.getParameter("login");
                 String email = request.getParameter("email");
-                long userId = Long.parseLong(request.getParameter("userId"));
+                int userId = Integer.parseInt(request.getParameter("userId"));
                 return logic.update(userId, new User(name, login, email));
             };
         }
 
         private Function<ServletRequest, Boolean> delete() {
             return request -> {
-                long userId = Long.parseLong(request.getParameter("userId"));
+                int userId = Integer.parseInt(request.getParameter("userId"));
                 return logic.delete(userId);
             };
         }

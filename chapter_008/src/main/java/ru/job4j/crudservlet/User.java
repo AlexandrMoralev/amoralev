@@ -2,7 +2,6 @@ package ru.job4j.crudservlet;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * User - data model
@@ -11,27 +10,26 @@ import java.util.concurrent.atomic.AtomicLong;
  * @version $Id$
  * @since 0.1
  */
-public class User implements Comparable<User> {
-    private static final AtomicLong ID_COUNTER = new AtomicLong(0L);
-    private long id;
+public class User {
+    private int id;
     private final String name;
     private final String login;
     private final String email;
     private final LocalDateTime created;
 
     public User(String name, String login, String email) {
-        this.id = ID_COUNTER.getAndIncrement();
+        this.id = -1;
         this.name = name;
         this.login = login;
         this.email = email;
         this.created = LocalDateTime.now();
     }
 
-    public long getId() {
+    public int getId() {
         return this.id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -60,27 +58,18 @@ public class User implements Comparable<User> {
             return false;
         }
         User user = (User) o;
-        return getId() == user.getId()
-                && Objects.equals(getName(), user.getName())
-                && Objects.equals(getLogin(), user.getLogin())
-                && Objects.equals(getEmail(), user.getEmail())
-                && Objects.equals(getCreated(), user.getCreated()
-        );
+        return Objects.equals(getLogin(), user.getLogin())
+                && Objects.equals(getEmail(), user.getEmail());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getName(), getLogin(), getEmail(), getCreated());
+        return Objects.hash(getLogin(), getEmail());
     }
 
     @Override
     public String toString() {
         return String.format("User{ id=%s, name=%s , login=%s, email=%s, created=%s }",
                 id, name, login, email, created);
-    }
-
-    @Override
-    public int compareTo(User o) {
-        return Long.compare(this.id, o.getId());
     }
 }

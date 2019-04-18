@@ -19,11 +19,10 @@ public enum ValidationService {
 
     public boolean add(User user) {
         validateInput(user);
-        validateInput(user.getId());
-        return !this.store.findAll().contains(user) && this.store.add(user);
+        return this.store.add(user);
     }
 
-    public boolean update(long userId, User diffUser) {
+    public boolean update(int userId, User diffUser) {
         validateInput(userId);
         validateInput(diffUser);
 
@@ -36,8 +35,8 @@ public enum ValidationService {
         return updated != null;
     }
 
-    private User combine(User current, User diffUser) {
-        long userId = current.getId();
+    private User combine(User current, User diffUser) { // нужно добавить что новый логин и емаил уникален
+        int userId = current.getId();
         String name = diffUser.getName() == null
                 || diffUser.getName().isBlank()
                 ? current.getName()
@@ -55,7 +54,7 @@ public enum ValidationService {
         return updated;
     }
 
-    public boolean delete(long userId) {
+    public boolean delete(int userId) {
         validateInput(userId);
         boolean result = this.store.findById(userId).isPresent();
         if (result) {
@@ -68,7 +67,7 @@ public enum ValidationService {
         return this.store.findAll();
     }
 
-    public Optional<User> findById(long userId) {
+    public Optional<User> findById(int userId) {
         validateInput(userId);
         return this.store.findById(userId);
     }
@@ -79,7 +78,7 @@ public enum ValidationService {
         }
     }
 
-    private void validateInput(long userId) {
+    private void validateInput(int userId) {
         if (userId < 0) {
             throw new IllegalStateException("userId is invalid " + userId);
         }

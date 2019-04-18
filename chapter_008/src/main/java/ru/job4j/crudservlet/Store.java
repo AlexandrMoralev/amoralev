@@ -16,9 +16,9 @@ public interface Store {
 
     boolean update(User user);
 
-    void delete(long userId);
+    void delete(int userId);
 
     Collection<User> findAll();
 
-    Optional<User> findById(long userId);
+    Optional<User> findById(int userId);
 }
