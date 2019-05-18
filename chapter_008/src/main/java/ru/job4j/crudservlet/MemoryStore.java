@@ -7,6 +7,8 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+//import ru.job4j.crudservlet.Store;
+
 /**
  * MemoryStore - persistence layout
  *
@@ -17,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ThreadSafe
 public enum MemoryStore implements Store {
     INSTANCE;
-    private static final AtomicInteger ID_COUNTER = new AtomicInteger(1);
+    private final AtomicInteger idCounter = new AtomicInteger(1);
     private final ConcurrentHashMap<Integer, User> users;
 
     MemoryStore() {
@@ -28,15 +30,15 @@ public enum MemoryStore implements Store {
     public boolean add(User user) {
         boolean result = !this.users.contains(user);
         if (result) {
-            user.setId(ID_COUNTER.getAndIncrement());
+            user.setId(idCounter.getAndIncrement());
             this.users.put(user.getId(), user);
         }
         return result;
     }
 
     @Override
-    public boolean update(User user) {
-        return this.users.replace(user.getId(), user) != null;
+    public boolean update(int userId, User user) {
+        return this.users.replace(userId, user) != null;
     }
 
     @Override
@@ -52,5 +54,12 @@ public enum MemoryStore implements Store {
     @Override
     public Optional<User> findById(int userId) {
         return Optional.of(this.users.get(userId));
+    }
+
+    @Override
+    public Optional<User> findByLogin(String login) {
+        return users.values().stream()
+                .filter(user -> login.equals(user.getLogin()))
+                .findFirst();
     }
 }
