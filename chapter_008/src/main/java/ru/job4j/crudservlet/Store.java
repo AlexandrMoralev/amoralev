@@ -14,11 +14,13 @@ public interface Store {
 
     boolean add(User user);
 
-    boolean update(User user);
+    boolean update(int id, User user);
 
     void delete(int userId);
 
     Collection<User> findAll();
 
-    Optional<User> findById(int userId);
+    Optional<User> findById(int id);
+
+    Optional<User> findByLogin(String login);
 }
