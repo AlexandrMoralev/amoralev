@@ -15,7 +15,7 @@ Used stuff:
 
 #### Level 1
 * [**1. Basic syntax** (conditionals, cycles, primitive types, arrays)](https://github.com/AlexandrMoralev/amoralev/tree/master/chapter_001)
-* [**2. Object-oriented programming** (inheritance, encapsulation, polymorphism, inner classes, _exceptions_, abstract and anonymous classes, basic design patterns)](https://github.com/AlexandrMoralev/amoralev/tree/master/chapter_002)
+* [**2. Object-oriented programming** (inheritance, encapsulation, polymorphism, inner classes, _exceptions_, abstract and anonymous classes, basic design patterns, Git REbase)](https://github.com/AlexandrMoralev/amoralev/tree/master/chapter_002)
 * [**3. Collections. Lite** (lists, maps, sorting, *generics*)](https://github.com/AlexandrMoralev/amoralev/tree/master/chapter_003)
 * [**4. Functional programming** (lambdas, stream api)](https://github.com/AlexandrMoralev/amoralev/tree/master/chapter_004)
 #### Level 2
