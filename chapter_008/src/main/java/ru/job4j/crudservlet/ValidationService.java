@@ -30,7 +30,7 @@ public enum ValidationService {
         User updated = null;
         if (current.isPresent() && !current.get().equals(diffUser)) {
             updated = combine(current.get(), diffUser);
-            this.store.update(updated);
+            this.store.update(userId, updated);
         }
         return updated != null;
     }

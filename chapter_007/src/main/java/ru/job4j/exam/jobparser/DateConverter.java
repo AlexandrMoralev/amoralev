@@ -13,7 +13,7 @@ import static java.util.Map.entry;
 public final class DateConverter {
     private final static String YESTERDAY = "вчера,";
     private final static String TODAY = "сегодня,";
-    private final static Map<String, String> months = Map.ofEntries(
+    private final static Map<String, String> MONTHS = Map.ofEntries(
             entry("янв", "Jan"),
             entry("фев", "Feb"),
             entry("мар", "Mar"),
@@ -92,10 +92,9 @@ public final class DateConverter {
 
     public static String replaceMonth(String date) {
         String source = date.toLowerCase().strip();
-        for (String month :
-                months.keySet()) {
+        for (String month : MONTHS.keySet()) {
             if (source.contains(month)) {
-                source = source.replace(month, months.get(month));
+                source = source.replace(month, MONTHS.get(month));
             }
         }
         return source;

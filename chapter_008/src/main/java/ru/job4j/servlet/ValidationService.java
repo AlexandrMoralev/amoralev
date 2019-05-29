@@ -32,9 +32,7 @@ public enum ValidationService {
     public boolean update(int userId, String name, String login, String email) {
         validateInput(userId);
         validateInput(List.of(name, login, email));
-        boolean isUnique = STORE.findById(userId).isPresent()
-                && (STORE.findByLogin(login).isEmpty() || login == null)
-                && (validateEmail(email) || email == null);
+        boolean isUnique = STORE.findById(userId).isPresent() && STORE.findByLogin(login).isEmpty() && validateEmail(email);
         return isUnique && STORE.update(userId, new User(name, login, email));
     }
 
