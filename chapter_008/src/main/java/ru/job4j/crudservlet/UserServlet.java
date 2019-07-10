@@ -26,9 +26,13 @@ public class UserServlet extends HttpServlet {
     private final ValidationService logic;
     private final Dispatcher dispatcher;
 
+    // Workaround - keeping the User immutable
+    private final Store store;
+
     public UserServlet() {
         this.logic = ValidationService.INSTANCE;
         this.dispatcher = new Dispatcher();
+        this.store = MemoryStore.INSTANCE;
     }
 
     @Override
@@ -87,7 +91,7 @@ public class UserServlet extends HttpServlet {
                 String name = request.getParameter("name");
                 String login = request.getParameter("login");
                 String email = request.getParameter("email");
-                return logic.add(new User(name, login, email));
+                return logic.add(new User(store.nextIndex(), name, login, email));
             };
         }
 
@@ -97,7 +101,7 @@ public class UserServlet extends HttpServlet {
                 String login = request.getParameter("login");
                 String email = request.getParameter("email");
                 int userId = Integer.parseInt(request.getParameter("userId"));
-                return logic.update(userId, new User(name, login, email));
+                return logic.update(userId, new User(userId, name, login, email));
             };
         }
 

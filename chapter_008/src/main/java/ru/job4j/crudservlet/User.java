@@ -1,6 +1,7 @@
 package ru.job4j.crudservlet;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 /**
@@ -11,26 +12,22 @@ import java.util.Objects;
  * @since 0.1
  */
 public class User {
-    private int id;
+    private final int id;
     private final String name;
     private final String login;
     private final String email;
-    private final LocalDateTime created;
+    private final String created;
 
-    public User(String name, String login, String email) {
-        this.id = -1;
+    public User(int userId, String name, String login, String email) {
+        this.id = userId;
         this.name = name;
         this.login = login;
         this.email = email;
-        this.created = LocalDateTime.now();
+        this.created = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now());
     }
 
     public int getId() {
         return this.id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -45,7 +42,7 @@ public class User {
         return this.email;
     }
 
-    public LocalDateTime getCreated() {
+    public String getCreated() {
         return this.created;
     }
 

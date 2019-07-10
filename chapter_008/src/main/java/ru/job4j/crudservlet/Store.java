@@ -23,4 +23,6 @@ public interface Store {
     Optional<User> findById(int id);
 
     Optional<User> findByLogin(String login);
+
+    int nextIndex();
 }

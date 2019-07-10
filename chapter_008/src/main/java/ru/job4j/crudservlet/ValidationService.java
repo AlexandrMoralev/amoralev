@@ -35,7 +35,7 @@ public enum ValidationService {
         return updated != null;
     }
 
-    private User combine(User current, User diffUser) { // нужно добавить что новый логин и емаил уникален
+    private User combine(User current, User diffUser) {
         int userId = current.getId();
         String name = diffUser.getName() == null
                 || diffUser.getName().isBlank()
@@ -49,9 +49,7 @@ public enum ValidationService {
                 || diffUser.getEmail().isBlank()
                 ? current.getEmail()
                 : diffUser.getEmail();
-        User updated = new User(name, login, email);
-        updated.setId(userId);
-        return updated;
+        return new User(userId, name, login, email);
     }
 
     public boolean delete(int userId) {
