@@ -23,6 +23,7 @@ public enum Dispatcher {
         this.dispatcher.put("create", create());
         this.dispatcher.put("update", update());
         this.dispatcher.put("delete", delete());
+        this.dispatcher.put("noAction", noAction());
     }
 
     public boolean execute(HttpServletRequest req) {
@@ -55,6 +56,10 @@ public enum Dispatcher {
                         Integer.parseInt(
                                 request.getParameter("id"))
                 );
+    }
+
+    public Function<HttpServletRequest, Boolean> noAction() {
+        return request -> true;
     }
 }
 

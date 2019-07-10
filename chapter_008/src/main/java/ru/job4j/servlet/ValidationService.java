@@ -22,7 +22,7 @@ public enum ValidationService {
         boolean result = false;
         if (STORE.findByLogin(login).isEmpty()) {
             if (validateEmail(email)) {
-                STORE.add(new User(name, login, email));
+                STORE.add(new User(STORE.nextIndex(), name, login, email));
                 result = true;
             }
         }
@@ -32,8 +32,10 @@ public enum ValidationService {
     public boolean update(int userId, String name, String login, String email) {
         validateInput(userId);
         validateInput(List.of(name, login, email));
-        boolean isUnique = STORE.findById(userId).isPresent() && STORE.findByLogin(login).isEmpty() && validateEmail(email);
-        return isUnique && STORE.update(userId, new User(name, login, email));
+        boolean isUnique = STORE.findById(userId).isPresent()
+                && STORE.findByLogin(login).isEmpty()
+                && validateEmail(email);
+        return isUnique && STORE.update(userId, new User(userId, name, login, email));
     }
 
     public boolean delete(int userId) {
