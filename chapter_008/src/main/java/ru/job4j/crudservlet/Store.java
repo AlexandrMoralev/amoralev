@@ -10,19 +10,19 @@ import java.util.Optional;
  * @version $Id$
  * @since 0.1
  */
-public interface Store {
+public interface Store<E> {
 
-    boolean add(User user);
+    boolean add(E e);
 
-    boolean update(int id, User user);
+    boolean update(int id, E e);
 
-    void delete(int userId);
+    void delete(int id);
 
-    Collection<User> findAll();
+    Collection<E> findAll();
 
-    Optional<User> findById(int id);
+    Optional<E> findById(int id);
 
-    Optional<User> findByLogin(String login);
+    Optional<E> findByLogin(String login);
 
     int nextIndex();
 }

@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 0.1
  */
 @ThreadSafe
-public enum MemoryStore implements Store {
+public enum MemoryStore implements Store<User> {
     INSTANCE;
     private final AtomicInteger idCounter = new AtomicInteger(1);
     private final ConcurrentHashMap<Integer, User> users;

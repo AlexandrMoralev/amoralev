@@ -1,5 +1,7 @@
 package ru.job4j.crudservlet;
 
+import ru.job4j.servlet.DBStore;
+
 import java.util.Collection;
 import java.util.Optional;
 
@@ -12,7 +14,7 @@ import java.util.Optional;
  */
 public enum ValidationService {
     INSTANCE;
-    private final Store store = MemoryStore.INSTANCE;
+    private final Store<User> store = DBStore.INSTANCE;
 
     ValidationService() {
     }
