@@ -5,10 +5,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import ru.job4j.crudservlet.Store;
 import ru.job4j.crudservlet.User;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Optional;
@@ -39,6 +36,32 @@ public enum DBStore implements Store<User> {
         source.setMinIdle(5);
         source.setMaxIdle(10);
         source.setMaxOpenPreparedStatements(100);
+        init();
+    }
+
+    private void init() {
+        String dbExists = "SELECT EXISTS(SELECT * FROM pg_database WHERE datname = 'users_db');";
+        String createDb = "CREATE DATABASE users_db;";
+        String createTable = "CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, name VARCHAR(120), login VARCHAR(160), email VARCHAR(160), created VARCHAR(60))";
+        try (Connection connection = DriverManager.getConnection(DB_CONNECTION_URL, DB_USER, DB_PWD);
+             Statement st = connection.createStatement()
+        ) {
+            ResultSet rs = st.executeQuery(dbExists);
+            if (rs.next()) {
+                if (!rs.getBoolean(1)) {
+                    st.execute(createDb);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try (Connection connection = source.getConnection();
+             Statement st = connection.createStatement()
+        ) {
+            st.execute(createTable);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
