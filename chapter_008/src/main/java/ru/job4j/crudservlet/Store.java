@@ -12,7 +12,7 @@ import java.util.Optional;
  */
 public interface Store<E> {
 
-    boolean add(E e);
+    Optional<Integer> add(E e);
 
     boolean update(int id, E e);
 
@@ -24,5 +24,4 @@ public interface Store<E> {
 
     Optional<E> findByLogin(String login);
 
-    int nextIndex();
 }

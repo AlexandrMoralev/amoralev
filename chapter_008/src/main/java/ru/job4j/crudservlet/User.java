@@ -18,13 +18,27 @@ public class User {
     private final String email;
     private final String created;
 
-    public User(int userId, String name, String login, String email) {
+    public User(int userId, String name, String login, String email, String created) {
         this.id = userId;
         this.name = name;
         this.login = login;
         this.email = email;
-        this.created = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now());
+        this.created = created;
     }
+
+    public User(int userId, String name, String login, String email) {
+        this(userId, name, login, email, DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now()));
+    }
+
+    public User(String name, String login, String email, String created) {
+        this(-1, name, login, email, created);
+    }
+
+    public User(String name, String login, String email) {
+        this(-1, name, login, email, DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now()));
+    }
+
+
 
     public int getId() {
         return this.id;

@@ -1,6 +1,6 @@
 package ru.job4j.servlet;
 
-import ru.job4j.crudservlet.MemoryStore;
+import ru.job4j.crudservlet.Store;
 import ru.job4j.crudservlet.User;
 
 import java.util.Collection;
@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 public enum ValidationService {
     INSTANCE;
-    private static final MemoryStore STORE = MemoryStore.INSTANCE;
+    private static final Store<User> STORE = DBStore.INSTANCE;
 
     ValidationService() {
     }
@@ -22,7 +22,7 @@ public enum ValidationService {
         boolean result = false;
         if (STORE.findByLogin(login).isEmpty()) {
             if (validateEmail(email)) {
-                STORE.add(new User(STORE.nextIndex(), name, login, email));
+                STORE.add(new User(name, login, email));
                 result = true;
             }
         }
@@ -32,9 +32,8 @@ public enum ValidationService {
     public boolean update(int userId, String name, String login, String email) {
         validateInput(userId);
         validateInput(List.of(name, login, email));
-        boolean isUnique = STORE.findById(userId).isPresent()
-                && STORE.findByLogin(login).isEmpty()
-                && validateEmail(email);
+        Optional<User> optionalUser = STORE.findById(userId);
+        boolean isUnique = optionalUser.map(user -> !user.getLogin().equals(login) || !user.getEmail().equals(email)).orElse(false);
         return isUnique && STORE.update(userId, new User(userId, name, login, email));
     }
 

@@ -25,12 +25,16 @@ public enum MemoryStore implements Store<User> {
     }
 
     @Override
-    public boolean add(User user) {
-        boolean result = !(users.containsKey(user.getId()) && this.users.contains(user));
-        if (result) {
-            this.users.put(user.getId(), user);
+    public Optional<Integer> add(User user) {
+        Optional<Integer> userId = Optional.empty();
+        if (!users.containsKey(user.getId())
+                && !this.users.contains(user)
+        ) {
+            int id = idCounter.getAndIncrement();
+            this.users.put(id, user);
+            userId = Optional.of(id);
         }
-        return result;
+        return userId;
     }
 
     @Override
@@ -58,10 +62,5 @@ public enum MemoryStore implements Store<User> {
         return users.values().stream()
                 .filter(user -> login.equals(user.getLogin()))
                 .findFirst();
-    }
-
-    @Override
-    public int nextIndex() {
-        return this.idCounter.getAndIncrement();
     }
 }

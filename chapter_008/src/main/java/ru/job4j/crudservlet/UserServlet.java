@@ -91,7 +91,7 @@ public class UserServlet extends HttpServlet {
                 String name = request.getParameter("name");
                 String login = request.getParameter("login");
                 String email = request.getParameter("email");
-                return logic.add(new User(store.nextIndex(), name, login, email));
+                return logic.add(new User(name, login, email)).isPresent();
             };
         }
 

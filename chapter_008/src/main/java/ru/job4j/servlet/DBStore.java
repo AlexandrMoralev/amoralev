@@ -28,6 +28,16 @@ public enum DBStore implements Store<User> {
     private static final String DB_PWD = "postgres";
     private final AtomicInteger idCounter = new AtomicInteger(1);
 
+    private static final String DB_EXISTS = "SELECT EXISTS(SELECT * FROM pg_database WHERE datname = 'users_db');";
+    private static final String CREATE_DB = "CREATE DATABASE users_db;";
+    private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, name VARCHAR(120), login VARCHAR(160), email VARCHAR(160), created VARCHAR(60))";
+    private static final String INSERT_INTO_USERS = "INSERT INTO users(name,login,email,created) VALUES(?,?,?,?) RETURNING id;";
+    private static final String UPDATE_USERS = "UPDATE users SET name = ?, login = ?, email = ?, created = ? WHERE id = ? ;";
+    private static final String DELETE_FROM_USERS = "DELETE FROM users WHERE id = ? ;";
+    private static final String SELECT_ALL = "SELECT * FROM users ;";
+    private static final String SELECT_BY_ID = "SELECT * FROM users WHERE id = ? ;";
+    private static final String SELECT_BY_LOGIN = "SELECT * FROM users WHERE login = ? ;";
+
     DBStore() {
         source.setDriverClassName(DB_DRIVER);
         source.setUrl(DB_CONNECTION_URL);
@@ -40,16 +50,13 @@ public enum DBStore implements Store<User> {
     }
 
     private void init() {
-        String dbExists = "SELECT EXISTS(SELECT * FROM pg_database WHERE datname = 'users_db');";
-        String createDb = "CREATE DATABASE users_db;";
-        String createTable = "CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, name VARCHAR(120), login VARCHAR(160), email VARCHAR(160), created VARCHAR(60))";
         try (Connection connection = DriverManager.getConnection(DB_CONNECTION_URL, DB_USER, DB_PWD);
              Statement st = connection.createStatement()
         ) {
-            ResultSet rs = st.executeQuery(dbExists);
+            ResultSet rs = st.executeQuery(DB_EXISTS);
             if (rs.next()) {
                 if (!rs.getBoolean(1)) {
-                    st.execute(createDb);
+                    st.execute(CREATE_DB);
                 }
             }
         } catch (SQLException e) {
@@ -58,48 +65,40 @@ public enum DBStore implements Store<User> {
         try (Connection connection = source.getConnection();
              Statement st = connection.createStatement()
         ) {
-            st.execute(createTable);
+            st.execute(CREATE_TABLE);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public boolean add(User user) {
-        String insertIntoUsers = "INSERT INTO users(id,name,login,email,created) VALUES(?,?,?,?,?);";
-        boolean isAdded = false;
+    public Optional<Integer> add(User user) {
+        Optional<Integer> userId = Optional.empty();
         try (Connection connection = source.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement(insertIntoUsers);
-            ps.setInt(1, user.getId());
-            ps.setString(2, user.getName());
-            ps.setString(3, user.getLogin());
-            ps.setString(4, user.getEmail());
-            ps.setString(5, user.getCreated());
+            PreparedStatement ps = connection.prepareStatement(INSERT_INTO_USERS);
+            setQueryParameters(user, ps);
             if (ps.executeUpdate() > 0) {
-                isAdded = true;
+                ResultSet rs = ps.getGeneratedKeys();
+                userId = Optional.of(rs.getInt(1));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return isAdded;
+        return userId;
     }
 
     @Override
     public boolean update(int id, User user) {
-        String updateUsers = "UPDATE users SET name = ?, login = ?, email = ?, created = ? WHERE id = ? ;";
         boolean isUpdated = false;
         try (Connection connection = source.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement(updateUsers);
-            ps.setString(1, user.getName());
-            ps.setString(2, user.getLogin());
-            ps.setString(3, user.getEmail());
-            ps.setString(4, user.getCreated());
+            PreparedStatement ps = connection.prepareStatement(UPDATE_USERS);
+            setQueryParameters(user, ps);
             ps.setInt(5, id);
             int result = ps.executeUpdate();
             if (result == 1) {
                 isUpdated = true;
             } else if (result != 0) {
-                throw new SQLException(result + " user updated");
+                throw new SQLException(result + " users updated");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -107,11 +106,17 @@ public enum DBStore implements Store<User> {
         return isUpdated;
     }
 
+    private void setQueryParameters(User user, PreparedStatement ps) throws SQLException {
+        ps.setString(1, user.getName());
+        ps.setString(2, user.getLogin());
+        ps.setString(3, user.getEmail());
+        ps.setString(4, user.getCreated());
+    }
+
     @Override
     public void delete(int userId) {
-        String deleteFromUsers = "DELETE FROM users WHERE id = ? ;";
         try (Connection connection = source.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement(deleteFromUsers);
+            PreparedStatement ps = connection.prepareStatement(DELETE_FROM_USERS);
             ps.setInt(1, userId);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -121,10 +126,9 @@ public enum DBStore implements Store<User> {
 
     @Override
     public Collection<User> findAll() {
-        String selectAll = "SELECT * FROM users ;";
         Collection<User> allUsers = new ArrayDeque<>();
         try (Connection connection = source.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement(selectAll);
+            PreparedStatement ps = connection.prepareStatement(SELECT_ALL);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 allUsers.add(extractData(rs));
@@ -137,10 +141,9 @@ public enum DBStore implements Store<User> {
 
     @Override
     public Optional<User> findById(int id) {
-        String selectById = "SELECT * FROM users WHERE id = ? ;";
         Optional<User> optionalUser = Optional.empty();
         try (Connection connection = source.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement(selectById);
+            PreparedStatement ps = connection.prepareStatement(SELECT_BY_ID);
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -154,10 +157,9 @@ public enum DBStore implements Store<User> {
 
     @Override
     public Optional<User> findByLogin(String login) {
-        String selectByLogin = "SELECT * FROM users WHERE login = ? ;";
         Optional<User> optionalUser = Optional.empty();
         try (Connection connection = source.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement(selectByLogin);
+            PreparedStatement ps = connection.prepareStatement(SELECT_BY_LOGIN);
             ps.setString(1, login);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -169,17 +171,13 @@ public enum DBStore implements Store<User> {
         return optionalUser;
     }
 
-    @Override
-    public int nextIndex() {
-        return this.idCounter.getAndIncrement();
-    }
-
     private User extractData(ResultSet resultSet) throws SQLException {
         return new User(
                 resultSet.getInt(1),
                 resultSet.getString(2),
                 resultSet.getString(3),
-                resultSet.getString(4)
+                resultSet.getString(4),
+                resultSet.getString(5)
         );
     }
 }
