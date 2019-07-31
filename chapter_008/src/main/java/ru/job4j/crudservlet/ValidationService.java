@@ -19,7 +19,7 @@ public enum ValidationService {
     ValidationService() {
     }
 
-    public boolean add(User user) {
+    public Optional<Integer> add(User user) {
         validateInput(user);
         return this.store.add(user);
     }
