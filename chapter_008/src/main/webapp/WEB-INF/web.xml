@@ -76,4 +76,45 @@
         <servlet-name>UserUpdateServlet</servlet-name>
         <url-pattern>/update</url-pattern>
     </servlet-mapping>
+
+    <!-- Task.4&5 JSP JSTL MVC - user app-->
+    <servlet>
+        <servlet-name>UsersController</servlet-name>
+        <servlet-class>ru.job4j.controllers.UsersController</servlet-class>
+        <init-param>
+            <param-name>debug</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UsersController</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>UserCreateController</servlet-name>
+        <servlet-class>ru.job4j.controllers.UserCreateController</servlet-class>
+        <init-param>
+            <param-name>debug</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UserCreateController</servlet-name>
+        <url-pattern>/create-user</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>UserUpdateController</servlet-name>
+        <servlet-class>ru.job4j.controllers.UserUpdateController</servlet-class>
+        <init-param>
+            <param-name>debug</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UserUpdateController</servlet-name>
+        <url-pattern>/update-user</url-pattern>
+    </servlet-mapping>
+
 </web-app>
