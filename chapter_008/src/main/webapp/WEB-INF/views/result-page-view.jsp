@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Result</title>
-    <meta http-equiv='refresh' content='2; url=${requestScope.contextPath}/'>
+    <meta http-equiv='refresh' content='2; url=${pageContext.servletContext.contextPath}/'>
 </head>
 <body>
-<c:if test="${requestScope.result eq 1}">
-    <c:out value="Action done"/>
+<c:if test="${param.get('result') eq '1'}">
+    <c:out value="Action completed successfully"/>
 </c:if>
-<c:if test="${requestScope.result ne 1}">
+<c:if test="${param.get('result') ne '1'}">
     <c:out value="Action error"/>
 </c:if>
 </body>

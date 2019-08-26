@@ -10,7 +10,7 @@
 <body>
 <h1>Create user</h1>
 <br>
-<form action='${requestScope.contextPath}/' method='post'>
+<form action='${pageContext.servletContext.contextPath}/' method='post'>
     Name : <input type='text' name='name'/><br>
     Login : <input type='text' name='login'/><br>
     e-mail : <input type='text' name='email'/><br>

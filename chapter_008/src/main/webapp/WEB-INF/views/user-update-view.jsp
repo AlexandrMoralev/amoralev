@@ -12,7 +12,7 @@
 <h1>Update user</h1>
 <br>
 <table style="width:60%; height:auto;" border="1">
-    <form action='${requestScope.contextPath}/' method='post'>
+    <form action='${pageContext.servletContext.contextPath}/' method='post'>
         <tr>
             <td>Name : <input type='text' name='name' value='${requestScope.user.name}'/></td>
             <td>Login : <input type='text' name='login' value='${requestScope.user.login}'/></td>
@@ -24,7 +24,7 @@
 </table>
 <br>
 <form>
-    <button formaction='${requestScope.contextPath}/' formmethod='get'>Cancel</button>
+    <button formaction='${pageContext.servletContext.contextPath}/' formmethod='get'>Cancel</button>
 </form>
 </body>
 </html>

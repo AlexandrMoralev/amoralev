@@ -28,10 +28,10 @@
             <td> ${user.created}</td>
             <td>
                 <form>
-                    <button formaction='${requestScope.contextPath}/update-user' formmethod='get' name='id' value='${user.id}'>
+                    <button formaction='${pageContext.servletContext.contextPath}/update-user' formmethod='get' name='id' value='${user.id}'>
                         Update
                     </button>
-                    <button formaction='${requestScope.contextPath}/?action=delete&id=${user.id}' formmethod='post'>
+                    <button formaction='${pageContext.servletContext.contextPath}/?action=delete&id=${user.id}' formmethod='post'>
                         Delete
                     </button>
                 </form>
@@ -41,7 +41,7 @@
 </table>
 <br>
 <form>
-    <button formaction='${requestScope.contextPath}/create-user' formmethod='get'>Create user</button>
+    <button formaction='${pageContext.servletContext.contextPath}/create-user' formmethod='get'>Create user</button>
 </form>
 </body>
 </html>

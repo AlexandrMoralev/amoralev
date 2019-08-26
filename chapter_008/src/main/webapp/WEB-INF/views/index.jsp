@@ -6,6 +6,5 @@
 </head>
 <body>
 <meta http-equiv='refresh' content='${requestScope.contextPath}/'>
-<%--<c:redirect url="${requestScope.contextPath}/" />--%>
 </body>
 </html>

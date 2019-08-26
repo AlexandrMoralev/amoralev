@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 /**
- * UsersServlet
+ * UsersController
  *
  * @author Alexandr Moralev (moralev.alexandr@yandex.ru)
  * @version $Id$
@@ -26,21 +26,17 @@ public class UsersController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("text/html");
-        resp.setCharacterEncoding("utf-8");
         Collection<User> list = logic.findAll();
         req.setAttribute("userList", list);
-        getServletContext()
-                .getRequestDispatcher("/WEB-INF/views/users-view.jsp")
+        req.getRequestDispatcher("/WEB-INF/views/users-view.jsp")
                 .forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("text/html");
-        resp.setCharacterEncoding("utf-8");
-        resp.sendRedirect(req.getContextPath() + "/WEB-INF/views/result-page-view.jsp?result="
-                + (dispatcher.execute(req) ? "1" : "0"));
+        req.getRequestDispatcher("/WEB-INF/views/result-page-view.jsp?result="
+                + (dispatcher.execute(req) ? "1" : "0"))
+                .forward(req, resp);
     }
 }
 
