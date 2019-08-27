@@ -9,7 +9,6 @@ import java.sql.*;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * MemoryStore - persistence layout
@@ -23,13 +22,11 @@ public enum DBStore implements Store<User> {
     INSTANCE;
     private final BasicDataSource source = new BasicDataSource();
     private static final String DB_DRIVER = "org.postgresql.Driver";
-    private static final String DB_CONNECTION_URL = "jdbc:postgresql://localhost:5432/users_app";
+    private static final String DB_CONNECTION_URL = "jdbc:postgresql://localhost:5432/";
     private static final String DB_USER = "postgres";
     private static final String DB_PWD = "postgres";
-    private final AtomicInteger idCounter = new AtomicInteger(1);
-
-    private static final String DB_EXISTS = "SELECT EXISTS(SELECT * FROM pg_database WHERE datname = 'users_db');";
-    private static final String CREATE_DB = "CREATE DATABASE users_db;";
+    private static final String DB_EXISTS = "SELECT EXISTS(SELECT * FROM pg_database WHERE datname = 'users_app');";
+    private static final String CREATE_DB = "CREATE DATABASE users_app;";
     private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, name VARCHAR(120), login VARCHAR(160), email VARCHAR(160), created VARCHAR(60))";
     private static final String INSERT_INTO_USERS = "INSERT INTO users(name,login,email,created) VALUES(?,?,?,?) RETURNING id;";
     private static final String UPDATE_USERS = "UPDATE users SET name = ?, login = ?, email = ?, created = ? WHERE id = ? ;";
