@@ -5,6 +5,6 @@
     <title>Users App</title>
 </head>
 <body>
-<meta http-equiv='refresh' content='${requestScope.contextPath}/'>
+<meta http-equiv='refresh' content='${requestScope.contextPath}/login'>
 </body>
 </html>
