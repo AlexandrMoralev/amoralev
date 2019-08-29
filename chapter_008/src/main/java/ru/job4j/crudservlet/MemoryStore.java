@@ -1,6 +1,7 @@
 package ru.job4j.crudservlet;
 
 import net.jcip.annotations.ThreadSafe;
+import ru.job4j.filtersecurity.Role;
 
 import java.util.Collection;
 import java.util.Map;
@@ -25,6 +26,15 @@ public enum MemoryStore implements Store<User> {
 
     MemoryStore() {
         this.users = new ConcurrentHashMap<>();
+        int rootIndex = 0;
+        this.users.put(rootIndex,
+                new User(rootIndex,
+                        "root",
+                        "root",
+                        "root@root.ru",
+                        "root",
+                        Role.ROOT)
+        );
     }
 
     private Function<Map.Entry<Integer, User>, User> extractUser() {
@@ -34,7 +44,9 @@ public enum MemoryStore implements Store<User> {
                     cachedUser.getName(),
                     cachedUser.getLogin(),
                     cachedUser.getEmail(),
-                    cachedUser.getCreated());
+                    cachedUser.getCreated(),
+                    cachedUser.getPassword(),
+                    cachedUser.getRole());
         };
     }
 
@@ -76,7 +88,9 @@ public enum MemoryStore implements Store<User> {
                 cachedUser.getName(),
                 cachedUser.getLogin(),
                 cachedUser.getEmail(),
-                cachedUser.getCreated()));
+                cachedUser.getCreated(),
+                cachedUser.getPassword(),
+                cachedUser.getRole()));
     }
 
     @Override
@@ -85,5 +99,10 @@ public enum MemoryStore implements Store<User> {
                 .filter(entry -> login.equals(entry.getValue().getLogin()))
                 .findFirst()
                 .map(extractUser());
+    }
+
+    @Override
+    public boolean isCredential(String login, String password) {
+        return this.users.values().stream().anyMatch(user -> user.getLogin().equals(login) && user.getPassword().equals(password));
     }
 }

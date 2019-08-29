@@ -24,4 +24,6 @@ public interface Store<E> {
 
     Optional<E> findByLogin(String login);
 
+    boolean isCredential(String login, String password);
+
 }

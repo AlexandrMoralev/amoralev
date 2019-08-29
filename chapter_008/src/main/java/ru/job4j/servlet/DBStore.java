@@ -4,14 +4,16 @@ import net.jcip.annotations.ThreadSafe;
 import org.apache.commons.dbcp2.BasicDataSource;
 import ru.job4j.crudservlet.Store;
 import ru.job4j.crudservlet.User;
+import ru.job4j.filtersecurity.Role;
 
 import java.sql.*;
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- * MemoryStore - persistence layout
+ * DBStore - persistence layout
  *
  * @author Alexandr Moralev (moralev.alexandr@yandex.ru)
  * @version $Id$
@@ -27,13 +29,15 @@ public enum DBStore implements Store<User> {
     private static final String DB_PWD = "postgres";
     private static final String DB_EXISTS = "SELECT EXISTS(SELECT * FROM pg_database WHERE datname = 'users_app');";
     private static final String CREATE_DB = "CREATE DATABASE users_app;";
-    private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, name VARCHAR(120), login VARCHAR(160), email VARCHAR(160), created VARCHAR(60))";
-    private static final String INSERT_INTO_USERS = "INSERT INTO users(name,login,email,created) VALUES(?,?,?,?) RETURNING id;";
-    private static final String UPDATE_USERS = "UPDATE users SET name = ?, login = ?, email = ?, created = ? WHERE id = ? ;";
+    private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, name VARCHAR(120), login VARCHAR(160), email VARCHAR(160), created VARCHAR(60), pwd VARCHAR(128), role_desc VARCHAR(20));";
+    private static final String DROP_TABLE_IF_EXISTS = "DROP TABLE IF EXISTS users;";
+    private static final String INSERT_INTO_USERS = "INSERT INTO users(name,login,email,created,pwd,role_desc) VALUES(?,?,?,?,?,?) RETURNING id;";
+    private static final String UPDATE_USERS = "UPDATE users SET name = ?, login = ?, email = ?, created = ?, pwd = ?, role_desc = ? WHERE id = ? ;";
     private static final String DELETE_FROM_USERS = "DELETE FROM users WHERE id = ? ;";
     private static final String SELECT_ALL = "SELECT * FROM users ;";
     private static final String SELECT_BY_ID = "SELECT * FROM users WHERE id = ? ;";
     private static final String SELECT_BY_LOGIN = "SELECT * FROM users WHERE login = ? ;";
+    private static final String CHECK_CREDENTIAL = "SELECT * FROM users WHERE login = ? AND pwd = ?;";
 
     DBStore() {
         source.setDriverClassName(DB_DRIVER);
@@ -62,10 +66,25 @@ public enum DBStore implements Store<User> {
         try (Connection connection = source.getConnection();
              Statement st = connection.createStatement()
         ) {
+            st.execute(DROP_TABLE_IF_EXISTS);
             st.execute(CREATE_TABLE);
+            addRootUser(connection);
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private void addRootUser(Connection connection) throws SQLException {
+        PreparedStatement ps = connection.prepareStatement(INSERT_INTO_USERS);
+        setQueryParameters(
+                new User(0,
+                        "root",
+                        "root",
+                        "root@root.ru",
+                        "root",
+                        DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now()),
+                        Role.ROOT),
+                ps);
     }
 
     @Override
@@ -90,7 +109,7 @@ public enum DBStore implements Store<User> {
         try (Connection connection = source.getConnection()) {
             PreparedStatement ps = connection.prepareStatement(UPDATE_USERS);
             setQueryParameters(user, ps);
-            ps.setInt(5, id);
+            ps.setInt(7, id);
             int result = ps.executeUpdate();
             if (result == 1) {
                 isUpdated = true;
@@ -108,6 +127,8 @@ public enum DBStore implements Store<User> {
         ps.setString(2, user.getLogin());
         ps.setString(3, user.getEmail());
         ps.setString(4, user.getCreated());
+        ps.setString(5, user.getPassword());
+        ps.setString(6, user.getRole().getDescription());
     }
 
     @Override
@@ -168,13 +189,38 @@ public enum DBStore implements Store<User> {
         return optionalUser;
     }
 
+    @Override
+    public boolean isCredential(String login, String password) {
+        boolean isCredential = false;
+        try (Connection connection = source.getConnection()) {
+            PreparedStatement ps = connection.prepareStatement(CHECK_CREDENTIAL);
+            ps.setString(1, login);
+            ps.setString(2, password);
+            ResultSet rs = ps.executeQuery();
+            List<Optional<User>> users = new ArrayList<>();
+            while (rs.next()) {
+                users.add(Optional.of(extractData(rs)));
+            }
+            isCredential = users.stream()
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList())
+                    .size() == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return isCredential;
+    }
+
     private User extractData(ResultSet resultSet) throws SQLException {
         return new User(
                 resultSet.getInt(1),
                 resultSet.getString(2),
                 resultSet.getString(3),
                 resultSet.getString(4),
-                resultSet.getString(5)
+                resultSet.getString(5),
+                resultSet.getString(6),
+                Role.valueOf(resultSet.getString(7))
         );
     }
 }
