@@ -1,6 +1,7 @@
 package ru.job4j.crudservlet;
 
 import net.jcip.annotations.ThreadSafe;
+import ru.job4j.filtersecurity.Role;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -87,21 +88,14 @@ public class UserServlet extends HttpServlet {
         }
 
         private Function<ServletRequest, Boolean> add() {
-            return request -> {
-                String name = request.getParameter("name");
-                String login = request.getParameter("login");
-                String email = request.getParameter("email");
-                return logic.add(new User(name, login, email)).isPresent();
-            };
+            return request -> logic.add(extractUser.apply(request)).isPresent();
+
         }
 
         private Function<ServletRequest, Boolean> update() {
             return request -> {
-                String name = request.getParameter("name");
-                String login = request.getParameter("login");
-                String email = request.getParameter("email");
                 int userId = Integer.parseInt(request.getParameter("userId"));
-                return logic.update(userId, new User(userId, name, login, email));
+                return logic.update(userId, extractUser.apply(request));
             };
         }
 
@@ -111,5 +105,13 @@ public class UserServlet extends HttpServlet {
                 return logic.delete(userId);
             };
         }
+
+        private Function<ServletRequest, User> extractUser = request ->
+                new User(request.getParameter("name"),
+                        request.getParameter("login"),
+                        request.getParameter("email"),
+                        request.getParameter("password"),
+                        Role.valueOf(request.getParameter("role"))
+                );
     }
 }

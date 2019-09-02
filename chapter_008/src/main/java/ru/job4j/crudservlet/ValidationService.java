@@ -1,5 +1,6 @@
 package ru.job4j.crudservlet;
 
+import ru.job4j.filtersecurity.Role;
 import ru.job4j.servlet.DBStore;
 
 import java.util.Collection;
@@ -51,7 +52,14 @@ public enum ValidationService {
                 || diffUser.getEmail().isBlank()
                 ? current.getEmail()
                 : diffUser.getEmail();
-        return new User(userId, name, login, email);
+        String password = diffUser.getPassword() == null
+                || diffUser.getPassword().isBlank()
+                ? current.getPassword()
+                : diffUser.getPassword();
+        Role role = diffUser.getRole() == null
+                ? current.getRole()
+                : diffUser.getRole();
+        return new User(userId, name, login, email, password, role);
     }
 
     public boolean delete(int userId) {

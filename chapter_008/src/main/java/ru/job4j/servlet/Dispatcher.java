@@ -1,5 +1,7 @@
 package ru.job4j.servlet;
 
+import ru.job4j.filtersecurity.Role;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +38,9 @@ public enum Dispatcher {
             String name = request.getParameter("name");
             String login = request.getParameter("login");
             String email = request.getParameter("email");
-            return logic.add(name, login, email);
+            String password = request.getParameter("password");
+            Role role = Role.valueOf(request.getParameter("role"));
+            return logic.add(name, login, email, password, role);
         };
     }
 
@@ -46,7 +50,9 @@ public enum Dispatcher {
             String name = request.getParameter("name");
             String login = request.getParameter("login");
             String email = request.getParameter("email");
-            return logic.update(userId, name, login, email);
+            String password = request.getParameter("password");
+            Role role = Role.valueOf(request.getParameter("role"));
+            return logic.update(userId, name, login, email, password, role);
         };
     }
 

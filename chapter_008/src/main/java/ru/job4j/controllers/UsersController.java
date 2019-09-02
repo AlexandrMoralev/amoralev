@@ -1,7 +1,6 @@
 package ru.job4j.controllers;
 
 import net.jcip.annotations.ThreadSafe;
-import ru.job4j.crudservlet.User;
 import ru.job4j.servlet.Dispatcher;
 import ru.job4j.servlet.ValidationService;
 
@@ -10,7 +9,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collection;
 
 /**
  * UsersController
@@ -26,8 +24,7 @@ public class UsersController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Collection<User> list = logic.findAll();
-        req.setAttribute("userList", list);
+        req.setAttribute("userList", logic.findAll());
         req.getRequestDispatcher("/WEB-INF/views/users-view.jsp")
                 .forward(req, resp);
     }

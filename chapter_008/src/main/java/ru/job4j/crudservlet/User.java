@@ -1,5 +1,7 @@
 package ru.job4j.crudservlet;
 
+import ru.job4j.filtersecurity.Role;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -17,27 +19,66 @@ public class User {
     private final String login;
     private final String email;
     private final String created;
+    private final String password;
+    private final Role role;
 
-    public User(int userId, String name, String login, String email, String created) {
+    public User(int userId,
+                String name,
+                String login,
+                String email,
+                String created,
+                String password,
+                Role role
+    ) {
         this.id = userId;
         this.name = name;
         this.login = login;
         this.email = email;
         this.created = created;
+        this.password = password;
+        this.role = role;
     }
 
-    public User(int userId, String name, String login, String email) {
-        this(userId, name, login, email, DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now()));
+    public User(int userId,
+                String name,
+                String login,
+                String email,
+                String password,
+                Role role
+    ) {
+        this(userId,
+                name,
+                login,
+                email,
+                DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now()),
+                password,
+                role);
     }
 
-    public User(String name, String login, String email, String created) {
-        this(-1, name, login, email, created);
+    public User(String name,
+                String login,
+                String email,
+                String password,
+                Role role
+    ) {
+        this(-1,
+                name,
+                login,
+                email,
+                DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now()),
+                password,
+                role);
     }
 
     public User(String name, String login, String email) {
-        this(-1, name, login, email, DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now()));
+        this(-1,
+                name,
+                login,
+                email,
+                DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now()),
+                "",
+                Role.DEFAULT);
     }
-
 
 
     public int getId() {
@@ -60,6 +101,14 @@ public class User {
         return this.created;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -80,7 +129,7 @@ public class User {
 
     @Override
     public String toString() {
-        return String.format("User{ id=%s, name=%s , login=%s, email=%s, created=%s }",
-                id, name, login, email, created);
+        return String.format("User{ id=%s, name=%s , login=%s, email=%s, created=%s, role=%s }",
+                id, name, login, email, created, role.getDescription());
     }
 }
