@@ -122,18 +122,32 @@
     <!--</welcome-file-list>-->
 
     <!-- Task.6 Authorization & authentication - user app-->
+    <filter>
+        <filter-name>AuthFilter</filter-name>
+        <filter-class>ru.job4j.filtersecurity.AuthFilter</filter-class>
+        <init-param>
+            <param-name>debug</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>*</url-pattern>
+    </filter-mapping>
+
     <servlet>
-        <servlet-name>AuthFilter</servlet-name>
-        <servlet-class>ru.job4j.filtersecurity.AuthFilter</servlet-class>
+        <servlet-name>AuthController</servlet-name>
+        <servlet-class>ru.job4j.filtersecurity.AuthController</servlet-class>
         <init-param>
             <param-name>debug</param-name>
             <param-value>true</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>
-        <servlet-name>AuthFilter</servlet-name>
+        <servlet-name>AuthController</servlet-name>
         <url-pattern>/login</url-pattern>
     </servlet-mapping>
+
 
 
 </web-app>
