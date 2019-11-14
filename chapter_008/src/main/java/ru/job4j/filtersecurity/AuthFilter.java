@@ -1,34 +1,41 @@
 package ru.job4j.filtersecurity;
 
-import ru.job4j.servlet.ValidationService;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-public class AuthFilter extends HttpServlet {
-    private final ValidationService logic = ValidationService.INSTANCE;
+public class AuthFilter implements Filter {
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-       req.getRequestDispatcher("/WEB_INF/views/login-view.jsp").forward(req, resp);
+    public void init(FilterConfig filterConfig) throws ServletException {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String login = req.getParameter("login");
-        String password = req.getParameter("password");
-        if (logic.isCredential(login, password)) {
-            HttpSession session = req.getSession();
-            synchronized (session) {
-                session.setAttribute("login", login);
-            }
-            resp.sendRedirect(String.format("%s/", req.getContextPath()));
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        HttpServletRequest req = (HttpServletRequest) request;
+        HttpServletResponse resp = (HttpServletResponse) response;
+
+        if (req.getSession().getAttribute("principal") != null) {
+            req.getServletContext().getRequestDispatcher(req.getRequestURI().replace(req.getContextPath(), "")).forward(req, resp);
+            return;
         } else {
-            req.setAttribute("error", "Invalid credentials");
+            boolean isNeedToLogin = !(req.getRequestURI().contains("/login-view")
+                    || req.getRequestURI().contains("/create-user")
+                    || (req.getRequestURI().equals(req.getContextPath() + "/users") && "create".equalsIgnoreCase(req.getParameter("action"))));
+            if (!isNeedToLogin) {
+                chain.doFilter(request, response);
+                return;
+            } else {
+                ServletContext ctx = req.getServletContext();
+                RequestDispatcher dispatcher = ctx.getRequestDispatcher("/WEB-INF/views/login-view.jsp");
+                dispatcher.forward(request, response);
+                return;
+            }
         }
+    }
+
+    @Override
+    public void destroy() {
     }
 }

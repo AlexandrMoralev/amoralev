@@ -103,6 +103,6 @@ public enum MemoryStore implements Store<User> {
 
     @Override
     public boolean isCredential(String login, String password) {
-        return this.users.values().stream().anyMatch(user -> user.getLogin().equals(login) && user.getPassword().equals(password));
+        return this.users.values().stream().anyMatch(user -> login.equals(user.getLogin()) && password.equals(user.getPassword()));
     }
 }

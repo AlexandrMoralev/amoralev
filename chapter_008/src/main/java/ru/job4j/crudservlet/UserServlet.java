@@ -27,13 +27,9 @@ public class UserServlet extends HttpServlet {
     private final ValidationService logic;
     private final Dispatcher dispatcher;
 
-    // Workaround - keeping the User immutable
-    private final Store store;
-
     public UserServlet() {
         this.logic = ValidationService.INSTANCE;
         this.dispatcher = new Dispatcher();
-        this.store = MemoryStore.INSTANCE;
     }
 
     @Override
