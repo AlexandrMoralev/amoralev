@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Result</title>
-    <meta http-equiv='refresh' content='2; url=${pageContext.servletContext.contextPath}/'>
+    <meta http-equiv='refresh' content='2; url=${pageContext.servletContext.contextPath}/users'>
 </head>
 <body>
 <c:if test="${param.get('result') eq '1'}">

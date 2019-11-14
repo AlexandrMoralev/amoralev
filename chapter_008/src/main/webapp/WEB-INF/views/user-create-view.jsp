@@ -8,13 +8,24 @@
     <title>Create user</title>
 </head>
 <body>
-<h1>Create user</h1>
+<h1>Users web-app</h1>
 <br>
-<form action='${pageContext.servletContext.contextPath}/' method='post'>
+<h2>Create user</h2>
+<br>
+<form action="${pageContext.servletContext.contextPath}/users" method="post">
     Name : <input type='text' name='name'/><br>
     Login : <input type='text' name='login'/><br>
     e-mail : <input type='text' name='email'/><br>
-    <input type='submit' name='action' value='create'>
+    Password : <input type='password' name='password'/><br>
+    Role : <select name="role" title="choose role">
+            <option value="admin">admin</option>
+            <option value="manager">manager</option>
+            <option value="user">user</option>
+            <option value="maintenance">maintenance</option>
+            <option value="guest">guest</option>
+        </select>
+    <br>
+    <input type="submit" name="action" value="create">
 </form>
 </body>
 </html>

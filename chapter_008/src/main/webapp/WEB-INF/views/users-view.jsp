@@ -8,7 +8,9 @@
     <title>All users</title>
 </head>
 <body>
-<h1>All users</h1>
+<h1>Users web-app</h1>
+<br>
+<h2>All users</h2>
 <br>
 <table style="width:auto; height:auto;" border="2">
     <tr>
@@ -17,6 +19,7 @@
         <th>login</th>
         <th>email</th>
         <th>created</th>
+        <th>role</th>
         <th>actions</th>
     </tr>
     <c:forEach items="${requestScope.userList}" var="user">
@@ -26,12 +29,13 @@
             <td> ${user.login}</td>
             <td> ${user.email}</td>
             <td> ${user.created}</td>
+            <td> ${user.role.description}</td>
             <td>
                 <form>
-                    <button formaction='${pageContext.servletContext.contextPath}/update-user' formmethod='get' name='id' value='${user.id}'>
+                    <button formaction="${pageContext.servletContext.contextPath}/update-user" formmethod="get" name="id" value="${user.id}">
                         Update
                     </button>
-                    <button formaction='${pageContext.servletContext.contextPath}/?action=delete&id=${user.id}' formmethod='post'>
+                    <button formaction="${pageContext.servletContext.contextPath}/users?action=delete&id=${user.id}" formmethod="post">
                         Delete
                     </button>
                 </form>
@@ -41,7 +45,7 @@
 </table>
 <br>
 <form>
-    <button formaction='${pageContext.servletContext.contextPath}/create-user' formmethod='get'>Create user</button>
+    <button formaction="${pageContext.servletContext.contextPath}/create-user" formmethod="get">Create new user</button>
 </form>
 </body>
 </html>

@@ -8,23 +8,26 @@
     <title>Update user</title>
 </head>
 <body>
-
-<h1>Update user</h1>
+<h1>Users web-app</h1>
+<br>
+<h2>Update user</h2>
 <br>
 <table style="width:60%; height:auto;" border="1">
-    <form action='${pageContext.servletContext.contextPath}/' method='post'>
+    <form action="${pageContext.servletContext.contextPath}/users" method="post">
         <tr>
             <td>Name : <input type='text' name='name' value='${requestScope.user.name}'/></td>
             <td>Login : <input type='text' name='login' value='${requestScope.user.login}'/></td>
             <td>e-mail : <input type='text' name='email' value='${requestScope.user.email}'/></td>
+            <td>role : <input type='text' name='role' value='${requestScope.user.role}'/></td>
             <td><input type='hidden' name='id' value='${requestScope.user.id}'></td>
+            <td><input type='hidden' name='pwd' value='${requestScope.user.password}'></td>
             <td><input type='submit' name='action' value='update'></td>
         </tr>
     </form>
 </table>
 <br>
 <form>
-    <button formaction='${pageContext.servletContext.contextPath}/' formmethod='get'>Cancel</button>
+    <button formaction="${pageContext.servletContext.contextPath}/users" formmethod="get">Cancel</button>
 </form>
 </body>
 </html>
