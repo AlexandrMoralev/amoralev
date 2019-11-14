@@ -77,7 +77,7 @@ public class User {
                 email,
                 DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now()),
                 "",
-                Role.DEFAULT);
+                Role.GUEST);
     }
 
 
