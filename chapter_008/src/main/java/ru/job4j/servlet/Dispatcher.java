@@ -39,7 +39,7 @@ public enum Dispatcher {
             String login = request.getParameter("login");
             String email = request.getParameter("email");
             String password = request.getParameter("password");
-            Role role = Role.valueOf(request.getParameter("role"));
+            Role role = Role.valueOf(request.getParameter("role").toUpperCase());
             return logic.add(name, login, email, password, role);
         };
     }
@@ -51,7 +51,7 @@ public enum Dispatcher {
             String login = request.getParameter("login");
             String email = request.getParameter("email");
             String password = request.getParameter("password");
-            Role role = Role.valueOf(request.getParameter("role"));
+            Role role = Role.valueOf(request.getParameter("role").toUpperCase());
             return logic.update(userId, name, login, email, password, role);
         };
     }
