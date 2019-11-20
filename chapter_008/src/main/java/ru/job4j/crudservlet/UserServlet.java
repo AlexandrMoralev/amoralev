@@ -103,11 +103,12 @@ public class UserServlet extends HttpServlet {
         }
 
         private Function<ServletRequest, User> extractUser = request ->
-                new User(request.getParameter("name"),
-                        request.getParameter("login"),
-                        request.getParameter("email"),
-                        request.getParameter("password"),
-                        Role.valueOf(request.getParameter("role"))
-                );
+                new User.Builder()
+                        .setName(request.getParameter("name"))
+                        .setLogin(request.getParameter("login"))
+                        .setEmail(request.getParameter("email"))
+                        .setPassword(request.getParameter("password"))
+                        .setRole(Role.valueOf(request.getParameter("role")))
+                .build();
     }
 }

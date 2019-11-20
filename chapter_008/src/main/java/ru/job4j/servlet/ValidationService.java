@@ -24,8 +24,15 @@ public enum ValidationService {
         boolean result = false;
         if (STORE.findByLogin(login).isEmpty()) {
             if (validateEmail(email)) {
-                STORE.add(new User(name, login, email, password, role));
-                result = true;
+                Optional<Integer> userId = STORE.add(
+                        new User.Builder()
+                                .setName(name)
+                                .setLogin(login)
+                                .setEmail(email)
+                                .setPassword(password)
+                                .setRole(role)
+                                .build());
+                result = userId.isPresent();
             }
         }
         return result;
@@ -36,7 +43,18 @@ public enum ValidationService {
         validateInput(List.of(name, login, email));
         Optional<User> optionalUser = STORE.findById(userId);
         boolean isUnique = optionalUser.map(user -> !user.getLogin().equals(login) || !user.getEmail().equals(email)).orElse(false);
-        return isUnique && STORE.update(userId, new User(name, login, email, password, role));
+        return isUnique
+                && STORE.update(
+                userId,
+                new User.Builder()
+                        .setId(userId)
+                        .setName(name)
+                        .setLogin(login)
+                        .setEmail(email)
+                        .setPassword(password)
+                        .setRole(role)
+                        .build()
+        );
     }
 
     public boolean delete(int userId) {

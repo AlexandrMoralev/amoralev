@@ -1,7 +1,5 @@
 package ru.job4j.crudservlet;
 
-import ru.job4j.filtersecurity.Role;
-
 import java.util.Collection;
 import java.util.Optional;
 
@@ -38,27 +36,17 @@ public enum ValidationService {
     }
 
     private User combine(User current, User diffUser) {
-        int userId = current.getId();
-        String name = diffUser.getName() == null
-                || diffUser.getName().isBlank()
-                ? current.getName()
-                : diffUser.getName();
-        String login = diffUser.getLogin() == null
-                || diffUser.getLogin().isBlank()
-                ? current.getLogin()
-                : diffUser.getLogin();
-        String email = diffUser.getEmail() == null
-                || diffUser.getEmail().isBlank()
-                ? current.getEmail()
-                : diffUser.getEmail();
-        String password = diffUser.getPassword() == null
-                || diffUser.getPassword().isBlank()
-                ? current.getPassword()
-                : diffUser.getPassword();
-        Role role = diffUser.getRole() == null
-                ? current.getRole()
-                : diffUser.getRole();
-        return new User(userId, name, login, email, password, role);
+        User.Builder builder = new User.Builder().of(current);
+        getNonEmptyString(diffUser.getName()).ifPresent(builder::setName);
+        getNonEmptyString(diffUser.getLogin()).ifPresent(builder::setLogin);
+        getNonEmptyString(diffUser.getEmail()).ifPresent(builder::setEmail);
+        getNonEmptyString(diffUser.getPassword()).ifPresent(builder::setPassword);
+        Optional.ofNullable(diffUser.getRole()).ifPresent(builder::setRole);
+        return builder.build();
+    }
+
+    private static Optional<String> getNonEmptyString(String value) {
+        return Optional.ofNullable(value).filter(s -> !s.isBlank());
     }
 
     public boolean delete(int userId) {

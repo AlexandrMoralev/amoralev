@@ -32,6 +32,7 @@ public enum MemoryStore implements Store<User> {
                         "root",
                         "root",
                         "root@root.ru",
+                        "at the dawn of a new era",
                         "root",
                         Role.ROOT)
         );
@@ -40,13 +41,7 @@ public enum MemoryStore implements Store<User> {
     private Function<Map.Entry<Integer, User>, User> extractUser() {
         return entry -> {
             User cachedUser = entry.getValue();
-            return new User(entry.getKey(),
-                    cachedUser.getName(),
-                    cachedUser.getLogin(),
-                    cachedUser.getEmail(),
-                    cachedUser.getCreated(),
-                    cachedUser.getPassword(),
-                    cachedUser.getRole());
+            return new User.Builder().of(cachedUser).setId(entry.getKey()).build();
         };
     }
 
@@ -84,13 +79,7 @@ public enum MemoryStore implements Store<User> {
         User cachedUser = this.users.get(userId);
         return cachedUser == null
                 ? Optional.empty()
-                : Optional.of(new User(userId,
-                cachedUser.getName(),
-                cachedUser.getLogin(),
-                cachedUser.getEmail(),
-                cachedUser.getCreated(),
-                cachedUser.getPassword(),
-                cachedUser.getRole()));
+                : Optional.of(new User.Builder().of(cachedUser).setId(userId).build());
     }
 
     @Override
