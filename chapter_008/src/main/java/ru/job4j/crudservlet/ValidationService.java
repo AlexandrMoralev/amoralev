@@ -1,5 +1,7 @@
 package ru.job4j.crudservlet;
 
+import ru.job4j.servlet.Validation;
+
 import java.util.Collection;
 import java.util.Optional;
 
@@ -10,7 +12,7 @@ import java.util.Optional;
  * @version $Id$
  * @since 0.1
  */
-public enum ValidationService {
+public enum ValidationService implements Validation<User> {
     INSTANCE;
     private final Store<User> store = MemoryStore.INSTANCE;
 
@@ -22,17 +24,15 @@ public enum ValidationService {
         return this.store.add(user);
     }
 
-    public boolean update(int userId, User diffUser) {
-        validateInput(userId);
+    public boolean update(User diffUser) {
         validateInput(diffUser);
-
-        Optional<User> current = this.store.findById(userId);
-        User updated = null;
-        if (current.isPresent() && !current.get().equals(diffUser)) {
-            updated = combine(current.get(), diffUser);
-            this.store.update(userId, updated);
-        }
-        return updated != null;
+        Optional<User> current = this.store.findById(diffUser.getId());
+        return current.filter(user -> !user.equals(diffUser))
+                .map(user -> {
+                    User updated = combine(user, diffUser);
+                    this.store.update(diffUser.getId(), updated);
+                    return updated;
+                }).isPresent();
     }
 
     private User combine(User current, User diffUser) {
@@ -67,8 +67,18 @@ public enum ValidationService {
         return this.store.findById(userId);
     }
 
-    private void validateInput(User user) {
-        if (user == null) {
+    @Override
+    public Optional<User> findByLogin(String login) {
+        validateInput(login);
+        return this.store.findByLogin(login);
+    }
+
+    public boolean isCredential(String login, String password) {
+        return store.isCredential(login, password);
+    }
+
+    private void validateInput(Object obj) {
+        if (obj == null) {
             throw new NullPointerException("The reference is null");
         }
     }
