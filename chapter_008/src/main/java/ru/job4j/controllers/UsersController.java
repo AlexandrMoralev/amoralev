@@ -1,8 +1,10 @@
 package ru.job4j.controllers;
 
 import net.jcip.annotations.ThreadSafe;
+import ru.job4j.crudservlet.User;
+import ru.job4j.crudservlet.ValidationService;
 import ru.job4j.servlet.Dispatcher;
-import ru.job4j.servlet.ValidationService;
+import ru.job4j.servlet.Validation;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -19,18 +21,18 @@ import java.io.IOException;
  */
 @ThreadSafe
 public class UsersController extends HttpServlet {
-    private final ValidationService logic = ValidationService.INSTANCE;
+    private final Validation<User> logic = ValidationService.INSTANCE;
     private final Dispatcher dispatcher = Dispatcher.INSTANCE;
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("userList", logic.findAll());
         req.getRequestDispatcher("/WEB-INF/views/users-view.jsp")
                 .forward(req, resp);
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.getRequestDispatcher("/WEB-INF/views/result-page-view.jsp?result="
                 + (dispatcher.execute(req) ? "1" : "0"))
                 .forward(req, resp);

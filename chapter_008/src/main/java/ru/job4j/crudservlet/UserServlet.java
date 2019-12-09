@@ -15,6 +15,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import static java.util.Optional.ofNullable;
+
 /**
  * UserServlet - presentation layout
  *
@@ -85,30 +87,25 @@ public class UserServlet extends HttpServlet {
 
         private Function<ServletRequest, Boolean> add() {
             return request -> logic.add(extractUser.apply(request)).isPresent();
-
         }
 
         private Function<ServletRequest, Boolean> update() {
-            return request -> {
-                int userId = Integer.parseInt(request.getParameter("userId"));
-                return logic.update(userId, extractUser.apply(request));
-            };
+            return request -> logic.update(extractUser.apply(request));
         }
 
         private Function<ServletRequest, Boolean> delete() {
-            return request -> {
-                int userId = Integer.parseInt(request.getParameter("userId"));
-                return logic.delete(userId);
-            };
+            return request -> logic.delete(Integer.parseInt(request.getParameter("userId")));
         }
 
-        private Function<ServletRequest, User> extractUser = request ->
-                new User.Builder()
-                        .setName(request.getParameter("name"))
-                        .setLogin(request.getParameter("login"))
-                        .setEmail(request.getParameter("email"))
-                        .setPassword(request.getParameter("password"))
-                        .setRole(Role.valueOf(request.getParameter("role")))
-                .build();
+        private Function<ServletRequest, User> extractUser = request -> {
+            User.Builder user = new User.Builder();
+            ofNullable(request.getParameter("userId")).map(Integer::parseInt).ifPresent(user::setId);
+            ofNullable(request.getParameter("name")).map(String::strip).ifPresent(user::setName);
+            ofNullable(request.getParameter("login")).map(String::strip).ifPresent(user::setLogin);
+            ofNullable(request.getParameter("email")).map(String::strip).ifPresent(user::setEmail);
+            ofNullable(request.getParameter("password")).map(String::strip).ifPresent(user::setPassword);
+            ofNullable(request.getParameter("role")).map(String::strip).map(Role::valueOf).ifPresent(user::setRole);
+            return user.build();
+        };
     }
 }

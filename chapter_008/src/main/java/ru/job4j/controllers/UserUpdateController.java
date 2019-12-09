@@ -1,7 +1,8 @@
 package ru.job4j.controllers;
 
 import ru.job4j.crudservlet.User;
-import ru.job4j.servlet.ValidationService;
+import ru.job4j.crudservlet.ValidationService;
+import ru.job4j.servlet.Validation;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -9,6 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
+
+//import ru.job4j.servlet.ValidationService;
 
 /**
  * UserUpdateController
@@ -18,7 +21,7 @@ import java.util.Optional;
  * @since 0.1
  */
 public class UserUpdateController extends HttpServlet {
-    private final ValidationService logic = ValidationService.INSTANCE;
+    private final Validation<User> logic = ValidationService.INSTANCE;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
