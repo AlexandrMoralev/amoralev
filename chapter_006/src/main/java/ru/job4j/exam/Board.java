@@ -12,7 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class Board {
     private final ReentrantLock[][] board;
-    private final static int MOVE_TIMEOUT = 1000;
+    private final static int MOVE_TIMEOUT = 500;
 
     /**
      * Constructs Board of initial size
@@ -33,7 +33,7 @@ public class Board {
     }
 
     /**
-     * Method move - tryLock destination Cell on this.board for 1000ms,
+     * Method move - tryLock destination Cell on this.board for 500ms,
      * when dest locked unlocks the source Cell
      *
      * @param source notnull Cell to move from
@@ -44,9 +44,10 @@ public class Board {
      */
     public boolean move(final Cell source, final Cell dest) throws InterruptedException {
         validateInput(source, dest);
-        boolean result = (!source.equals(dest)) & destinationIsValid(dest);
+        boolean result = (!source.equals(dest)) && destinationIsValid(dest);
         if (result) {
-            result = this.board[dest.getX()][dest.getY()].tryLock(Board.MOVE_TIMEOUT, TimeUnit.MILLISECONDS);
+            result = this.board[dest.getX()][dest.getY()].tryLock()
+                    || this.board[dest.getX()][dest.getY()].tryLock(Board.MOVE_TIMEOUT, TimeUnit.MILLISECONDS);
             if (result) {
                 this.board[source.getX()][source.getY()].unlock();
             }
