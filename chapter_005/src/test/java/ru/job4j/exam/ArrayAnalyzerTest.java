@@ -1,6 +1,7 @@
 package ru.job4j.exam;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -87,31 +88,32 @@ public class ArrayAnalyzerTest {
 
 
     // findDeletedSlowly() tests
+    @Ignore // run manually
     @Test
     public void whenThreeElementsDeletedFromArrayThenReturnListWithDeleted() {
         assertThat(strAnalyzer.findDeletedSlowly(sourceStrArr, editedStrArr), is(new ArrayList<>(Arrays.asList("two", "seven", " "))));
     }
-
+    @Ignore // run manually
     @Test
     public void whenNoneElementsDeletedFromArrayThenReturnEmptyList() {
         assertThat(strAnalyzer.findDeletedSlowly(sourceStrArr, anotherEditedStrArr), is(Collections.EMPTY_LIST));
     }
-
+    @Ignore // run manually
     @Test
     public void whenFirstArrayIsEmptyThenReturnEmptyList() {
         assertThat(strAnalyzer.findDeletedSlowly(zeroStrArr, sourceStrArr), is(Collections.EMPTY_LIST));
     }
-
+    @Ignore // run manually
     @Test
     public void whenSecondArrayIsEmptyThenReturnEmptyList() {
         assertThat(strAnalyzer.findDeletedSlowly(anotherEditedStrArr, zeroStrArr), is(Collections.EMPTY_LIST));
     }
-
+    @Ignore // run manually
     @Test(expected = IllegalArgumentException.class)
     public void whenFirstArrIsNullThenThrowIAException() {
         strAnalyzer.findDeletedSlowly(null, sourceStrArr);
     }
-
+    @Ignore // run manually
     @Test(expected = IllegalArgumentException.class)
     public void whenSecondArrIsNullThenThrowIAException() {
         strAnalyzer.findDeletedSlowly(sourceStrArr, null);
@@ -126,7 +128,7 @@ public class ArrayAnalyzerTest {
         Long finish = System.nanoTime();
         System.out.println("@IntegerTests findDeleted: " + (finish - start) / 1000000 + " ms");
     }
-
+    @Ignore // run manually
     @Test
     public void whenFindDeletedSlowFrom10KArrayShouldReturnListWithDeleted() {
         Long start = System.nanoTime();
@@ -143,7 +145,7 @@ public class ArrayAnalyzerTest {
         Long finish = System.nanoTime();
         System.out.println("@StringTests findDeleted: " + (finish - start) / 1000000 + " ms");
     }
-
+    @Ignore // run manually
     @Test
     public void whenFindSlowFrom10KArrayShouldReturnListWDeleted() {
         Long start = System.nanoTime();
