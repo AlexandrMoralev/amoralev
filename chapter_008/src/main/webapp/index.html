@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User app</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container-fluid">
+    <h1>User app page</h1>
+    <p>This is some text.</p>
+
+    <form class="form-horizontal" action="/action_page" method="post">
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="firstname">Firstname:</label>
+            <div class="col-xs-4">
+                <input type="text" class="form-control" id="firstname" name="firstname" placeholder="Enter firstname">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="lastname">Lastname:</label>
+            <div class="col-xs-4">
+                <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Enter lastname">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">Sex:</label>
+            <label class="radio-inline "><input type="radio" name="sex" value="male" checked>Male</label>
+            <label class="radio-inline"><input type="radio" name="sex" value="female">Female</label>
+            <label class="radio-inline"><input type="radio" name="sex" value="other">Other</label>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="description">Description:</label>
+            <div class="col-xs-4">
+                <textarea class="form-control" rows="5" id="description" name="description"></textarea>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-xs-4">
+                <button type="submit" class="btn btn-default">Submit</button>
+            </div>
+        </div>
+    </form>
+
+    <h2>Users table</h2>
+    <p>The list of registered users:</p>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th>Firstname</th>
+                <th>Lastname</th>
+                <th>Sex</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>John</td>
+                <td>Doe</td>
+                <td>john@example.com</td>
+                <td>john@example.com</td>
+            </tr>
+            <tr>
+                <td>Mary</td>
+                <td>Moe</td>
+                <td>mary@example.com</td>
+                <td>mary@example.com</td>
+            </tr>
+            <tr>
+                <td>July</td>
+                <td>Dooley</td>
+                <td>july@example.com</td>
+                <td>july@example.com</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
