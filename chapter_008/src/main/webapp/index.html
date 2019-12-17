@@ -9,16 +9,43 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script>
         function validate() {
-            if ( $('#firstname').val() == '') {
+            alert('validate');
+            if (!isIdUnique()) {
+                alert('!Unique');
+                return false;
+            }
+            if ($('#firstname').val() === '') {
                 alert('Заполните поле ' + $('#firstname').attr('name'))
-            } else if ( $('#lastname').val() == '') {
+            } else if ($('#lastname').val() === '') {
                 alert('Заполните поле ' + $('#lastname').attr('name'))
-            } else if ($('#description').val() == '') {
+            } else if ($('#description').val() === '') {
                 alert('Заполните поле ' + $('#description').attr('name'))
             } else {
+                alert('Validation passed! ');
                 return true;
             }
+            alert('Validation wtf! ');
             return false;
+        }
+
+        function isIdUnique() {
+            var input = document.getElementById('userId').value;
+            alert('input: ' + input);
+            if (!input) {
+                return false;
+            }
+            var result = true;
+            $('table#users_table tr td:first-child').each(function () {
+                var el = $(this).text();
+                alert('el: ' + el + ', input: ' + input);
+                alert('el === input: ' + el === input);
+                if (el === input) {
+                    alert('isUnique condition failed!');
+                    result = false;
+                    return false;
+                }
+            });
+            return result;
         }
     </script>
 </head>
@@ -29,6 +56,12 @@
     <p>This is some text.</p>
 
     <form class="form-horizontal" action="/action_page" method="post">
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="userId">UserId:</label>
+            <div class="col-xs-4">
+                <input type="text" class="form-control" id="userId" name="userId" placeholder="Enter userId">
+            </div>
+        </div>
         <div class="form-group">
             <label class="control-label col-sm-2" for="firstname">Firstname:</label>
             <div class="col-xs-4">
@@ -56,7 +89,7 @@
 
         <div class="form-group">
             <div class="col-sm-offset-2 col-xs-4">
-                <button type="submit" class="btn btn-default" onclick="return validate();">Submit</button>
+                <button type="submit" class="btn btn-default" onclick="return validate()">Submit</button>
             </div>
         </div>
     </form>
@@ -64,9 +97,10 @@
     <h2>Users table</h2>
     <p>The list of registered users:</p>
     <div class="table-responsive">
-        <table class="table table-striped table-hover">
+        <table class="table table-striped table-hover" id="users_table">
             <thead>
             <tr>
+                <th>UserId</th>
                 <th>Firstname</th>
                 <th>Lastname</th>
                 <th>Sex</th>
@@ -75,18 +109,21 @@
             </thead>
             <tbody>
             <tr>
+                <td>1</td>
                 <td>John</td>
                 <td>Doe</td>
                 <td>male</td>
                 <td>john@example.com</td>
             </tr>
             <tr>
+                <td>2</td>
                 <td>Mary</td>
                 <td>Moe</td>
                 <td>female</td>
                 <td>mary@example.com</td>
             </tr>
             <tr>
+                <td>3</td>
                 <td>July</td>
                 <td>Dooley</td>
                 <td>other</td>
