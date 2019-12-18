@@ -1,5 +1,7 @@
 package ru.job4j.exam.jobparser;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -24,6 +26,8 @@ import java.util.Set;
 public class ParserSQLru {
     // парсит Java вакансии с форума SQL.ru
     // постранично, за последние сутки (первый раз за последний год)
+
+    private final static Logger LOG = LogManager.getLogger(ParserSQLru.class);
 
     private final Config config;
     private final StoreDB storeDB;
@@ -100,7 +104,6 @@ public class ParserSQLru {
 
     private String nextPage(String initPageURL, int currentPageNumber) {
         String suffix = currentPageNumber == 0 ? "" : String.format("/%s", currentPageNumber);
-        System.out.println(String.format("%s%s", initPageURL, suffix)); //TODO delete console out
         return String.format("%s%s", initPageURL, suffix);
     }
 

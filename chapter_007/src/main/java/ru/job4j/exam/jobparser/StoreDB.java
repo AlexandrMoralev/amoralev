@@ -1,6 +1,9 @@
 package ru.job4j.exam.jobparser;
 
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.File;
 import java.io.InputStream;
 import java.sql.*;
@@ -15,6 +18,8 @@ import java.util.*;
  * @since 0.1
  */
 public class StoreDB implements AutoCloseable {
+
+    private final static Logger LOG = LogManager.getLogger(DateConverter.class);
     private final Config config;
     private final DbProperties db;
     private Connection connection;
@@ -43,7 +48,8 @@ public class StoreDB implements AutoCloseable {
             );
             checkDBStructure();
         } catch (Exception e) {
-            throw new IllegalStateException(e);
+            LOG.error("DB initialisation error", e);
+            throw new RuntimeException("DB error");
         }
         return this.connection != null;
     }
@@ -64,7 +70,8 @@ public class StoreDB implements AutoCloseable {
                         this.db.pass*/
             );
         } catch (SQLException e) {
-            e.printStackTrace(); //TODO logger
+            LOG.error("Error getting DB connection", e);
+            throw new RuntimeException("DB error");
         }
         return connect;
     }
@@ -73,7 +80,8 @@ public class StoreDB implements AutoCloseable {
         try {
             Class.forName(this.db.driver);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace(); //TODO logger
+            LOG.error("DB driver error", e);
+            throw new RuntimeException("DB error");
         }
     }
 
@@ -83,7 +91,8 @@ public class StoreDB implements AutoCloseable {
                 this.connection = getConnection();
             }
         } catch (SQLException e) {
-            e.printStackTrace(); //TODO logger
+            LOG.error("DB connection error", e);
+            throw new RuntimeException("DB error");
         }
     }
 
@@ -103,13 +112,14 @@ public class StoreDB implements AutoCloseable {
             // st.executeQuery(CREATE_DB);
             st.execute(CREATE_TABLE_IF_NOT_EXISTS);
         } catch (SQLException e) {
-            e.printStackTrace(); //TODO logger
+            LOG.error("inconsistent DB structure error", e);
+            throw new IllegalStateException("DB error");
         }
       /*
         try (PreparedStatement ps = this.connection.prepareStatement(CREATE_TABLE_IF_NOT_EXISTS)) {
             ps.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace(); //TODO logger
+            e.printStackTrace(); //log!
         }*/
     }
 
@@ -133,7 +143,8 @@ public class StoreDB implements AutoCloseable {
         try (PreparedStatement ps = this.connection.prepareStatement(INSERT_INTO_TABLE)) {
             added = ps.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace(); //TODO logger
+            LOG.error("Error INSERT_INTO_TABLE: {}", INSERT_INTO_TABLE, e);
+            throw new RuntimeException("DB error");
         }
         return added;
     }
@@ -161,7 +172,8 @@ public class StoreDB implements AutoCloseable {
             connection.commit();
             connection.setAutoCommit(true);
         } catch (SQLException e) {
-            e.printStackTrace(); //TODO logger
+            LOG.error("Batch insert failed", e);
+            throw new RuntimeException("DB error");
         }
         return result != null ? result : empty;
     }
@@ -175,7 +187,8 @@ public class StoreDB implements AutoCloseable {
                 result.add(createItem(rs));
             }
         } catch (SQLException e) {
-            e.printStackTrace();  //TODO logger
+            LOG.error("DB read error SELECT_ALL: {}", SELECT_ALL,  e);
+            throw new RuntimeException("DB error");
         }
         return result; //TODO realize
     }
@@ -198,7 +211,8 @@ public class StoreDB implements AutoCloseable {
                 result = Optional.of(createItem(rs));
             }
         } catch (SQLException e) {
-            e.printStackTrace();  //TODO logger
+            LOG.error("DB read error: SELECT {}", SELECT,  e);
+            throw new RuntimeException("DB error");
         }
         return result;
     }
@@ -218,7 +232,8 @@ public class StoreDB implements AutoCloseable {
                 result.add(createItem(rs));
             }
         } catch (SQLException e) {
-            e.printStackTrace();  //TODO logger
+            LOG.error("DB read error: SELECT_BY_DATE {}", SELECT_BY_DATE,  e);
+            throw new RuntimeException("DB error");
         }
         return result.isEmpty() ? Collections.emptyList() : result;
     }
@@ -239,14 +254,15 @@ public class StoreDB implements AutoCloseable {
                 result.add(createItem(rs));
             }
         } catch (SQLException e) {
-            e.printStackTrace();  //TODO logger
+            LOG.error("DB read error: SELECT_BY_PERIOD {}", SELECT_BY_PERIOD,  e);
+            throw new RuntimeException("DB error");
         }
         return result.isEmpty() ? Collections.emptyList() : result;
     }
 
     public List<Vacancy> findRecent(final int number) {
         if (number < 0) {
-            throw new IllegalStateException();
+            throw new IllegalArgumentException(String.format("Incorrect value %s", number));
         }
         if (number == 0) {
             return Collections.emptyList();
@@ -264,7 +280,8 @@ public class StoreDB implements AutoCloseable {
                 result.add(createItem(rs));
             }
         } catch (SQLException e) {
-            e.printStackTrace(); //TODO logger
+            LOG.error("DB read error: SELECT {}", SELECT,  e);
+            throw new RuntimeException("DB error");
         }
         return result.isEmpty() ? Collections.emptyList() : result;
     }
@@ -284,7 +301,8 @@ public class StoreDB implements AutoCloseable {
         try (PreparedStatement ps = this.connection.prepareStatement(DELETE)) {
             updated = ps.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace(); //TODO logger
+            LOG.error("DB update error: DELETE {}", DELETE,  e);
+            throw new RuntimeException("DB error");
         }
         return updated;
     }
@@ -301,7 +319,8 @@ public class StoreDB implements AutoCloseable {
         try (PreparedStatement ps = this.connection.prepareStatement(DELETE_OLDEST)) {
             result = ps.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace(); //TODO logger
+            LOG.error("DB update error: DELETE_OLDEST {}", DELETE_OLDEST,  e);
+            throw new RuntimeException("DB error");
         }
         return result;
     }
@@ -318,7 +337,8 @@ public class StoreDB implements AutoCloseable {
         try (PreparedStatement ps = this.connection.prepareStatement(DELETE_BY_DATE)) {
             result = ps.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace(); //TODO logger
+            LOG.error("DB update error: DELETE_BY_DATE {}", DELETE_BY_DATE,  e);
+            throw new RuntimeException("DB error");
         }
         return result;
     }
@@ -337,7 +357,8 @@ public class StoreDB implements AutoCloseable {
         try (PreparedStatement ps = this.connection.prepareStatement(DELETE_BY_PERIOD)) {
             result = ps.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace(); //TODO logger
+            LOG.error("DB update error: DELETE_BY_PERIOD {}", DELETE_BY_PERIOD,  e);
+            throw new RuntimeException("DB error");
         }
         return result;
     }
@@ -348,7 +369,8 @@ public class StoreDB implements AutoCloseable {
         try (Statement st = this.connection.createStatement()) {
             result = st.executeUpdate(DELETE_ALL);
         } catch (SQLException e) {
-            e.printStackTrace(); //TODO logger
+            LOG.error("DB update error: DELETE_ALL {}", DELETE_ALL,  e);
+            throw new RuntimeException("DB error");
         }
         return result;
     }
@@ -369,7 +391,8 @@ public class StoreDB implements AutoCloseable {
                 this.connection.close();
             }
         } catch (SQLException e) {
-            e.printStackTrace(); //TODO logger
+            LOG.error("Error closing DB connection", e);
+            throw new RuntimeException("DB error");
         }
     }
 
