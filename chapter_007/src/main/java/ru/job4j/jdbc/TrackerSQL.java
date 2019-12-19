@@ -1,7 +1,7 @@
 package ru.job4j.jdbc;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ru.job4j.tracker.Comment;
 import ru.job4j.tracker.ITracker;
 import ru.job4j.tracker.Item;
@@ -18,10 +18,10 @@ import java.util.*;
  * @since 0.1
  */
 public class TrackerSQL implements ITracker, AutoCloseable {
-    private static final Logger LOG = LoggerFactory.getLogger(TrackerSQL.class);
+    private static final Logger LOG = LogManager.getLogger(TrackerSQL.class);
     private final Comment[] comments = new Comment[0];
-    private Connection connection;
     private final Map<Class<?>, TripleConsumerEx<Integer, PreparedStatement, Object>> dispatch = new HashMap<>();
+    private Connection connection;
 
     /**
      * Constructs TrackerSQL instance, prepares for DB using and
@@ -53,7 +53,7 @@ public class TrackerSQL implements ITracker, AutoCloseable {
             );
             checkTables();
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error("Initialisation error ", e);
             throw new IllegalStateException(e);
         }
         return this.connection != null;
@@ -228,7 +228,7 @@ public class TrackerSQL implements ITracker, AutoCloseable {
                     }
                 }
         );
-        return result.isEmpty() ? Collections.EMPTY_LIST : result;
+        return result.isEmpty() ? Collections.emptyList() : result;
     }
 
     @Override
@@ -255,7 +255,7 @@ public class TrackerSQL implements ITracker, AutoCloseable {
                     }
                 }
         );
-        return result.isEmpty() ? Collections.EMPTY_LIST : result;
+        return result.isEmpty() ? Collections.emptyList() : result;
     }
 
     @Override

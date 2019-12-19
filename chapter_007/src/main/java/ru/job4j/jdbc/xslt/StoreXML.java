@@ -1,5 +1,8 @@
 package ru.job4j.jdbc.xslt;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -14,9 +17,11 @@ import java.util.List;
  * @since 0.1
  */
 public class StoreXML {
-    private final File target;
+
+    private final static Logger LOG = LogManager.getLogger(StoreXML.class);
     private static final String FILE_PATH = "./";
     private static final String FILE_NAME = "file.xml";
+    private final File target;
 
     /**
      * StoreXML instance constructor with default filepath parameters
@@ -50,7 +55,8 @@ public class StoreXML {
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             jaxbMarshaller.marshal(entries, this.target);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            LOG.error("Marshalling error", e);
+            throw new RuntimeException(e);
         }
     }
 }

@@ -23,7 +23,6 @@ public class StoreDB implements AutoCloseable {
     private final Config config;
     private final DbProperties db;
     private Connection connection;
-    //TODO add logger
 
     public StoreDB(final Config config) {
         this.config = config;
