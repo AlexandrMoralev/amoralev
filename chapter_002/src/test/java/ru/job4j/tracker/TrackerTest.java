@@ -1,11 +1,13 @@
 package ru.job4j.tracker;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
+import java.util.Collection;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * TrackerTest
@@ -15,16 +17,37 @@ import static org.junit.Assert.*;
  * @since 0.1
  */
 public class TrackerTest {
+    private Tracker tracker;
+
+    @Before
+    public void init() {
+        this.tracker = new Tracker();
+    }
+
+    @After
+    public void cleanUp() {
+        this.tracker = null;
+    }
+
     /**
      * Test. Adding new Item to the Tracker
      */
     @Test
     public void whenAddNewItemThenTrackerHasTheSameItem() {
-        Tracker tracker = new Tracker();
+
         Item item = new Item("testItem", "testItemDescription");
 
         tracker.add(item);
-        assertThat(tracker.findAll().get(0).getName(), is(item.getName()));
+
+        Collection<Item> itemsByName = tracker.findByName("testItem");
+        assertEquals(1, itemsByName.size());
+        assertEquals("testItem", itemsByName.iterator().next().getName());
+
+        assertTrue(tracker.findAll().stream()
+                .allMatch(it -> "testItem".equals(it.getName())
+                        && "testItemDescription".equals(it.getDescription())
+                )
+        );
     }
 
     /**
@@ -32,18 +55,19 @@ public class TrackerTest {
      */
     @Test
     public void whenReplacingItemThenTrackerHasNewItemInsteadReplaced() {
-        Tracker tracker = new Tracker();
 
         tracker.add(new Item("A", "Description of A"));
         tracker.add(new Item("C", "Description of C"));
 
-        Item replaceableItem = tracker.add(new Item("B", "Description of B"));
 
-        Item itemForReplacement = new Item("new item for replacement", "new description");
+        String replaceableItemId = tracker.add(new Item("B", "Description of B"));
+        Item item = tracker.findById(replaceableItemId).get();
 
-        tracker.replace(replaceableItem.getId(), itemForReplacement);
+        Item itemForReplacement = Item.newBuilder().of(item).setName("new item for replacement").setDescription("new description").build();
 
-        assertThat(tracker.findById(replaceableItem.getId()).getName(), is("new item for replacement"));
+        tracker.update(itemForReplacement);
+
+        assertEquals("new item for replacement", tracker.findById(replaceableItemId).get().getName());
     }
 
     /**
@@ -51,16 +75,20 @@ public class TrackerTest {
      */
     @Test
     public void whenDeleteItemThenTrackerWithoutDeletedItem() {
-        Tracker tracker = new Tracker();
 
-        Item deletableItem = new Item("D", "Del");
+        String deletableItemId = tracker.add(new Item("deletableItem", "Del"));
 
-        tracker.add(deletableItem);
-        Item item = tracker.add(new Item("nonDeletableItem", "NonDel"));
+        String nonDeletableItemId = tracker.add(new Item("nonDeletableItem", "NonDel"));
 
-        tracker.delete(deletableItem.getId());
+        tracker.delete(deletableItemId);
 
-        assertThat((tracker.findAll().get(0).getId()), is(item.getId()));
+        assertTrue(tracker.findByName("deletableItem").isEmpty());
+        assertTrue(tracker.findById(deletableItemId).isEmpty());
+        assertTrue(tracker.findAll().stream().noneMatch(it -> "deletableItem".equals(it.getName())));
+
+        assertEquals(1, tracker.findByName("nonDeletableItem").size());
+        assertTrue(tracker.findById(nonDeletableItemId).isPresent());
+        assertTrue(tracker.findAll().stream().allMatch(it -> "nonDeletableItem".equals(it.getName())));
     }
 
     /**
@@ -71,19 +99,25 @@ public class TrackerTest {
         Tracker firstTracker = new Tracker();
         Tracker secondTracker = new Tracker();
 
-        Item firstItem = firstTracker.add(new Item("A", "Description of A"));
-        Item secondItem = firstTracker.add(new Item("B", "Description of B"));
+        String firstItemId = firstTracker.add(new Item("A", "Description of A"));
+        String secondItemId = firstTracker.add(new Item("B", "Description of B"));
 
         Item sharedItem = new Item("C", "Description of C");
 
         firstTracker.add(sharedItem);
         secondTracker.add(sharedItem);
 
+        firstTracker.delete(firstItemId);
+        firstTracker.delete(secondItemId);
 
-        firstTracker.delete(firstItem.getId());
-        firstTracker.delete(secondItem.getId());
+        assertTrue(firstTracker.findAll().stream().noneMatch(it -> "A".equals(it.getName())));
+        assertTrue(secondTracker.findAll().stream().noneMatch(it -> "B".equals(it.getName())));
 
-        assertThat(firstTracker.findAll().get(0).getName(), is(secondTracker.findAll().get(0).getName()));
+        assertTrue(firstTracker.findById(firstItemId).isEmpty());
+        assertTrue(secondTracker.findById(secondItemId).isEmpty());
+
+        assertTrue(firstTracker.findAll().stream().allMatch(it -> "C".equals(it.getName()) && "Description of C".equals(it.getDescription())));
+        assertTrue(secondTracker.findAll().stream().allMatch(it -> "C".equals(it.getName()) && "Description of C".equals(it.getDescription())));
     }
 
     /**
@@ -91,7 +125,6 @@ public class TrackerTest {
      */
     @Test
     public void whenFindItemByNameThenItemsWithThatName() {
-        Tracker tracker = new Tracker();
 
         tracker.add(new Item("A", "Description of A0"));
         tracker.add(new Item("B", "Description of B"));
@@ -100,15 +133,10 @@ public class TrackerTest {
         tracker.add(new Item("C", "Description of C1"));
         tracker.add(new Item("A", "Description of A2"));
 
-        List<Item> result = tracker.findByName("A");
+        Collection<Item> items = tracker.findByName("A");
 
-        boolean resultIs = false;
-
-        for (Item item : result) {
-            resultIs = item.getName().equals("A") | resultIs;
-        }
-
-        assertThat(resultIs, is(true));
+        assertEquals(3, items.size());
+        assertTrue(items.stream().allMatch(item -> "A".equals(item.getName())));
     }
 
     /**
@@ -116,17 +144,15 @@ public class TrackerTest {
      */
     @Test
     public void whenFindByIdThenItemWithThatId() {
-        Tracker tracker = new Tracker();
 
         tracker.add(new Item("A", "Description of A0"));
         tracker.add(new Item("B", "Description of B"));
         tracker.add(new Item("C", "Description of C0"));
         tracker.add(new Item("A", "Description of A1"));
 
-        Item item = tracker.add(new Item("C", "Description of C1"));
+        String itemId = tracker.add(new Item("C", "Description of C1"));
         tracker.add(new Item("A", "Description of A2"));
 
-        assertThat(tracker.findById(item.getId()).getDescription(), is("Description of C1"));
-
+        assertEquals("Description of C1", tracker.findById(itemId).get().getDescription());
     }
 }

@@ -1,9 +1,9 @@
 package ru.job4j.tracker;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * EditItem - external class, in accordance with the technical specifications
@@ -16,7 +16,8 @@ class EditItem extends BaseAction {
 
     /**
      * EditItem instance constructor, calls the superclass constructor
-     * @param key NonNull int menu action's key
+     *
+     * @param key  NonNull int menu action's key
      * @param name NonNull String menu action's name
      */
     public EditItem(int key, String name) {
@@ -32,14 +33,15 @@ class EditItem extends BaseAction {
     public void execute(Input input, ITracker tracker) {
         input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " Replace the order with another by id ", input.ACTION_RIGHT_SEPARATOR));
         String id = input.ask("Enter ID of the order to be replaced: ");
-        if (tracker.findById(id) != null) {
+        Optional<Item> currentItem = tracker.findById(id);
+        if (currentItem.isPresent()) {
             String name = input.ask("Enter the new order name: ");
             String description = input.ask("Enter the new order description: ");
-            Item newItem = new Item(name, description);
-            tracker.replace(id, newItem);
+            Item newItem = Item.newBuilder().of(currentItem.get()).setName(name).setDescription(description).build();
+            tracker.update(newItem);
             input.print(String.format("%s %s %s %s", input.ACTION_LEFT_SEPARATOR, " Order replaced! new order id : ", newItem.getId(), input.ACTION_RIGHT_SEPARATOR));
         } else {
-            input.print(String.format("%s %s %s %s %s", input.EXCEPT_MSG_SEPARATOR, " Order with id = ", id, " doesn't exist. Nothing to replace. ", input.EXCEPT_MSG_SEPARATOR));
+            input.print(String.format("%s %s %s %s %s", input.EXCEPT_MSG_SEPARATOR, " Order with id = ", id, " doesn't exist. Nothing to update. ", input.EXCEPT_MSG_SEPARATOR));
         }
     }
 }
@@ -58,6 +60,7 @@ class ExitMenu extends BaseAction {
 
     /**
      * Method isTimeToExit - "getter" for the flag transmission
+     *
      * @return boolean
      */
     public boolean isTimeToExit() {
@@ -66,7 +69,8 @@ class ExitMenu extends BaseAction {
 
     /**
      * ExitMenu instance constructor, calls the superclass constructor
-     * @param key NonNull int menu action's key
+     *
+     * @param key  NonNull int menu action's key
      * @param name NonNull String menu action's name
      */
     public ExitMenu(int key, String name) {
@@ -76,7 +80,6 @@ class ExitMenu extends BaseAction {
 
     /**
      * Method execute - sets program exit condition to "true"
-     *
      */
     @Override
     public void execute(Input input, ITracker tracker) {
@@ -98,7 +101,7 @@ public class MenuTracker {
     private final ITracker tracker;
 
     // actions on Tracker
-    private ArrayList<UserAction> actions = new ArrayList<>();
+    private final List<UserAction> actions = new ArrayList<>();
 
     // StringBuilder instance to concatenate Strings inside loops
     private final StringBuilder stringBuilder = new StringBuilder(128);
@@ -108,7 +111,8 @@ public class MenuTracker {
 
     /**
      * MenuTracker instance constructor
-     * @param input NonNull Input instance
+     *
+     * @param input   NonNull Input instance
      * @param tracker NonNull Tracker instance
      */
     MenuTracker(Input input, ITracker tracker) {
@@ -136,14 +140,14 @@ public class MenuTracker {
 
     /**
      * Method select - calls the specific action by the action's key from menu
+     *
      * @param key int value, entered by user
      */
     public void select(int key) {
-        for (UserAction action : actions) {
-            if (key == action.key()) {
-                action.execute(this.input, this.tracker);
-            }
-        }
+        this.actions.stream()
+                .filter(action -> action.key() == key)
+                .findFirst()
+                .ifPresent(action -> action.execute(this.input, this.tracker));
     }
 
     /**
@@ -162,6 +166,7 @@ public class MenuTracker {
     /**
      * Method printItem - prints Item data, except comments
      * uses stringBuilder to concat Strings
+     *
      * @param item item to print
      */
     private void printItem(Item item) {
@@ -175,12 +180,13 @@ public class MenuTracker {
                         .append(", description: ")
                         .append(item.getDescription())
                         .append(", date of creation: ")
-                        .append(new Date(item.getCreated())) // converting order creation date from milliseconds to date format
+                        .append(new Date(item.getCreated()))
         );
     }
 
     /**
      * Method getMenuSize
+     *
      * @return int number of menu actions to fill range of validation
      */
     public int getMenuSize() {
@@ -189,6 +195,7 @@ public class MenuTracker {
 
     /**
      * Method timeToExit - "getter" for the flag transmission
+     *
      * @return boolean
      */
     public boolean timeToExit() {
@@ -207,7 +214,8 @@ public class MenuTracker {
 
         /**
          * AddItem instance constructor, calls the superclass constructor
-         * @param key NonNull int menu action's key
+         *
+         * @param key  NonNull int menu action's key
          * @param name NonNull String menu action's name
          */
         public AddItem(int key, String name) {
@@ -215,18 +223,17 @@ public class MenuTracker {
         }
 
         /**
-         *  Method execute - creating new order(Item) and adding it to Tracker
-         *  user enters order's name and order's description
-         *  then the order ID is displayed on the console
+         * Method execute - creating new order(Item) and adding it to Tracker
+         * user enters order's name and order's description
+         * then the order ID is displayed on the console
          */
         @Override
         public void execute(Input input, ITracker tracker) {
             input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, "New order creation", input.ACTION_RIGHT_SEPARATOR));
             String name = input.ask("Enter the order name: ");
             String description = input.ask("Enter the order description: ");
-            Item item = new Item(name, description);
-            tracker.add(item);
-            input.print(String.format("%s %s %s %s", input.ACTION_LEFT_SEPARATOR, " new order id : ", item.getId(), input.ACTION_RIGHT_SEPARATOR));
+            String itemId = tracker.add(new Item(name, description));
+            input.print(String.format("%s %s %s %s", input.ACTION_LEFT_SEPARATOR, " new order id : ", itemId, input.ACTION_RIGHT_SEPARATOR));
         }
     }
 
@@ -241,7 +248,8 @@ public class MenuTracker {
 
         /**
          * ShowAllItems instance constructor, calls the superclass constructor
-         * @param key NonNull int menu action's key
+         *
+         * @param key  NonNull int menu action's key
          * @param name NonNull String menu action's name
          */
         public ShowAllItems(int key, String name) {
@@ -256,13 +264,13 @@ public class MenuTracker {
         public void execute(Input input, ITracker tracker) {
 
             MenuTracker mt = new MenuTracker(input, tracker);
-            List<Item> items = tracker.findAll();
+            List<Item> items = new ArrayList<>(tracker.findAll());
             if (items.isEmpty()) {
                 input.print(String.format("%s %s %s", input.EXCEPT_MSG_SEPARATOR, "Tracker is empty!", input.EXCEPT_MSG_SEPARATOR));
             } else {
                 input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " All tracker orders ", input.ACTION_RIGHT_SEPARATOR));
                 for (int counter = 0; counter < items.size(); counter++) {
-                    System.out.print(String.valueOf(counter + 1));
+                    System.out.print(counter + 1);
                     mt.printItem(items.get(counter));
                 }
                 input.print(input.DIVIDING_LINE);
@@ -281,7 +289,8 @@ public class MenuTracker {
 
         /**
          * DeleteItem instance constructor, calls the superclass constructor
-         * @param key NonNull int menu action's key
+         *
+         * @param key  NonNull int menu action's key
          * @param name NonNull String menu action's name
          */
         public DeleteItem(int key, String name) {
@@ -295,12 +304,12 @@ public class MenuTracker {
         public void execute(Input input, ITracker tracker) {
             input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " Delete the order by id ", input.ACTION_RIGHT_SEPARATOR));
             String id = input.ask("Enter ID of the order to be deleted: ");
-            Item anItem = tracker.findById(id);
-            if (anItem == null) {
+            Optional<Item> item = tracker.findById(id);
+            if (item.isEmpty()) {
                 input.print(String.format("%s %s %s %s %s", input.EXCEPT_MSG_SEPARATOR, " There is no order with id = ", id, ". Nothing to delete. ", input.EXCEPT_MSG_SEPARATOR));
             } else {
-                tracker.delete(anItem.getId());
-                input.print(String.format("%s %s %s %s %s %s %s", input.ACTION_LEFT_SEPARATOR, " Order \"", anItem.getName(), "\" with id = ", id, " deleted successfully. ", input.ACTION_RIGHT_SEPARATOR));
+                tracker.delete(item.get().getId());
+                input.print(String.format("%s %s %s %s %s %s %s", input.ACTION_LEFT_SEPARATOR, " Order \"", item.get().getName(), "\" with id = ", id, " deleted successfully. ", input.ACTION_RIGHT_SEPARATOR));
             }
         }
     }
@@ -316,7 +325,8 @@ public class MenuTracker {
 
         /**
          * FindItemById instance constructor, calls the superclass constructor
-         * @param key NonNull int menu action's key
+         *
+         * @param key  NonNull int menu action's key
          * @param name NonNull String menu action's name
          */
         public FindItemById(int key, String name) {
@@ -331,12 +341,12 @@ public class MenuTracker {
         public void execute(Input input, ITracker tracker) {
             input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " Find order by id ", input.ACTION_RIGHT_SEPARATOR));
             String id = input.ask("Enter ID for the order search: ");
-            Item anItem = tracker.findById(id);
-            if (anItem == null) {
+            Optional<Item> item = tracker.findById(id);
+            if (item.isEmpty()) {
                 input.print(String.format("%s %s %s %s", input.EXCEPT_MSG_SEPARATOR, " There is no order with id = ", id, input.EXCEPT_MSG_SEPARATOR));
             } else {
                 input.print(input.DIVIDING_LINE);
-                printItem(anItem);
+                printItem(item.get());
                 input.print(input.DIVIDING_LINE);
             }
         }
@@ -353,7 +363,8 @@ public class MenuTracker {
 
         /**
          * FindItemByName instance constructor, calls the superclass constructor
-         * @param key NonNull int menu action's key
+         *
+         * @param key  NonNull int menu action's key
          * @param name NonNull String menu action's name
          */
         public FindItemByName(int key, String name) {
@@ -368,13 +379,11 @@ public class MenuTracker {
         public void execute(Input input, ITracker tracker) {
             input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " Find orders by name ", input.ACTION_RIGHT_SEPARATOR));
             String name = input.ask("Enter order's name for the search: ");
-            List<Item> items = tracker.findByName(name);
+            List<Item> items = new ArrayList<>(tracker.findByName(name));
             if (items.isEmpty()) {
                 input.print(String.format("%s %s %s %s", input.EXCEPT_MSG_SEPARATOR, " There is no orders with name = ", name, input.EXCEPT_MSG_SEPARATOR));
             } else {
-                for (Item item : items) {
-                    printItem(item);
-                }
+                items.forEach(MenuTracker.this::printItem);
                 input.print(input.DIVIDING_LINE);
             }
         }
