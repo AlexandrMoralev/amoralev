@@ -7,7 +7,6 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Date;
-import java.util.StringJoiner;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -70,8 +69,8 @@ public class StartUITest {
      */
     @Test
     public void whenUserEditItemThenTrackerHasUpdatedValue() {
-        String id = tracker.add(new Item("test name", "desc"));
-        input = new StubInput(new String[]{"2", id, "new test name", "new desc", "", "6", "y"});
+        Integer id = tracker.add(new Item("test name", "desc"));
+        input = new StubInput(new String[]{"2", String.valueOf(id), "new test name", "new desc", "", "6", "y"});
         new StartUI(input, tracker).init();
         assertThat(tracker.findById(id).get().getName(), is("new test name"));
     }
@@ -81,9 +80,9 @@ public class StartUITest {
      */
     @Test
     public void wheUserDeleteItemThenTrackerHasNoItemWithThatId() {
-        String id = tracker.add(new Item("test name", "desc"));
+        Integer id = tracker.add(new Item("test name", "desc"));
         tracker.add(new Item("other name", "other desc"));
-        input = new StubInput(new String[]{"3", id, "", "6", "y"});
+        input = new StubInput(new String[]{"3", String.valueOf(id), "", "6", "y"});
         new StartUI(input, tracker).init();
         assertEquals("other name", tracker.findAll().stream().findFirst().get().getName());
     }
@@ -94,7 +93,7 @@ public class StartUITest {
     @Test
     public void whenUserChecksAllItemsThenPrintingAllItemsInConsole() {
 
-        String id = tracker.add(new Item("first name", "first desc"));
+        Integer id = tracker.add(new Item("first name", "first desc"));
         input = new StubInput(new String[]{"1", "", "6", "y"});
 
         new StartUI(input, tracker).init();
@@ -119,10 +118,10 @@ public class StartUITest {
         tracker.add(new Item("Order name", "order description"));
         tracker.add(new Item("other order name", "other desc"));
 
-        String id = tracker.add(new Item("that order", "that description"));
+        Integer id = tracker.add(new Item("that order", "that description"));
         Item item = tracker.findById(id).get();
 
-        input = new StubInput(new String[]{"4", item.getId(), "", "6", "y"});
+        input = new StubInput(new String[]{"4", String.valueOf(item.getId()), "", "6", "y"});
         new StartUI(input, tracker).init();
 
         output = new String(out.toByteArray());
@@ -140,9 +139,9 @@ public class StartUITest {
     @Test
     public void whenUserSearchItemByNameThemPrintingAllItemsWithThatNameInConsole() {
 
-        String firstItemId = tracker.add(new Item("Order name", "order description"));
+        Integer firstItemId = tracker.add(new Item("Order name", "order description"));
         tracker.add(new Item("other order name", "other desc"));
-        String secondItemId = tracker.add(new Item("Order name", "new description"));
+        Integer secondItemId = tracker.add(new Item("Order name", "new description"));
 
         input = new StubInput(new String[]{"5", "Order name", "", "6", "y"});
 
@@ -154,28 +153,17 @@ public class StartUITest {
         output = new String(out.toByteArray());
 
                 // first order
-        expected = new StringJoiner("")
-                .add(" Order's name: ")
-                .add(firstItem.getName())
-                .add(", id = ")
-                .add(firstItemId)
-                .add(", description: ")
-                .add(firstItem.getDescription())
-                .add(", date of creation: ")
-                .add(new Date(firstItem.getCreated()).toString())
-                .add(System.lineSeparator())
-                .toString();
+        expected = " Order's name: " + firstItem.getName()
+                + ", id = " + firstItemId.toString()
+                + ", description: " + firstItem.getDescription()
+                + ", date of creation: " + new Date(firstItem.getCreated()).toString()
+                + System.lineSeparator();
 
                 // second order
-        String expectedSecond = new StringJoiner("").add(" Order's name: ")
-                .add(secondItem.getName())
-                .add(", id = ")
-                .add(secondItemId)
-                .add(", description: ")
-                .add(secondItem.getDescription())
-                .add(", date of creation: ")
-                .add(new Date(secondItem.getCreated()).toString())
-                .toString();
+        String expectedSecond = " Order's name: " + secondItem.getName()
+                + ", id = " + secondItemId.toString()
+                + ", description: " + secondItem.getDescription()
+                + ", date of creation: " + new Date(secondItem.getCreated()).toString();
 
         assertTrue(output.contains(expected));
         assertTrue(output.contains(expectedSecond));

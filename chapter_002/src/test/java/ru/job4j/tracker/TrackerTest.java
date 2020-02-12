@@ -60,7 +60,7 @@ public class TrackerTest {
         tracker.add(new Item("C", "Description of C"));
 
 
-        String replaceableItemId = tracker.add(new Item("B", "Description of B"));
+        Integer replaceableItemId = tracker.add(new Item("B", "Description of B"));
         Item item = tracker.findById(replaceableItemId).get();
 
         Item itemForReplacement = Item.newBuilder().of(item).setName("new item for replacement").setDescription("new description").build();
@@ -76,9 +76,9 @@ public class TrackerTest {
     @Test
     public void whenDeleteItemThenTrackerWithoutDeletedItem() {
 
-        String deletableItemId = tracker.add(new Item("deletableItem", "Del"));
+        Integer deletableItemId = tracker.add(new Item("deletableItem", "Del"));
 
-        String nonDeletableItemId = tracker.add(new Item("nonDeletableItem", "NonDel"));
+        Integer nonDeletableItemId = tracker.add(new Item("nonDeletableItem", "NonDel"));
 
         tracker.delete(deletableItemId);
 
@@ -99,8 +99,8 @@ public class TrackerTest {
         Tracker firstTracker = new Tracker();
         Tracker secondTracker = new Tracker();
 
-        String firstItemId = firstTracker.add(new Item("A", "Description of A"));
-        String secondItemId = firstTracker.add(new Item("B", "Description of B"));
+        Integer firstItemId = firstTracker.add(new Item("A", "Description of A"));
+        Integer secondItemId = firstTracker.add(new Item("B", "Description of B"));
 
         Item sharedItem = new Item("C", "Description of C");
 
@@ -150,7 +150,7 @@ public class TrackerTest {
         tracker.add(new Item("C", "Description of C0"));
         tracker.add(new Item("A", "Description of A1"));
 
-        String itemId = tracker.add(new Item("C", "Description of C1"));
+        Integer itemId = tracker.add(new Item("C", "Description of C1"));
         tracker.add(new Item("A", "Description of A2"));
 
         assertEquals("Description of C1", tracker.findById(itemId).get().getDescription());

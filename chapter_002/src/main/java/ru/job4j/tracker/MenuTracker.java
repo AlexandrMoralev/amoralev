@@ -33,7 +33,7 @@ class EditItem extends BaseAction {
     public void execute(Input input, ITracker tracker) {
         input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " Replace the order with another by id ", input.ACTION_RIGHT_SEPARATOR));
         String id = input.ask("Enter ID of the order to be replaced: ");
-        Optional<Item> currentItem = tracker.findById(id);
+        Optional<Item> currentItem = tracker.findById(Integer.valueOf(id));
         if (currentItem.isPresent()) {
             String name = input.ask("Enter the new order name: ");
             String description = input.ask("Enter the new order description: ");
@@ -232,7 +232,7 @@ public class MenuTracker {
             input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, "New order creation", input.ACTION_RIGHT_SEPARATOR));
             String name = input.ask("Enter the order name: ");
             String description = input.ask("Enter the order description: ");
-            String itemId = tracker.add(new Item(name, description));
+            Integer itemId = tracker.add(new Item(name, description));
             input.print(String.format("%s %s %s %s", input.ACTION_LEFT_SEPARATOR, " new order id : ", itemId, input.ACTION_RIGHT_SEPARATOR));
         }
     }
@@ -304,7 +304,7 @@ public class MenuTracker {
         public void execute(Input input, ITracker tracker) {
             input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " Delete the order by id ", input.ACTION_RIGHT_SEPARATOR));
             String id = input.ask("Enter ID of the order to be deleted: ");
-            Optional<Item> item = tracker.findById(id);
+            Optional<Item> item = tracker.findById(Integer.valueOf(id));
             if (item.isEmpty()) {
                 input.print(String.format("%s %s %s %s %s", input.EXCEPT_MSG_SEPARATOR, " There is no order with id = ", id, ". Nothing to delete. ", input.EXCEPT_MSG_SEPARATOR));
             } else {
@@ -341,7 +341,7 @@ public class MenuTracker {
         public void execute(Input input, ITracker tracker) {
             input.print(String.format("%s %s %s", input.ACTION_LEFT_SEPARATOR, " Find order by id ", input.ACTION_RIGHT_SEPARATOR));
             String id = input.ask("Enter ID for the order search: ");
-            Optional<Item> item = tracker.findById(id);
+            Optional<Item> item = tracker.findById(Integer.valueOf(id));
             if (item.isEmpty()) {
                 input.print(String.format("%s %s %s %s", input.EXCEPT_MSG_SEPARATOR, " There is no order with id = ", id, input.EXCEPT_MSG_SEPARATOR));
             } else {

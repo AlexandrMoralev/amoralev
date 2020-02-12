@@ -3,7 +3,6 @@ package ru.job4j.tracker;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
-import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 
@@ -15,10 +14,10 @@ import static java.util.Optional.ofNullable;
  * @since $Id$
  */
 public class Item {
-    private final String id;
+    private final Integer id;
     private final String name;
     private final String description;
-    private final long created;
+    private final Long created;
     private final Collection<Comment> comments;
 
     /**
@@ -45,10 +44,10 @@ public class Item {
      * @param created     long, in ms - date of Item creation
      * @param comments    Comment[] comments to the Item
      */
-    public Item(final String id,
+    public Item(final Integer id,
                 final String name,
                 final String description,
-                final long created,
+                final Long created,
                 final Collection<Comment> comments
     ) {
         this.id = id;
@@ -66,7 +65,7 @@ public class Item {
     /**
      * @return String id of the Item
      */
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -87,7 +86,7 @@ public class Item {
     /**
      * @return long, date of Item creation, in ms
      */
-    public long getCreated() {
+    public Long getCreated() {
         return created;
     }
 
@@ -107,7 +106,7 @@ public class Item {
             return false;
         }
         Item item = (Item) o;
-        return getCreated() == item.getCreated()
+        return Objects.equals(getCreated(), item.getCreated())
                 && Objects.equals(getId(), item.getId())
                 && Objects.equals(getName(), item.getName())
                 && Objects.equals(getDescription(), item.getDescription());
@@ -133,22 +132,22 @@ public class Item {
     }
 
     public static class Builder {
-        private String id;
+        private Integer id;
         private String name;
         private String description;
-        private long created;
+        private Long created;
         private Collection<Comment> comments;
 
         public Builder of(Item item) {
             ofNullable(item.getId()).ifPresent(v -> this.id = v);
             ofNullable(item.getName()).ifPresent(v -> this.name = v);
             ofNullable(item.getDescription()).ifPresent(v -> this.description = v);
-            Optional.of(item.getCreated()).ifPresent(v -> this.created = v);
+            ofNullable(item.getCreated()).ifPresent(v -> this.created = v);
             ofNullable(item.getComments()).ifPresent(v -> this.comments = v);
             return this;
         }
 
-        public Builder setId(String id) {
+        public Builder setId(Integer id) {
             this.id = id;
             return this;
         }
@@ -163,7 +162,7 @@ public class Item {
             return this;
         }
 
-        public Builder setCreated(long created) {
+        public Builder setCreated(Long created) {
             this.created = created;
             return this;
         }

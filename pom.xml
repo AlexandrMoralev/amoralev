@@ -11,8 +11,8 @@
         <profile>
             <id>test</id>
             <properties>
-                <db.url>jdbc:postgresql://127.0.0.1:5432/tracker</db.url>
-                <db.username>admin</db.username>
+                <db.url>jdbc:postgresql://127.0.0.1:5432/tracker_db</db.url>
+                <db.username>postgres</db.username>
                 <db.password>admin</db.password>
                 <db.driver>org.postgresql.Driver</db.driver>
             </properties>
@@ -20,8 +20,8 @@
         <profile>
             <id>production</id>
             <properties>
-                <db.url>jdbc:postgresql://127.0.0.1:5432/tracker</db.url>
-                <db.username>admin</db.username>
+                <db.url>jdbc:postgresql://127.0.0.1:5432/tracker_db</db.url>
+                <db.username>postgres</db.username>
                 <db.password>admin</db.password>
                 <db.driver>org.postgresql.Driver</db.driver>
             </properties>

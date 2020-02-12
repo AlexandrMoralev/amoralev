@@ -8,6 +8,7 @@ import ru.job4j.tracker.Item;
 
 import java.io.InputStream;
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -19,7 +20,6 @@ import java.util.*;
  */
 public class TrackerSQL implements ITracker, AutoCloseable {
     private static final Logger LOG = LogManager.getLogger(TrackerSQL.class);
-    private final Comment[] comments = new Comment[0];
     private final Map<Class<?>, TripleConsumerEx<Integer, PreparedStatement, Object>> dispatch = new HashMap<>();
     private Connection connection;
 
@@ -30,6 +30,16 @@ public class TrackerSQL implements ITracker, AutoCloseable {
         this.init();
         this.dispatch.put(String.class, (index, ps, value) -> ps.setString(index, (String) value));
         this.dispatch.put(Long.class, (index, ps, value) -> ps.setLong(index, (Long) value));
+    }
+
+    /**
+     * Constructs TrackerSQL instance
+     */
+    public TrackerSQL(Connection connection) {
+        this.connection = connection;
+        this.dispatch.put(String.class, (index, ps, value) -> ps.setString(index, (String) value));
+        this.dispatch.put(Integer.class, (index, ps, value) -> ps.setInt(index, (Integer) value));
+        this.dispatch.put(Timestamp.class, (index, ps, value) -> ps.setTimestamp(index, (Timestamp) value));
     }
 
     /**
@@ -51,19 +61,11 @@ public class TrackerSQL implements ITracker, AutoCloseable {
                     config.getProperty("username"),
                     config.getProperty("password")
             );
-            checkTables();
         } catch (Exception e) {
             LOG.error("Initialisation error ", e);
             throw new IllegalStateException(e);
         }
         return this.connection != null;
-    }
-
-    private void checkTables() {
-        this.db(DBNaming.CREATE_TABLES,
-                List.of(),
-                (ConsumerEx<PreparedStatement>) PreparedStatement::execute
-        );
     }
 
     private <T> void forIndex(List<T> list,
@@ -133,72 +135,67 @@ public class TrackerSQL implements ITracker, AutoCloseable {
     }
 
     @Override
-    public Item add(final Item item) {
+    public Integer add(final Item item) {
         validateArg(item);
+        Integer[] result = new Integer[1];
+        final Timestamp now = Timestamp.valueOf(LocalDateTime.now());
         this.db(
-                DBNaming.ADD_TO_ITEMS,
-                List.of(item.getName(), item.getDescription(), item.getCreated()),
+                DBNaming.INSERT_INTO_ITEMS,
+                List.of(item.getName(), item.getDescription(), now),
                 psi -> {
                     if (psi.executeUpdate() == 1) {
                         ResultSet itemId = psi.getGeneratedKeys();
                         itemId.next();
-                        String id = itemId.getString(DBNaming.ITEMS_ID);
-                        item.setId(id);
-                        for (Comment comment : item.getComments()) {
-                            this.db(
-                                    DBNaming.ADD_TO_COMMENTARIES,
-                                    List.of(comment.getComment(), id),
-                                    psc -> {
-                                        if (psc.executeUpdate() == 1) {
-                                            ResultSet commentId = psc.getGeneratedKeys();
-                                            commentId.next();
-                                            comment.setId(commentId.getInt(DBNaming.COMMENTARIES_COMMENT_ID));
-                                        }
-                                    },
-                                    Statement.RETURN_GENERATED_KEYS
-                            );
-                        }
+                        Integer id = itemId.getInt(DBNaming.ITEMS_ID);
+                        item.getComments()
+                                .stream()
+                                .forEach(comment -> this.db(
+                                        DBNaming.INSERT_INTO_COMMENTS,
+                                        List.of(comment.getComment(), id, now),
+                                        psc -> {
+                                            if (psc.executeUpdate() == 1) {
+                                                result[0] = id;
+                                            }
+                                        },
+                                        Statement.RETURN_GENERATED_KEYS
+                                        )
+                                );
                     }
                 },
                 Statement.RETURN_GENERATED_KEYS
         );
-        return item;
+        return result[0];
     }
 
     @Override
-    public void replace(final String id, final Item item) {
-        validateArg(id);
+    public void update(final Item item) {
         validateArg(item);
         this.db(
-                DBNaming.REPLACE_FROM_ITEMS,
-                List.of(item.getName(), item.getDescription(), Long.parseLong(item.getId())),
+                DBNaming.UPDATE_ITEM,
+                List.of(item.getName(), item.getDescription(), item.getId()),
                 psi -> {
                     if (psi.executeUpdate() == 1) {
-                        for (Comment comment : item.getComments()) {
-                            this.db(
-                                    DBNaming.REPLACE_FROM_COMMENTARIES,
-                                    List.of(comment.getComment(), comment.getId(), comment.getItemId()),
-                                    (ConsumerEx<PreparedStatement>) PreparedStatement::executeUpdate
-                            );
-                        }
+                        item.getComments()
+                                .stream()
+                                .forEach(comment -> this.db(
+                                        DBNaming.UPDATE_COMMENT_BY_ITEMID,
+                                        List.of(comment.getComment(), comment.getCommentId(), comment.getItemId()),
+                                        (ConsumerEx<PreparedStatement>) PreparedStatement::executeUpdate
+                                ));
                     }
                 }
         );
     }
 
     @Override
-    public void delete(final String id) {
+    public void delete(final Integer id) {
         validateArg(id);
-        final Long longId = Long.parseLong(id);
         this.db(
                 DBNaming.DELETE_FROM_ITEMS,
-                List.of(longId),
+                List.of(id),
                 psi -> {
                     if (psi.executeUpdate() == 1) {
-                        this.db(DBNaming.DELETE_FROM_COMMENTARIES,
-                                List.of(longId),
-                                (ConsumerEx<PreparedStatement>) PreparedStatement::executeUpdate
-                        );
+                        LOG.info("Item id: {} deleted", id);
                     }
                 }
         );
@@ -213,19 +210,20 @@ public class TrackerSQL implements ITracker, AutoCloseable {
                 List.of(),
                 psi -> {
                     ResultSet rsi = psi.executeQuery();
-                    convertResultSetToList(rsi, result);
-                    if (!result.isEmpty()) {
-                        for (Item item : result) {
-                            this.db(
-                                    DBNaming.FIND_ALL_FROM_COMMENTARIES,
-                                    List.of(Long.parseLong(item.getId())),
+                    convertResultSetToItems(rsi)
+                            .stream()
+                            .forEach(item -> this.db(
+                                    DBNaming.FIND_COMMENTS_BY_ITEMID,
+                                    List.of(item.getId()),
                                     psc -> {
                                         ResultSet rsc = psc.executeQuery();
-                                        item.setComments(addCommentsToItem(rsc));
+                                        result.add(
+                                                Item.newBuilder().of(item)
+                                                        .setComments(extractComments(rsc))
+                                                        .build()
+                                        );
                                     }
-                            );
-                        }
-                    }
+                            ));
                 }
         );
         return result.isEmpty() ? Collections.emptyList() : result;
@@ -236,50 +234,53 @@ public class TrackerSQL implements ITracker, AutoCloseable {
         validateArg(key);
         List<Item> result = new ArrayList<>();
         this.db(
-                DBNaming.FIND_ITEM_BY_NAME_FROM_ITEMS,
+                DBNaming.FIND_ITEMS_BY_NAME,
                 List.of(key),
                 psi -> {
                     ResultSet rsi = psi.executeQuery();
-                    convertResultSetToList(rsi, result);
-                    if (!result.isEmpty()) {
-                        for (Item item : result) {
-                            this.db(
-                                    DBNaming.FIND_ITEM_BY_NAME_FROM_COMMENTARIES,
-                                    List.of(Long.parseLong(item.getId())),
+                    convertResultSetToItems(rsi)
+                            .stream()
+                            .forEach(item -> this.db(
+                                    DBNaming.FIND_COMMENTS_BY_ITEMID,
+                                    List.of(item.getId()),
                                     psc -> {
                                         ResultSet rsc = psc.executeQuery();
-                                        item.setComments(addCommentsToItem(rsc));
+                                        result.add(
+                                                Item.newBuilder().of(item)
+                                                        .setComments(extractComments(rsc))
+                                                        .build()
+                                        );
                                     }
-                            );
-                        }
-                    }
+                            ));
+
                 }
         );
         return result.isEmpty() ? Collections.emptyList() : result;
     }
 
     @Override
-    public Item findById(final String id) {
+    public Optional<Item> findById(final Integer id) {
         validateArg(id);
-        final Long longId = Long.parseLong(id);
-        final Optional<Item> result = this.db(
-                DBNaming.FIND_ITEM_BY_ID_FROM_ITEMS,
-                List.of(longId),
+        return this.db(
+                DBNaming.FIND_ITEM_BY_ID,
+                List.of(id),
                 psi -> {
                     ResultSet rsi = psi.executeQuery();
                     return this.db(
-                            DBNaming.FIND_ITEM_BY_ID_FROM_COMMENTARIES,
-                            List.of(longId),
+                            DBNaming.FIND_COMMENTS_BY_ITEMID,
+                            List.of(id),
                             psc -> {
                                 ResultSet rsc = psc.executeQuery();
-                                Item rsl = buildItem(rsi);
-                                rsl.setComments(addCommentsToItem(rsc));
-                                return rsl;
+                                Collection<Comment> comments = extractComments(rsc);
+                                return convertResultSetToItems(rsi)
+                                        .stream()
+                                        .map(item -> Item.newBuilder().of(item).setComments(comments).build())
+                                        .findFirst()
+                                        .orElse(null);
                             }
-                    );
+                    ).orElse(null);
                 }
-        ).get();
-        return result.get();
+        );
     }
 
     @Override
@@ -293,105 +294,83 @@ public class TrackerSQL implements ITracker, AutoCloseable {
         }
     }
 
-    private List<Item> convertResultSetToList(ResultSet resultSet, List<Item> list) throws SQLException {
+    private Collection<Item> convertResultSetToItems(ResultSet resultSet) throws SQLException {
+        List<Item> items = new ArrayList<>();
         while (resultSet.next()) {
-            list.add(buildItem(resultSet));
+            items.add(extractItemData(resultSet).build());
         }
-        return list;
+        return items;
     }
 
-    private Item buildItem(ResultSet itemResultSet) throws SQLException {
-        return new Item(itemResultSet.getString(DBNaming.ITEMS_ID),
-                itemResultSet.getString(DBNaming.ITEMS_NAME),
-                itemResultSet.getString(DBNaming.ITEMS_DESCRIPTION),
-                itemResultSet.getLong(DBNaming.ITEMS_CREATED),
-                this.comments
-        );
+    private Item.Builder extractItemData(ResultSet itemResultSet) throws SQLException {
+        return Item.newBuilder()
+                .setId(itemResultSet.getInt(DBNaming.ITEMS_ID))
+                .setName(itemResultSet.getString(DBNaming.ITEMS_NAME))
+                .setDescription(itemResultSet.getString(DBNaming.ITEMS_DESCRIPTION))
+                .setCreated(itemResultSet.getTimestamp(DBNaming.ITEMS_CREATED).getTime());
     }
 
-    private Comment[] addCommentsToItem(ResultSet resultSet) throws SQLException {
-        Comment[] comments = new Comment[Item.getCommentsSize()];
-        if (resultSet != null) {
-            int counter = 0;
-            while (resultSet.next()) {
-                comments[counter++].setComment(resultSet.getString(DBNaming.COMMENTARIES_COMMENT));
-            }
+    private Collection<Comment> extractComments(ResultSet resultSet) throws SQLException {
+        List<Comment> comments = new ArrayList<>();
+        while (resultSet.next()) {
+            comments.add(
+                    Comment.newBuilder()
+                            .setCommentId(resultSet.getInt(DBNaming.COMMENTS_COMMENT_ID))
+                            .setComment(resultSet.getString(DBNaming.COMMENTS_COMMENT))
+                            .setItemId(resultSet.getInt(DBNaming.COMMENTS_ITEM_ID))
+                            .setCreated(resultSet.getTimestamp(DBNaming.COMMENTS_CREATED).getTime())
+                            .build()
+            );
         }
         return comments;
     }
 
     private static class DBNaming {
         private static final String MAIN_TABLE_NAME = "items";
-        private static final String SECONDARY_TABLE_NAME = "commentaries";
+        private static final String SECONDARY_TABLE_NAME = "comments";
         private static final String ITEMS_ID = "item_id";
         private static final String ITEMS_NAME = "name";
         private static final String ITEMS_DESCRIPTION = "description";
         private static final String ITEMS_CREATED = "created";
-        private static final String COMMENTARIES_COMMENT_ID = "comment_id";
-        private static final String COMMENTARIES_COMMENT = "comment";
-        private static final String COMMENTARIES_ITEM_ID = "item_id";
-        private static final String LINE_SEPARATOR = System.lineSeparator();
-        private static final String CREATE_TABLES =
-                new StringBuilder().append("CREATE TABLE IF NOT EXISTS ")
-                        .append(MAIN_TABLE_NAME + " (").append(LINE_SEPARATOR)
-                        .append(ITEMS_ID).append(" SERIAL PRIMARY KEY,").append(LINE_SEPARATOR)
-                        .append(ITEMS_NAME).append(" VARCHAR(30) NOT NULL,").append(LINE_SEPARATOR)
-                        .append(ITEMS_DESCRIPTION).append(" VARCHAR(100) NOT NULL,").append(LINE_SEPARATOR)
-                        .append(ITEMS_CREATED).append(" BIGINT NOT NULL").append(" );").append(LINE_SEPARATOR)
-                        .append("CREATE TABLE IF NOT EXISTS ")
-                        .append(SECONDARY_TABLE_NAME + " (").append(LINE_SEPARATOR)
-                        .append(COMMENTARIES_COMMENT_ID).append(" SERIAL PRIMARY KEY,").append(LINE_SEPARATOR)
-                        .append(COMMENTARIES_COMMENT).append(" VARCHAR(100) NOT NULL,").append(LINE_SEPARATOR)
-                        .append(COMMENTARIES_ITEM_ID).append(String.format(" SERIAL REFERENCES %s(%s) NOT NULL", MAIN_TABLE_NAME, ITEMS_ID))
-                        .append(" );").append(LINE_SEPARATOR).toString();
+        private static final String COMMENTS_COMMENT_ID = "comment_id";
+        private static final String COMMENTS_COMMENT = "comment";
+        private static final String COMMENTS_ITEM_ID = "items_id";
+        private static final String COMMENTS_CREATED = "created";
 
-        private static final String ADD_TO_ITEMS =
+        private static final String INSERT_INTO_ITEMS =
                 String.format("INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?);",
                         MAIN_TABLE_NAME, ITEMS_NAME, ITEMS_DESCRIPTION, ITEMS_CREATED
                 );
-        private static final String ADD_TO_COMMENTARIES =
-                String.format("INSERT INTO %s (%s, %s) VALUES (?, ?);",
-                        SECONDARY_TABLE_NAME, COMMENTARIES_COMMENT, COMMENTARIES_ITEM_ID
+        private static final String INSERT_INTO_COMMENTS =
+                String.format("INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?);",
+                        SECONDARY_TABLE_NAME, COMMENTS_COMMENT, COMMENTS_ITEM_ID, COMMENTS_CREATED
                 );
-        private static final String REPLACE_FROM_ITEMS =
-                String.format("UPDATE %s SET %s = ?, %s = ?, %s = ? WHERE %s = ?;",
-                        MAIN_TABLE_NAME, ITEMS_NAME, ITEMS_DESCRIPTION, ITEMS_CREATED, ITEMS_ID
+        private static final String UPDATE_ITEM =
+                String.format("UPDATE %s SET %s = ?, %s = ? WHERE %s = ?;",
+                        MAIN_TABLE_NAME, ITEMS_NAME, ITEMS_DESCRIPTION, ITEMS_ID
                 );
-        private static final String REPLACE_FROM_COMMENTARIES =
+        private static final String UPDATE_COMMENT_BY_ITEMID =
                 String.format("UPDATE %s SET %s = ? WHERE %s = ? AND %s = ?;",
-                        SECONDARY_TABLE_NAME, COMMENTARIES_COMMENT, COMMENTARIES_COMMENT_ID, COMMENTARIES_ITEM_ID
+                        SECONDARY_TABLE_NAME, COMMENTS_COMMENT, COMMENTS_COMMENT_ID, COMMENTS_ITEM_ID
                 );
         private static final String DELETE_FROM_ITEMS =
-                String.format("DELETE * FROM %s WHERE %s = ?;",
+                String.format("DELETE FROM %s WHERE %s = ?;",
                         MAIN_TABLE_NAME, ITEMS_ID
                 );
-        private static final String DELETE_FROM_COMMENTARIES =
-                String.format("DELETE * FROM %s, WHERE %s = ?;",
-                        SECONDARY_TABLE_NAME, COMMENTARIES_ITEM_ID
-                );
         private static final String FIND_ALL_FROM_ITEMS =
-                String.format("SELECT %s, %s, %s, %s FROM %s;",
-                        ITEMS_ID, ITEMS_NAME, ITEMS_DESCRIPTION, ITEMS_CREATED, MAIN_TABLE_NAME
+                String.format("SELECT * FROM %s;", MAIN_TABLE_NAME
                 );
-        private static final String FIND_ALL_FROM_COMMENTARIES =
-                String.format("SELECT %s FROM %s WHERE %s = ?;",
-                        COMMENTARIES_COMMENT, SECONDARY_TABLE_NAME, COMMENTARIES_ITEM_ID
+        private static final String FIND_ITEM_BY_ID =
+                String.format("SELECT * FROM %s WHERE %s = ?;",
+                        MAIN_TABLE_NAME, ITEMS_ID
                 );
-        private static final String FIND_ITEM_BY_NAME_FROM_ITEMS =
+        private static final String FIND_ITEMS_BY_NAME =
                 String.format("SELECT * FROM %s WHERE %s = ?;",
                         MAIN_TABLE_NAME, ITEMS_NAME
                 );
-        private static final String FIND_ITEM_BY_NAME_FROM_COMMENTARIES =
-                String.format("SELECT %s FROM %s WHERE %s = ?;",
-                        COMMENTARIES_COMMENT, SECONDARY_TABLE_NAME, COMMENTARIES_ITEM_ID
-                );
-        private static final String FIND_ITEM_BY_ID_FROM_ITEMS =
+        private static final String FIND_COMMENTS_BY_ITEMID =
                 String.format("SELECT * FROM %s WHERE %s = ?;",
-                        MAIN_TABLE_NAME, ITEMS_NAME
-                );
-        private static final String FIND_ITEM_BY_ID_FROM_COMMENTARIES =
-                String.format("SELECT %s FROM %s WHERE %s = ?;",
-                        COMMENTARIES_COMMENT, SECONDARY_TABLE_NAME, COMMENTARIES_ITEM_ID
+                        SECONDARY_TABLE_NAME, COMMENTS_ITEM_ID
                 );
     }
 }

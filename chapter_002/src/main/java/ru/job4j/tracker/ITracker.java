@@ -12,15 +12,15 @@ import java.util.Optional;
  */
 public interface ITracker {
 
-    String add(Item item);
+    Integer add(Item item);
 
     void update(Item item);
 
-    void delete(String id);
+    void delete(Integer id);
 
     Collection<Item> findAll();
 
     Collection<Item> findByName(String key);
 
-    Optional<Item> findById(String id);
+    Optional<Item> findById(Integer id);
 }

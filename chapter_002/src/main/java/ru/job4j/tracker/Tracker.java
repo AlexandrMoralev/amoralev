@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  */
 public class Tracker implements ITracker {
 
-    private final Map<String, Item> items = new HashMap<>(64);
+    private final Map<Integer, Item> items = new HashMap<>(64);
     private static final Random RANDOM = new Random();
 
     /**
@@ -21,8 +21,8 @@ public class Tracker implements ITracker {
      * @param item Item
      * @return Item, if item added; null if the Tracker overflowed
      */
-    public String add(Item item) {
-        String id = this.generateId();
+    public Integer add(Item item) {
+        Integer id = this.generateId();
         this.items.put(id, Item.newBuilder().of(item).setId(id).build());
         return id;
     }
@@ -41,7 +41,7 @@ public class Tracker implements ITracker {
      *
      * @param id String id of deletable Item
      */
-    public void delete(String id) {
+    public void delete(Integer id) {
         this.items.remove(id);
     }
 
@@ -70,7 +70,7 @@ public class Tracker implements ITracker {
      * @param id String id of the searched element
      * @return Item by id; Item with empty fields, if the id does not belong to any item
      */
-    public Optional<Item> findById(String id) {
+    public Optional<Item> findById(Integer id) {
         return Optional.ofNullable(this.items.get(id));
     }
 
@@ -79,7 +79,7 @@ public class Tracker implements ITracker {
      *
      * @return String id
      */
-    private String generateId() {
-        return String.valueOf(RANDOM.nextInt() + System.currentTimeMillis());
+    private Integer generateId() {
+        return RANDOM.nextInt();
     }
 }
