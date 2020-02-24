@@ -1,5 +1,8 @@
 package ru.job4j.exam.jobparser;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -11,6 +14,9 @@ import java.util.Map;
 import static java.util.Map.entry;
 
 public final class DateConverter {
+
+    private final static Logger LOG = LogManager.getLogger(DateConverter.class);
+
     private final static String YESTERDAY = "вчера,";
     private final static String TODAY = "сегодня,";
     private final static Map<String, String> MONTHS = Map.ofEntries(
@@ -125,6 +131,7 @@ public final class DateConverter {
 
     private static void validate(Object o) {
         if (o == null) {
+            LOG.error("Validation error");
             throw new NullPointerException();
         }
     }

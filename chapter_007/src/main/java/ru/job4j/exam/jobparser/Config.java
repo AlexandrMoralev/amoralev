@@ -1,5 +1,8 @@
 package ru.job4j.exam.jobparser;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -13,7 +16,8 @@ import java.util.Properties;
  * @since 0.1
  */
 public class Config {
-    //TODO add logger
+
+    private static final Logger LOG = LogManager.getLogger(Config.class);
     private final Properties properties;
 
     public Config(String propertiesFileName) {
@@ -30,9 +34,11 @@ public class Config {
                 .getClassLoader()
                 .getResourceAsStream(fileName)
         ) {
+            LOG.info("Loading properties");
             properties.load(in);
         } catch (IOException e) {
-            e.printStackTrace(); //TODO add logging
+            LOG.error("Error loading properties", e);
+            throw new RuntimeException("Unexpected error");
         }
     }
 

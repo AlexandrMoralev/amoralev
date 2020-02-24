@@ -1,16 +1,15 @@
 package ru.job4j.tracker;
 
-import org.junit.Before;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Date;
-import java.util.StringJoiner;
 
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
-import static org.hamcrest.core.Is.*;
 
 /**
  * StartUITest
@@ -27,7 +26,6 @@ public class StartUITest {
 
     private Tracker tracker;
     private Input input;
-    private Item item;
 
     private String output;
     private String expected;
@@ -63,7 +61,7 @@ public class StartUITest {
     public void whenUserAddItemThenTrackerHasNewItemWithSameName() {
         input = new StubInput(new String[]{"0", "test name", "desc", "", "6", "y"});
         new StartUI(input, tracker).init();
-        assertThat(tracker.findAll().get(0).getName(), is("test name"));
+        assertEquals("test name", tracker.findAll().stream().findFirst().get().getName());
     }
 
     /**
@@ -71,10 +69,10 @@ public class StartUITest {
      */
     @Test
     public void whenUserEditItemThenTrackerHasUpdatedValue() {
-        item = tracker.add(new Item("test name", "desc"));
-        input = new StubInput(new String[]{"2", item.getId(), "new test name", "new desc", "", "6", "y"});
+        Integer id = tracker.add(new Item("test name", "desc"));
+        input = new StubInput(new String[]{"2", String.valueOf(id), "new test name", "new desc", "", "6", "y"});
         new StartUI(input, tracker).init();
-        assertThat(tracker.findById(item.getId()).getName(), is("new test name"));
+        assertThat(tracker.findById(id).get().getName(), is("new test name"));
     }
 
     /**
@@ -82,11 +80,11 @@ public class StartUITest {
      */
     @Test
     public void wheUserDeleteItemThenTrackerHasNoItemWithThatId() {
-        item = tracker.add(new Item("test name", "desc"));
+        Integer id = tracker.add(new Item("test name", "desc"));
         tracker.add(new Item("other name", "other desc"));
-        input = new StubInput(new String[]{"3", item.getId(), "", "6", "y"});
+        input = new StubInput(new String[]{"3", String.valueOf(id), "", "6", "y"});
         new StartUI(input, tracker).init();
-        assertThat(tracker.findAll().get(0).getName(), is("other name"));
+        assertEquals("other name", tracker.findAll().stream().findFirst().get().getName());
     }
 
     /**
@@ -95,24 +93,20 @@ public class StartUITest {
     @Test
     public void whenUserChecksAllItemsThenPrintingAllItemsInConsole() {
 
-        item = tracker.add(new Item("first name", "first desc"));
-        input = new StubInput(new String[] {"1", "", "6", "y"});
+        Integer id = tracker.add(new Item("first name", "first desc"));
+        input = new StubInput(new String[]{"1", "", "6", "y"});
 
         new StartUI(input, tracker).init();
 
-        output = new String(out.toByteArray());
-        expected = new StringJoiner("")
-                .add(" Order's name: ")
-                .add(item.getName())
-                .add(", id = ")
-                .add(item.getId())
-                .add(", description: ")
-                .add(item.getDescription())
-                .add(", date of creation: ")
-                .add(new Date(item.getCreated()).toString())
-                .toString();
+        Item item = tracker.findById(id).get();
 
-        assertThat(output.contains(expected), is(true));
+        output = new String(out.toByteArray());
+        expected = " Order's name: " + item.getName()
+                + ", id = " + id
+                + ", description: " + item.getDescription()
+                + ", date of creation: " + new Date(item.getCreated()).toString();
+
+        assertTrue(output.contains(expected));
     }
 
     /**
@@ -123,24 +117,20 @@ public class StartUITest {
 
         tracker.add(new Item("Order name", "order description"));
         tracker.add(new Item("other order name", "other desc"));
-        item = tracker.add(new Item("that order", "that description"));
 
-        input = new StubInput(new String[] {"4", item.getId(), "", "6", "y"});
+        Integer id = tracker.add(new Item("that order", "that description"));
+        Item item = tracker.findById(id).get();
+
+        input = new StubInput(new String[]{"4", String.valueOf(item.getId()), "", "6", "y"});
         new StartUI(input, tracker).init();
 
         output = new String(out.toByteArray());
-        expected = new StringJoiner("")
-                .add(" Order's name: ")
-                .add(item.getName())
-                .add(", id = ")
-                .add(item.getId())
-                .add(", description: ")
-                .add(item.getDescription())
-                .add(", date of creation: ")
-                .add(new Date(item.getCreated()).toString())
-                .toString();
+        expected = " Order's name: " + item.getName()
+                + ", id = " + id
+                + ", description: " + item.getDescription()
+                + ", date of creation: " + new Date(item.getCreated()).toString();
 
-        assertThat(output.contains(expected), is(true));
+        assertTrue(output.contains(expected));
     }
 
     /**
@@ -149,37 +139,33 @@ public class StartUITest {
     @Test
     public void whenUserSearchItemByNameThemPrintingAllItemsWithThatNameInConsole() {
 
-        Item firstItem = tracker.add(new Item("Order name", "order description"));
+        Integer firstItemId = tracker.add(new Item("Order name", "order description"));
         tracker.add(new Item("other order name", "other desc"));
-        Item secondItem = tracker.add(new Item("Order name", "new description"));
+        Integer secondItemId = tracker.add(new Item("Order name", "new description"));
 
-        input = new StubInput(new String[] {"5", "Order name", "", "6", "y"});
+        input = new StubInput(new String[]{"5", "Order name", "", "6", "y"});
 
         new StartUI(input, tracker).init();
 
-        output = new String(out.toByteArray());
-        expected = new StringJoiner("")
-                // first order
-                .add(" Order's name: ")
-                .add(firstItem.getName())
-                .add(", id = ")
-                .add(firstItem.getId())
-                .add(", description: ")
-                .add(firstItem.getDescription())
-                .add(", date of creation: ")
-                .add(new Date(firstItem.getCreated()).toString())
-                .add(System.lineSeparator())
-                // second order
-                .add(" Order's name: ")
-                .add(secondItem.getName())
-                .add(", id = ")
-                .add(secondItem.getId())
-                .add(", description: ")
-                .add(secondItem.getDescription())
-                .add(", date of creation: ")
-                .add(new Date(secondItem.getCreated()).toString())
-                .toString();
+        Item firstItem = tracker.findById(firstItemId).get();
+        Item secondItem = tracker.findById(secondItemId).get();
 
-        assertThat(output.contains(expected), is(true));
+        output = new String(out.toByteArray());
+
+                // first order
+        expected = " Order's name: " + firstItem.getName()
+                + ", id = " + firstItemId.toString()
+                + ", description: " + firstItem.getDescription()
+                + ", date of creation: " + new Date(firstItem.getCreated()).toString()
+                + System.lineSeparator();
+
+                // second order
+        String expectedSecond = " Order's name: " + secondItem.getName()
+                + ", id = " + secondItemId.toString()
+                + ", description: " + secondItem.getDescription()
+                + ", date of creation: " + new Date(secondItem.getCreated()).toString();
+
+        assertTrue(output.contains(expected));
+        assertTrue(output.contains(expectedSecond));
     }
 }

@@ -27,12 +27,14 @@ public class BoardTest {
 
     @Test
     public void whenGameObjectMovesToValidDestinationThenMoved() throws InterruptedException {
+        assertThat(bomberman.getPosition(), is(GameSettings.HERO_INIT_POSITION));
         dest = new Cell(1, 0);
         assertThat(board.move(bomberman.getPosition(), dest), is(true));
     }
 
     @Test
     public void whenGameObjectMovesToSameDestinationThenMoveReturnsFalse() throws InterruptedException {
+        assertThat(bomberman.getPosition(), is(GameSettings.HERO_INIT_POSITION));
         dest = new Cell(0, 0);
         assertThat(board.move(bomberman.getPosition(), dest), is(false));
         assertThat(bomberman.getPosition(), is(dest));
@@ -40,6 +42,7 @@ public class BoardTest {
 
     @Test
     public void whenGameObjectMovesOutOfBoardThenMoveReturnsFalse() throws InterruptedException {
+        assertThat(bomberman.getPosition(), is(GameSettings.HERO_INIT_POSITION));
         dest = new Cell(board.size() - 1, board.size() + 1);
         assertThat(board.move(bomberman.getPosition(), dest), is(false));
     }

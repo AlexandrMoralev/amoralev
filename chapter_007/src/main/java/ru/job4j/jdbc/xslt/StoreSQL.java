@@ -1,7 +1,11 @@
 package ru.job4j.jdbc.xslt;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.File;
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,6 +19,8 @@ import java.util.List;
  * @since 0.1
  */
 public class StoreSQL implements AutoCloseable {
+
+    private final static Logger LOG = LogManager.getLogger(StoreSQL.class);
     private final Config config;
     private Connection connect;
 
@@ -46,7 +52,7 @@ public class StoreSQL implements AutoCloseable {
                 throw new IllegalStateException("DB doesnt support BatchUpdates");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("DB initialisation error", e);
             connect.rollback();
         }
     }
@@ -86,12 +92,14 @@ public class StoreSQL implements AutoCloseable {
                     config.get("password")
             );
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("DB initialisation error", e);
+            throw new RuntimeException(e);
         }
     }
 
     private void checkConnection() throws SQLException {
         if (this.connect == null || this.connect.isClosed()) {
+            LOG.error("DB reconnection at {}", LocalDateTime.now().toString());
             setConnection();
         }
     }
@@ -114,7 +122,8 @@ public class StoreSQL implements AutoCloseable {
             statement.executeUpdate(DROP_TABLE_IF_EXISTS);
             statement.executeUpdate(CREATE_TABLE_IF_NOT_EXISTS);
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Error creating DB reconnection at {}", e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -138,9 +147,10 @@ public class StoreSQL implements AutoCloseable {
                 result.add(new Entry(resultSet.getInt(fieldName)));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Error reading data from DB", e);
+            throw new RuntimeException(e);
         }
-        return result.isEmpty() ? Collections.EMPTY_LIST : result;
+        return result.isEmpty() ? Collections.emptyList() : result;
     }
 
     @Override
@@ -149,7 +159,8 @@ public class StoreSQL implements AutoCloseable {
             try {
                 this.connect.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                LOG.error("Error closing DB connection", e);
+                throw new RuntimeException(e);
             }
         }
     }

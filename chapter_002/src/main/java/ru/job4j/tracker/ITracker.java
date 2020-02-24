@@ -1,6 +1,7 @@
 package ru.job4j.tracker;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Optional;
 
 /**
  * ITracker
@@ -10,10 +11,16 @@ import java.util.List;
  * @since 0.1
  */
 public interface ITracker {
-    Item add(Item item);
-    void replace(String id, Item item);
-    void delete(String id);
-    List<Item> findAll();
-    List<Item> findByName(String key);
-    Item findById(String id);
+
+    Integer add(Item item);
+
+    void update(Item item);
+
+    void delete(Integer id);
+
+    Collection<Item> findAll();
+
+    Collection<Item> findByName(String key);
+
+    Optional<Item> findById(Integer id);
 }

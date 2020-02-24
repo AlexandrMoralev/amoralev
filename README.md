@@ -22,7 +22,7 @@ Used stuff:
 * [**1. Collections. Pro** (advanced lists and maps, trees, sets, *generics pro*)](https://github.com/AlexandrMoralev/amoralev/tree/master/chapter_005)
 * [**2. Multithreading** (threads, concurrency, synchronize, monitor, deadlock, non blocking algorithm, producer-consumer pattern, locks, thead pools)](https://github.com/AlexandrMoralev/amoralev/tree/master/chapter_006)
 * [**3. SQL, JDBC** (sql language, pure jdbc, xml, xstl)](https://github.com/AlexandrMoralev/amoralev/tree/master/chapter_007)
-* **4. Servlets, JSP** (servlets, jsp, web app, crud, filters, security, mockito, *html, ajax, css*)
+* [**4. Servlets, JSP** (servlets, jsp, web app, crud, filters, security, mockito, *html, ajax, css*)](https://github.com/AlexandrMoralev/amoralev/tree/master/chapter_008)
 #### Level 3
 * **1. Hibernate** (orm, mapping, persistence, hql)
 * **2. Spring** (di, core, mvc, templates, data, security, boot, tests, *heroku*)

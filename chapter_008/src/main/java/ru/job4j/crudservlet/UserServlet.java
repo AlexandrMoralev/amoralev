@@ -1,6 +1,7 @@
 package ru.job4j.crudservlet;
 
 import net.jcip.annotations.ThreadSafe;
+import ru.job4j.filtersecurity.Role;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -13,6 +14,8 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
+
+import static java.util.Optional.ofNullable;
 
 /**
  * UserServlet - presentation layout
@@ -83,29 +86,26 @@ public class UserServlet extends HttpServlet {
         }
 
         private Function<ServletRequest, Boolean> add() {
-            return request -> {
-                String name = request.getParameter("name");
-                String login = request.getParameter("login");
-                String email = request.getParameter("email");
-                return logic.add(new User(name, login, email));
-            };
+            return request -> logic.add(extractUser.apply(request)).isPresent();
         }
 
         private Function<ServletRequest, Boolean> update() {
-            return request -> {
-                String name = request.getParameter("name");
-                String login = request.getParameter("login");
-                String email = request.getParameter("email");
-                int userId = Integer.parseInt(request.getParameter("userId"));
-                return logic.update(userId, new User(name, login, email));
-            };
+            return request -> logic.update(extractUser.apply(request));
         }
 
         private Function<ServletRequest, Boolean> delete() {
-            return request -> {
-                int userId = Integer.parseInt(request.getParameter("userId"));
-                return logic.delete(userId);
-            };
+            return request -> logic.delete(Integer.parseInt(request.getParameter("userId")));
         }
+
+        private Function<ServletRequest, User> extractUser = request -> {
+            User.Builder user = new User.Builder();
+            ofNullable(request.getParameter("userId")).map(Integer::parseInt).ifPresent(user::setId);
+            ofNullable(request.getParameter("name")).map(String::strip).ifPresent(user::setName);
+            ofNullable(request.getParameter("login")).map(String::strip).ifPresent(user::setLogin);
+            ofNullable(request.getParameter("email")).map(String::strip).ifPresent(user::setEmail);
+            ofNullable(request.getParameter("password")).map(String::strip).ifPresent(user::setPassword);
+            ofNullable(request.getParameter("role")).map(String::strip).map(Role::valueOf).ifPresent(user::setRole);
+            return user.build();
+        };
     }
 }

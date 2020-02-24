@@ -1,6 +1,10 @@
 package ru.job4j.tracker;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
+
+import static java.util.Optional.ofNullable;
 
 /**
  * Item
@@ -10,12 +14,11 @@ import java.util.Objects;
  * @since $Id$
  */
 public class Item {
-    private static final int INIT_COMMENTS_SIZE = 16;
-    private String id;
-    private String name;
-    private String description;
-    private long created;
-    private Comment[] comments;
+    private final Integer id;
+    private final String name;
+    private final String description;
+    private final Long created;
+    private final Collection<Comment> comments;
 
     /**
      * Default instance constructor of the Item class
@@ -25,10 +28,11 @@ public class Item {
      *                    created long, in ms - date of Item creation
      */
     public Item(final String name, final String description) {
+        this.id = null;
         this.name = name;
         this.description = description;
         this.created = System.currentTimeMillis();
-        this.comments = new Comment[INIT_COMMENTS_SIZE];
+        this.comments = Collections.emptyList();
     }
 
     /**
@@ -40,11 +44,11 @@ public class Item {
      * @param created     long, in ms - date of Item creation
      * @param comments    Comment[] comments to the Item
      */
-    public Item(final String id,
+    public Item(final Integer id,
                 final String name,
                 final String description,
-                final long created,
-                final Comment[] comments
+                final Long created,
+                final Collection<Comment> comments
     ) {
         this.id = id;
         this.name = name;
@@ -53,18 +57,16 @@ public class Item {
         this.comments = comments;
     }
 
-    /**
-     * @return String id of the Item
-     */
-    public String getId() {
-        return id;
+
+    private Item(Builder builder) {
+        this(builder.id, builder.name, builder.description, builder.created, builder.comments);
     }
 
     /**
-     * @param id String id of the Item
+     * @return String id of the Item
      */
-    public void setId(final String id) {
-        this.id = id;
+    public Integer getId() {
+        return id;
     }
 
     /**
@@ -75,13 +77,6 @@ public class Item {
     }
 
     /**
-     * @param name String name of the Item
-     */
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    /**
      * @return String description of the Item
      */
     public String getDescription() {
@@ -89,42 +84,17 @@ public class Item {
     }
 
     /**
-     * @param description String
-     */
-    public void setDescription(final String description) {
-        this.description = description;
-    }
-
-    /**
      * @return long, date of Item creation, in ms
      */
-    public long getCreated() {
+    public Long getCreated() {
         return created;
-    }
-
-    /**
-     * @param created long, in ms
-     */
-    private void setCreated(final long created) {
-        this.created = created;
     }
 
     /**
      * @return String[] of Item comments
      */
-    public Comment[] getComments() {
+    public Collection<Comment> getComments() {
         return comments;
-    }
-
-    /**
-     * @param comments String[] of Item comments
-     */
-    public void setComments(final Comment[] comments) {
-        this.comments = comments;
-    }
-
-    public static int getCommentsSize() {
-        return Item.INIT_COMMENTS_SIZE;
     }
 
     @Override
@@ -136,7 +106,7 @@ public class Item {
             return false;
         }
         Item item = (Item) o;
-        return getCreated() == item.getCreated()
+        return Objects.equals(getCreated(), item.getCreated())
                 && Objects.equals(getId(), item.getId())
                 && Objects.equals(getName(), item.getName())
                 && Objects.equals(getDescription(), item.getDescription());
@@ -156,4 +126,55 @@ public class Item {
                 + ", created=" + created
                 + '}';
     }
+
+    public static Builder newBuilder() {
+        return new Item.Builder();
+    }
+
+    public static class Builder {
+        private Integer id;
+        private String name;
+        private String description;
+        private Long created;
+        private Collection<Comment> comments;
+
+        public Builder of(Item item) {
+            ofNullable(item.getId()).ifPresent(v -> this.id = v);
+            ofNullable(item.getName()).ifPresent(v -> this.name = v);
+            ofNullable(item.getDescription()).ifPresent(v -> this.description = v);
+            ofNullable(item.getCreated()).ifPresent(v -> this.created = v);
+            ofNullable(item.getComments()).ifPresent(v -> this.comments = v);
+            return this;
+        }
+
+        public Builder setId(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder setDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder setCreated(Long created) {
+            this.created = created;
+            return this;
+        }
+
+        public Builder setComments(Collection<Comment> comments) {
+            this.comments = comments;
+            return this;
+        }
+
+        public Item build() {
+            return new Item(this);
+        }
+    }
+
 }

@@ -44,9 +44,10 @@ public class Board {
      */
     public boolean move(final Cell source, final Cell dest) throws InterruptedException {
         validateInput(source, dest);
-        boolean result = (!source.equals(dest)) & destinationIsValid(dest);
+        boolean result = (!source.equals(dest)) && destinationIsValid(dest);
         if (result) {
-            result = this.board[dest.getX()][dest.getY()].tryLock(Board.MOVE_TIMEOUT, TimeUnit.MILLISECONDS);
+            result = this.board[dest.getX()][dest.getY()].tryLock()
+                    || this.board[dest.getX()][dest.getY()].tryLock(Board.MOVE_TIMEOUT, TimeUnit.MILLISECONDS);
             if (result) {
                 this.board[source.getX()][source.getY()].unlock();
             }
