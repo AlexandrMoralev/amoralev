@@ -26,7 +26,7 @@ public enum DBStore implements Store<User> {
     private static final String DB_DRIVER = "org.postgresql.Driver";
     private static final String DB_CONNECTION_URL = "jdbc:postgresql://localhost:5432/";
     private static final String DB_USER = "postgres";
-    private static final String DB_PWD = "postgres";
+    private static final String DB_PWD = "admin";
     private static final String DB_EXISTS = "SELECT EXISTS(SELECT * FROM pg_database WHERE datname = 'users_app');";
     private static final String CREATE_DB = "CREATE DATABASE users_app;";
     private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, name VARCHAR(120), login VARCHAR(160), email VARCHAR(160), created VARCHAR(60), pwd VARCHAR(128), role_desc VARCHAR(20));";

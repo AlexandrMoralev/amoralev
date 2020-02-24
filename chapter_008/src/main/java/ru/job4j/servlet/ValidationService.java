@@ -45,6 +45,7 @@ public enum ValidationService {
         boolean isUnique = optionalUser.map(user -> !user.getLogin().equals(login) || !user.getEmail().equals(email)).orElse(false);
         return isUnique
                 && STORE.update(
+                userId,
                 new User.Builder()
                         .setId(userId)
                         .setName(name)

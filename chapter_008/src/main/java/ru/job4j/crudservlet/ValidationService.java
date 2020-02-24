@@ -30,7 +30,7 @@ public enum ValidationService implements Validation<User> {
         return current.filter(user -> !user.equals(diffUser))
                 .map(user -> {
                     User updated = combine(user, diffUser);
-                    this.store.update(updated);
+                    this.store.update(diffUser.getId(), updated);
                     return updated;
                 }).isPresent();
     }
