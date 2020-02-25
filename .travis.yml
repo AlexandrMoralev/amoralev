@@ -19,7 +19,3 @@ before_install:
     - psql -c 'create database tracker_db;' -U postgres
     - psql -c 'create database users_app;' -U postgres
     - psql -c 'create database vacancies_db;' -U postgres
-    - psql -c 'create user admin with password 'admin';' -U postgres
-    - psql -c 'grant all privileges on database tracker_db to admin;' -U postgres
-    - psql -c 'grant all privileges on database users_app to admin;' -U postgres
-    - psql -c 'grant all privileges on database vacancies_db to admin;' -U postgres
