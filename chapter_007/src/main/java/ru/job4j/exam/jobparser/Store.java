@@ -20,15 +20,15 @@ public interface Store<E> {
 
     boolean update(E e);
 
-    int delete(String id);
+    boolean delete(String id);
 
-    int deleteAll();
+    void deleteAll();
 
     int deleteByPeriod(LocalDateTime fromDate, LocalDateTime toDate);
 
     Optional<E> findById(String id);
 
-    Optional<E> findByName(String name);
+    Collection<E> findByName(String name);
 
     Collection<E> findAll();
 
