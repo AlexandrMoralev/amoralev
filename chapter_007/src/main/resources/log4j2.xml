@@ -6,7 +6,7 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="ru.job4j.logging.log1" level="trace" additivity="false">
+        <Logger name="ru.job4j.exam.jobparser" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
         <Root level="error">
