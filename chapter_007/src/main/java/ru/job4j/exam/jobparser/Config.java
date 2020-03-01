@@ -24,6 +24,9 @@ public class Config {
         this.properties = new Properties();
         init(propertiesFileName);
     }
+    public Config() {
+        this("");
+    }
 
     private void init(String propertiesFileName) {
         String defaultPropsFileName = "jobparser_app.properties";
@@ -34,7 +37,6 @@ public class Config {
                 .getClassLoader()
                 .getResourceAsStream(fileName)
         ) {
-            LOG.info("Loading properties");
             properties.load(in);
         } catch (IOException e) {
             LOG.error("Error loading properties", e);
@@ -42,7 +44,12 @@ public class Config {
         }
     }
 
-    public String get(String key) {
+    public String getString(String key) {
         return this.properties.getProperty(key);
     }
+
+    public Integer getInt(String key) {
+        return Integer.valueOf(this.properties.getProperty(key).trim());
+    }
+
 }
