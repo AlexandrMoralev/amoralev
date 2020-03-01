@@ -15,7 +15,10 @@ public class InMemoryStore implements Store<Vacancy> {
     private final ConcurrentHashMap<String, Vacancy> store;
     private final AtomicInteger key = new AtomicInteger(1);
 
-    public InMemoryStore() {
+    private static final Comparator<Vacancy> dateTimeComparator = Comparator.comparing(Vacancy::getCreated, Comparator.nullsLast(Comparator.reverseOrder()));
+
+    public InMemoryStore(final Config config) {
+        Config config1 = config;
         this.store = new ConcurrentHashMap<>(1000);
     }
 
@@ -95,7 +98,7 @@ public class InMemoryStore implements Store<Vacancy> {
     @Override
     public Collection<Vacancy> findRecent(int count) {
         return this.store.values().stream()
-                .sorted(Comparator.comparing(Vacancy::getCreated, Comparator.nullsLast(Comparator.reverseOrder())))
+                .sorted(dateTimeComparator)
                 .limit(count)
                 .collect(Collectors.toList());
     }
