@@ -118,7 +118,7 @@ public class Vacancy {
         }
 
         public Builder setLink(String link) {
-            this.created = created;
+            this.link = link;
             return this;
         }
 
