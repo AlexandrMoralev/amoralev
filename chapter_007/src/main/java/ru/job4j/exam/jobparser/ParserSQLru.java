@@ -5,13 +5,11 @@ import org.apache.logging.log4j.Logger;
 import org.joda.time.LocalDateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
@@ -32,8 +30,8 @@ public class ParserSQLru {
     private final Store<Vacancy> store;
     private final PageCounter paging;
 
-    private static final Set<String> ignoreWords = Set.of("javascript", "js", "java script", "java-script", "[закрыт]");
-    private static final Set<String> keywords = Set.of("java", "javaee");
+    private static final Set<String> IGNORE_WORDS = Set.of("javascript", "js", "java script", "java-script", "[закрыт]");
+    private static final Set<String> KEYWORDS = Set.of("java", "javaee");
 
     private final String url;
     private final int topicsOnPage;
@@ -54,12 +52,16 @@ public class ParserSQLru {
     }
 
     public Collection<Vacancy> searchVacancies() throws IOException {
+        // TODO check if condition needs optimization
+        LOG.info("searchVacancies start: {}", LocalDateTime.now().toString());
         while (isDateLimitNotBeenReached(this.parsingDateLimit)) {
             LOG.info("isDateLimitNotBeenReached finished: {}", System.nanoTime());
             String nextPage = paging.getNextPage(url);
-            Collection<Vacancy> parsedVacancies = parsePage(nextPage);
+            LinkedList<Vacancy> parsedVacancies = new LinkedList<>(parsePage(nextPage));
+            LOG.info("searchVacancies batch: {}", parsedVacancies.getLast().toString());
             this.store.addAll(parsedVacancies);
         }
+        LOG.info("searchVacancies finish: {}", LocalDateTime.now().toString());
         return this.store.findAll();
     }
 
@@ -78,10 +80,11 @@ public class ParserSQLru {
 
         getTableElements(pageUrl).stream()
                 .filter(vacancy -> isTargetTopic(vacancy.text()))
+                .peek(v -> LOG.info(v.text()))
                 .filter(vacancy -> parsingDateLimit.isBefore(DateTimeUtil.parseToLocalDateTime(vacancy.child(5).text())))
                 .map(vacancy -> {
-                            String link = vacancy.select("a").first().attr("href");
-                            return Vacancy.newBuilder()
+                    String link = getLink(vacancy);
+                    return Vacancy.newBuilder()
                                     .setName(vacancy.child(1).text())
                                     .setCreated(DateTimeUtil.parseToLocalDateTime(vacancy.child(5).text()))
                                     .setLink(link)
@@ -100,8 +103,12 @@ public class ParserSQLru {
                 .getElementsByTag("tr");
     }
 
+    private String getLink(Element vacancy) {
+        return vacancy.select("a").first().attr("href");
+    }
+
     private String getDescription(String link) {
-        Document inTopic = null;
+        Document inTopic;
         try {
             inTopic = Jsoup.connect(link).get();
             return inTopic.getElementsByAttributeValue("class", "msgTable")
@@ -119,21 +126,12 @@ public class ParserSQLru {
 
     private boolean isTargetTopic(String topicText) {
         return Arrays.stream(topicText.toLowerCase().split("\\s+"))
-                .anyMatch(word -> keywords.stream().anyMatch(keysPredicate(word))
-                        && ignoreWords.stream().noneMatch(keysPredicate(word)));
+                .anyMatch(word -> KEYWORDS.stream().anyMatch(keysPredicate(word))
+                        && IGNORE_WORDS.stream().noneMatch(keysPredicate(word)));
     }
 
     private Predicate<String> keysPredicate(String word) {
         return key -> word.startsWith(key) || word.contains(key);
     }
 
-    public static void main(String[] args) throws IOException {
-        Config config = new Config("jobparser_app.properties");
-        System.out.println(config.toString());
-        Store<Vacancy> store = new InMemoryStore(config);
-        PageCounter pageCounter = new SqlRuPageCounter();
-        ParserSQLru parserSQLru = new ParserSQLru(config, store, pageCounter);
-//        parserSQLru.searchVacancies().stream().forEach(v -> LOG.info(v.toString()));
-        parserSQLru.parsePage("https://www.sql.ru/forum/job-offers").stream().forEach(v -> LOG.info(v.toString()));
-    }
 }
