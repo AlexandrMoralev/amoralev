@@ -4,6 +4,7 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.sql.Timestamp;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -12,7 +13,7 @@ import static java.util.Map.entry;
 
 public final class DateTimeUtil {
 
-    private final static DateTimeFormatter commonFormatter = DateTimeFormat.forPattern("dd MM yy, HH:mm");
+    private final static DateTimeFormatter COMMON_FORMATTER = DateTimeFormat.forPattern("dd MM yy, HH:mm");
     private final static String YESTERDAY = "вчера";
     private final static String TODAY = "сегодня";
     private final static String SPACE_SPLITTER = "\\s+";
@@ -47,7 +48,7 @@ public final class DateTimeUtil {
                 return new LocalDateTime().minusDays(1).withTime(hours, minutes, 0, 0);
             default:
                 String month = date.split(SPACE_SPLITTER)[1];
-                return LocalDateTime.parse(dtString.replace(month, MONTHS.get(month)), commonFormatter);
+                return LocalDateTime.parse(dtString.replace(month, MONTHS.get(month)), COMMON_FORMATTER);
         }
     }
 
@@ -56,6 +57,14 @@ public final class DateTimeUtil {
         return getLastParsingDate.apply(store)
                 .map(ldt -> now.minusDays(config.getInt("parser.parse_period_days")))
                 .orElseGet(() -> now.minusYears(config.getInt("parser.parse_period_years")));
+    }
+
+    public static LocalDateTime convertToLocalDateTime(Timestamp timestamp) {
+        return new LocalDateTime(timestamp);
+    }
+
+    public static Timestamp convertToTimestamp(LocalDateTime localDateTime) {
+        return new Timestamp(localDateTime.toDateTime().getMillis());
     }
 
     private static Function<Store<Vacancy>, Optional<LocalDateTime>> getLastParsingDate = store -> store.findRecent(1).stream().findFirst().map(Vacancy::getCreated);
