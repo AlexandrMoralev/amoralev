@@ -59,12 +59,16 @@ public class Vacancy {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Vacancy)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Vacancy)) {
+            return false;
+        }
         Vacancy vacancy = (Vacancy) o;
-        return Objects.equals(getName(), vacancy.getName()) &&
-                Objects.equals(getLink(), vacancy.getLink()) &&
-                Objects.equals(getCreated(), vacancy.getCreated());
+        return Objects.equals(getName(), vacancy.getName())
+                && Objects.equals(getLink(), vacancy.getLink())
+                && Objects.equals(getCreated(), vacancy.getCreated());
     }
 
     @Override
