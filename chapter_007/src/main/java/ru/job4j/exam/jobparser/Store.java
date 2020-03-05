@@ -16,7 +16,7 @@ public interface Store<E> {
 
     Optional<String> add(E e);
 
-    Collection<String> addAll(Collection<E> e);
+    void addAll(Collection<E> e);
 
     boolean update(E e);
 

@@ -3,7 +3,10 @@ package ru.job4j.exam.jobparser;
 import net.jcip.annotations.ThreadSafe;
 import org.joda.time.LocalDateTime;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
@@ -13,13 +16,13 @@ import java.util.stream.Collectors;
 public class InMemoryStore implements Store<Vacancy> {
 
     private final ConcurrentHashMap<String, Vacancy> store;
-    private final AtomicInteger key = new AtomicInteger(1);
+    private final AtomicInteger key;
 
-    private static final Comparator<Vacancy> dateTimeComparator = Comparator.comparing(Vacancy::getCreated, Comparator.nullsLast(Comparator.reverseOrder()));
+    private static final Comparator<Vacancy> DATE_TIME_COMPARATOR = Comparator.comparing(Vacancy::getCreated, Comparator.nullsLast(Comparator.reverseOrder()));
 
     public InMemoryStore(final Config config) {
-        Config config1 = config;
-        this.store = new ConcurrentHashMap<>(1000);
+        this.key = new AtomicInteger(config.getInt("parser.init_page_number"));
+        this.store = new ConcurrentHashMap<>(config.getInt("parser.init_store_capacity"));
     }
 
     @Override
@@ -34,16 +37,10 @@ public class InMemoryStore implements Store<Vacancy> {
     }
 
     @Override
-    public Collection<String> addAll(Collection<Vacancy> vacancies) {
-        List<String> ids = new ArrayList<>(vacancies.size());
+    public void addAll(Collection<Vacancy> vacancies) {
         vacancies.stream()
                 .map(v -> Vacancy.newBuilder().of(v).setId(String.valueOf(key.getAndIncrement())).build())
-                .forEach(v -> {
-                    if (this.store.putIfAbsent(v.getId(), v) == null) {
-                        ids.add(v.getId());
-                    }
-                });
-        return ids;
+                .forEach(v -> this.store.putIfAbsent(v.getId(), v));
     }
 
     @Override
@@ -98,7 +95,7 @@ public class InMemoryStore implements Store<Vacancy> {
     @Override
     public Collection<Vacancy> findRecent(int count) {
         return this.store.values().stream()
-                .sorted(dateTimeComparator)
+                .sorted(DATE_TIME_COMPARATOR)
                 .limit(count)
                 .collect(Collectors.toList());
     }
