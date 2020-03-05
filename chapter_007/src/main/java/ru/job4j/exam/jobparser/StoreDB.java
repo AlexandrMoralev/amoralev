@@ -3,11 +3,14 @@ package ru.job4j.exam.jobparser;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joda.time.LocalDateTime;
 
-import java.io.File;
 import java.io.InputStream;
 import java.sql.*;
 import java.util.*;
+
+import static ru.job4j.exam.jobparser.DateTimeUtil.convertToLocalDateTime;
+import static ru.job4j.exam.jobparser.DateTimeUtil.convertToTimestamp;
 
 /**
  * StoreDB - class for interacting with the current database;
@@ -17,9 +20,9 @@ import java.util.*;
  * @version $Id$
  * @since 0.1
  */
-public class StoreDB implements AutoCloseable {
+public class StoreDB implements Store<Vacancy>, AutoCloseable {
 
-    private final static Logger LOG = LogManager.getLogger(DateConverter.class);
+    private final static Logger LOG = LogManager.getLogger(DateTimeUtil.class);
     private final Config config;
     private final DbProperties db;
     private Connection connection;
@@ -27,9 +30,6 @@ public class StoreDB implements AutoCloseable {
     public StoreDB(final Config config) {
         this.config = config;
         this.db = new DbProperties();
-/*         this.connection = getConnection();
-        checkDBStructure();*/
-
         this.init();
     }
 
@@ -45,342 +45,241 @@ public class StoreDB implements AutoCloseable {
                     config.getProperty("jdbc.username"),
                     config.getProperty("jdbc.password")
             );
-            checkDBStructure();
         } catch (Exception e) {
             LOG.error("DB initialisation error", e);
-            throw new RuntimeException("DB error");
+            throw new RuntimeException("DB error", e);
         }
+        checkDBStructure();
         return this.connection != null;
     }
 
-    private Connection getConnection() {
-        final File dbFile = new File(".");
-        loadDbDriver();
-        Connection connect = null;
-        final int timeout = 50;
-        try {
-            connect = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/vacancies_db; create=true", this.db.user, this.db.pass
-    /*                    String.format("%s%s",
-                                this.db.url,
-                                //dbFile.getAbsolutePath(),
-                                // File.pathSeparator,
-                                this.db.dbName),
-                        this.db.user,
-                        this.db.pass*/
-            );
-        } catch (SQLException e) {
-            LOG.error("Error getting DB connection", e);
-            throw new RuntimeException("DB error");
-        }
-        return connect;
-    }
-
-    private void loadDbDriver() {
-        try {
-            Class.forName(this.db.driver);
-        } catch (ClassNotFoundException e) {
-            LOG.error("DB driver error", e);
-            throw new RuntimeException("DB error");
-        }
-    }
-
-    private void checkConnection() {
-        try {
-            if (this.connection == null || this.connection.isClosed()) {
-                this.connection = getConnection();
-            }
-        } catch (SQLException e) {
-            LOG.error("DB connection error", e);
-            throw new RuntimeException("DB error");
-        }
-    }
-
     private void checkDBStructure() {
-        // final String CREATE_DB = String.format("CREATE DATABASE %s", this.db.dbName);
         final String CREATE_TABLE_IF_NOT_EXISTS = String
-                .format("CREATE TABLE IF NOT EXISTS %s ( %s SERIAL PRIMARY KEY, %s VARCHAR(200) NOT NULL, %s TEXT NOT NULL, %s VARCHAR(512) NOT NULL, %s DATE NOT NULL CONSTRAINT %s UNIQUE);",
+                .format("CREATE TABLE IF NOT EXISTS %s ( %s SERIAL PRIMARY KEY, %s VARCHAR(200) NOT NULL, %s TEXT NOT NULL, %s VARCHAR(512) NOT NULL, %s TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT (current_timestamp AT TIME ZONE 'UTC') CONSTRAINT %s UNIQUE);",
                         this.db.table,
                         this.db.itemId,
                         this.db.itemName,
                         this.db.itemDesc,
                         this.db.itemLink,
-                        this.db.itemDate,
+                        this.db.itemCreated,
                         this.db.itemName
                 );
-        try (Statement st = this.connection.createStatement()) {
-            // st.executeQuery(CREATE_DB);
-            st.execute(CREATE_TABLE_IF_NOT_EXISTS);
-        } catch (SQLException e) {
-            LOG.error("inconsistent DB structure error", e);
-            throw new IllegalStateException("DB error");
-        }
-      /*
         try (PreparedStatement ps = this.connection.prepareStatement(CREATE_TABLE_IF_NOT_EXISTS)) {
             ps.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace(); //log!
-        }*/
-    }
-
-    private void validate(Object object) {
-        if (object == null) {
-            throw new NullPointerException();
-        }
-    }
-
-    public int add(final Vacancy vacancy) {
-        validate(vacancy);
-        final String INSERT_INTO_TABLE = String.format("INSERT INTO %s VALUES (%s, %s, %s, %s);",
-                this.db.table,
-                vacancy.getName(),
-                vacancy.getDescription(),
-                vacancy.getLink(),
-                vacancy.getCreatedAsTimeStamp()
-        );
-        int added = 0;
-        checkConnection();
-        try (PreparedStatement ps = this.connection.prepareStatement(INSERT_INTO_TABLE)) {
-            added = ps.executeUpdate();
-        } catch (SQLException e) {
-            LOG.error("Error INSERT_INTO_TABLE: {}", INSERT_INTO_TABLE, e);
+            LOG.error("DB schema error", e);
             throw new RuntimeException("DB error");
         }
-        return added;
     }
 
-    public int[] addAll(final Collection<Vacancy> vacancies) {
-        validate(vacancies);
-        int[] empty = new int[0];
-        if (vacancies.isEmpty()) {
-            return empty;
+    @Override
+    public Optional<String> add(final Vacancy vacancy) {
+        final String INSERT_RETURNING = String.format("INSERT INTO %s VALUES (?, ?, ?, ?) RETURNING %s;", this.db.table, this.db.itemId);
+        try (PreparedStatement ps = this.connection.prepareStatement(INSERT_RETURNING)) {
+            ps.setString(1, vacancy.getName());
+            ps.setString(2, vacancy.getDescription());
+            ps.setString(3, vacancy.getLink());
+            ps.setTimestamp(4, convertToTimestamp(vacancy.getCreated()));
+            ps.executeUpdate();
+            ResultSet resultSet = ps.getResultSet();
+            return resultSet.next() ? Optional.of(String.valueOf(resultSet.getInt(1))) : Optional.empty();
+        } catch (SQLException e) {
+            LOG.error("DB insert error", e);
+            throw new RuntimeException("DB error");
         }
-        checkConnection();
-        int[] result = null;
-        try (Statement statement = connection.createStatement()) {
-            this.connection.setAutoCommit(false);
-            for (Vacancy vacancy : vacancies) {
-                statement.addBatch(String.format("INSERT INTO %s VALUES (%s, %s, %s, %s);",
-                        this.db.table,
-                        vacancy.getName(),
-                        vacancy.getDescription(),
-                        vacancy.getLink(),
-                        vacancy.getCreatedAsTimeStamp())
-                );
+    }
+
+    @Override
+    public void addAll(final Collection<Vacancy> vacancies) {
+        if (!vacancies.isEmpty()) {
+            final String INSERT_VALUES = "INSERT INTO %s VALUES (%s, %s, %s, %s);";
+            try (Statement statement = connection.createStatement()) {
+                this.connection.setAutoCommit(false);
+                for (Vacancy vacancy : vacancies) {
+                    statement.addBatch(
+                            String.format(INSERT_VALUES,
+                                    this.db.table,
+                                    vacancy.getName(),
+                                    vacancy.getDescription(),
+                                    vacancy.getLink(),
+                                    convertToTimestamp(vacancy.getCreated()).toString())
+                    );
+                }
+                statement.executeBatch();
+                connection.commit();
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                LOG.error("DB batch insert error", e);
+                throw new RuntimeException("DB error");
             }
-            result = statement.executeBatch();
-            connection.commit();
-            connection.setAutoCommit(true);
-        } catch (SQLException e) {
-            LOG.error("Batch insert failed", e);
-            throw new RuntimeException("DB error");
         }
-        return result != null ? result : empty;
     }
 
-    public Collection<Vacancy> findAll() {
-        final String SELECT_ALL = String.format("SELECT * FROM %s", this.db.table);
-        Collection<Vacancy> result = new ArrayDeque<>();
+    @Override
+    public boolean update(Vacancy vacancy) {
+        final String UPDATE_TABLE = String.format("UPDATE %s SET (?, ?, ?, ?) WHERE %s = ?;", this.db.table, this.db.itemId);
+        try (PreparedStatement ps = this.connection.prepareStatement(UPDATE_TABLE)) {
+            ps.setString(1, vacancy.getName());
+            ps.setString(2, vacancy.getDescription());
+            ps.setString(3, vacancy.getLink());
+            ps.setTimestamp(4, convertToTimestamp(vacancy.getCreated()));
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            LOG.error("DB update error", e);
+            throw new RuntimeException("DB error");
+        }
+    }
+
+    @Override
+    public boolean delete(String id) {
+        final String DELETE_VALUE = String.format("DELETE FROM %s WHERE %s = ?;", this.db.table, this.db.itemId);
+        try (PreparedStatement ps = this.connection.prepareStatement(DELETE_VALUE)) {
+            ps.setString(1, id);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            LOG.error("DB delete error", e);
+            throw new RuntimeException("DB error");
+        }
+    }
+
+    @Override
+    public void deleteAll() {
+        final String DELETE_ALL = String.format("TRUNCATE TABLE %s", this.db.table);
         try (Statement st = this.connection.createStatement()) {
-            ResultSet rs = st.executeQuery(SELECT_ALL);
-            while (rs.next()) {
-                result.add(createItem(rs));
-            }
+            st.executeUpdate(DELETE_ALL);
         } catch (SQLException e) {
-            LOG.error("DB read error SELECT_ALL: {}", SELECT_ALL,  e);
+            LOG.error("DB deleteAll error ", e);
             throw new RuntimeException("DB error");
         }
-        return result; //TODO realize
     }
 
-    public Optional<Vacancy> findByName(final String name) {
-        validate(name);
-        Optional<Vacancy> result = Optional.empty();
-        if (name.isBlank()) {
-            return result;
-        }
-        checkConnection();
-        final String SELECT = String.format("SELECT * FROM %s WHERE %s = %s;",
+    @Override
+    public int deleteByPeriod(LocalDateTime fromDate, LocalDateTime toDate) {
+        final String DELETE_BY_PERIOD = String.format(
+                "DELETE FROM %s WHERE %s >= ? AND %s <= ?;",
                 this.db.table,
-                this.db.itemName,
-                name
-        );
+                this.db.itemCreated,
+                this.db.itemCreated);
+        try (PreparedStatement ps = this.connection.prepareStatement(DELETE_BY_PERIOD)) {
+            ps.setTimestamp(1, convertToTimestamp(fromDate));
+            ps.setTimestamp(2, convertToTimestamp(toDate));
+            return ps.executeUpdate();
+        } catch (SQLException e) {
+            LOG.error("DB deleteByPeriod error", e);
+            throw new RuntimeException("DB error");
+        }
+    }
+
+
+    @Override
+    public Optional<Vacancy> findById(String id) {
+        final String SELECT = String.format("SELECT * FROM %s WHERE %s = ?;",
+                this.db.table,
+                this.db.itemId);
         try (PreparedStatement ps = this.connection.prepareStatement(SELECT)) {
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                result = Optional.of(createItem(rs));
-            }
+            ps.setString(1, id);
+            ps.executeUpdate();
+            ResultSet resultSet = ps.getResultSet();
+            return resultSet.next() ? Optional.of(extractVacancy(resultSet)) : Optional.empty();
         } catch (SQLException e) {
-            LOG.error("DB read error: SELECT {}", SELECT,  e);
+            LOG.error("DB findById error", e);
             throw new RuntimeException("DB error");
         }
-        return result;
     }
 
-    public List<Vacancy> findByDate(final Timestamp date) {
-        validate(date);
-        checkConnection();
-        final String SELECT_BY_DATE = String.format("SELECT * FROM %s WHERE %s = %s;",
+
+    @Override
+    public Collection<Vacancy> findByName(final String name) {
+        if (name.isBlank()) {
+            return Collections.emptyList();
+        }
+        final String SELECT = String.format("SELECT * FROM %s WHERE %s = ?;",
                 this.db.table,
-                this.db.itemDate,
-                date
-        );
-        List<Vacancy> result = new ArrayList<>();
-        try (PreparedStatement ps = this.connection.prepareStatement(SELECT_BY_DATE)) {
+                this.db.itemName);
+        try (PreparedStatement ps = this.connection.prepareStatement(SELECT)) {
+            ps.setString(1, name);
             ResultSet rs = ps.executeQuery();
+            Collection<Vacancy> result = new ArrayDeque<>();
             while (rs.next()) {
-                result.add(createItem(rs));
+                result.add(extractVacancy(rs));
             }
+            return result;
         } catch (SQLException e) {
-            LOG.error("DB read error: SELECT_BY_DATE {}", SELECT_BY_DATE,  e);
+            LOG.error("DB findByName error", e);
             throw new RuntimeException("DB error");
         }
-        return result.isEmpty() ? Collections.emptyList() : result;
     }
 
-    public List<Vacancy> findByPeriod(final Timestamp fromDate, final Timestamp toDate) {
-        validate(fromDate);
-        validate(toDate);
-        final String SELECT_BY_PERIOD = String.format("SELECT * FROM %s WHERE %s BETWEEN (%s AND %s);",
+    @Override
+    public Collection<Vacancy> findAll() {
+        final String SELECT = String.format("SELECT * FROM %s", this.db.table);
+        try (Statement st = this.connection.createStatement()) {
+            ResultSet rs = st.executeQuery(SELECT);
+            Collection<Vacancy> result = new ArrayDeque<>();
+            while (rs.next()) {
+                result.add(extractVacancy(rs));
+            }
+            return result;
+        } catch (SQLException e) {
+            LOG.error("DB findAll error", e);
+            throw new RuntimeException("DB error");
+        }
+    }
+
+    @Override
+    public Collection<Vacancy> findByPeriod(LocalDateTime fromDate, LocalDateTime toDate) {
+        final String SELECT = String.format("SELECT * FROM %s WHERE %s >= ? AND %s <= ?;",
                 this.db.table,
-                this.db.itemDate,
-                fromDate,
-                toDate
-        );
-        List<Vacancy> result = new ArrayList<>();
-        try (PreparedStatement ps = this.connection.prepareStatement(SELECT_BY_PERIOD)) {
+                this.db.itemCreated,
+                this.db.itemCreated);
+        try (PreparedStatement ps = this.connection.prepareStatement(SELECT)) {
+            ps.setTimestamp(1, convertToTimestamp(fromDate));
+            ps.setTimestamp(2, convertToTimestamp(toDate));
             ResultSet rs = ps.executeQuery();
+            Collection<Vacancy> result = new ArrayDeque<>();
             while (rs.next()) {
-                result.add(createItem(rs));
+                result.add(extractVacancy(rs));
             }
+            return result;
         } catch (SQLException e) {
-            LOG.error("DB read error: SELECT_BY_PERIOD {}", SELECT_BY_PERIOD,  e);
+            LOG.error("DB findByPeriod error", e);
             throw new RuntimeException("DB error");
         }
-        return result.isEmpty() ? Collections.emptyList() : result;
     }
 
-    public List<Vacancy> findRecent(final int number) {
+    @Override
+    public Collection<Vacancy> findRecent(int number) {
         if (number < 0) {
             throw new IllegalArgumentException(String.format("Incorrect value %s", number));
         }
         if (number == 0) {
             return Collections.emptyList();
         }
-        checkConnection();
-        final String SELECT = String.format("SELECT * FROM %s GROUP BY %s LIMIT %s;",
+        final String SELECT = String.format("SELECT * FROM %s ORDER BY %s DESC LIMIT ?;",
                 this.db.table,
-                this.db.itemDate,
-                number
-        );
-        List<Vacancy> result = new ArrayList<>();
+                this.db.itemCreated);
         try (PreparedStatement ps = this.connection.prepareStatement(SELECT)) {
+            ps.setInt(1, number);
+            Collection<Vacancy> result = new ArrayDeque<>();
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                result.add(createItem(rs));
+                result.add(extractVacancy(rs));
             }
+            return result;
         } catch (SQLException e) {
-            LOG.error("DB read error: SELECT {}", SELECT,  e);
+            LOG.error("DB findRecent error", e);
             throw new RuntimeException("DB error");
         }
-        return result.isEmpty() ? Collections.emptyList() : result;
     }
 
-    public int deleteByName(final String name) {
-        validate(name);
-        int updated = 0;
-        if (name.isBlank()) {
-            return updated;
-        }
-        checkConnection();
-        final String DELETE = String.format("DELETE FROM %s WHERE %s = %s;",
-                this.db.table,
-                this.db.itemName,
-                name
-        );
-        try (PreparedStatement ps = this.connection.prepareStatement(DELETE)) {
-            updated = ps.executeUpdate();
-        } catch (SQLException e) {
-            LOG.error("DB update error: DELETE {}", DELETE,  e);
-            throw new RuntimeException("DB error");
-        }
-        return updated;
-    }
-
-    public int deleteOlderThan(final Timestamp date) {
-        validate(date);
-        checkConnection();
-        final String DELETE_OLDEST = String.format("DELETE FROM %s WHERE %s > %s;",
-                this.db.table,
-                this.db.itemDate,
-                date
-        );
-        int result = 0;
-        try (PreparedStatement ps = this.connection.prepareStatement(DELETE_OLDEST)) {
-            result = ps.executeUpdate();
-        } catch (SQLException e) {
-            LOG.error("DB update error: DELETE_OLDEST {}", DELETE_OLDEST,  e);
-            throw new RuntimeException("DB error");
-        }
-        return result;
-    }
-
-    public int deleteByDate(final Timestamp date) {
-        validate(date);
-        checkConnection();
-        final String DELETE_BY_DATE = String.format("DELETE FROM %s WHERE %s = %s;",
-                this.db.table,
-                this.db.itemDate,
-                date
-        );
-        int result = 0;
-        try (PreparedStatement ps = this.connection.prepareStatement(DELETE_BY_DATE)) {
-            result = ps.executeUpdate();
-        } catch (SQLException e) {
-            LOG.error("DB update error: DELETE_BY_DATE {}", DELETE_BY_DATE,  e);
-            throw new RuntimeException("DB error");
-        }
-        return result;
-    }
-
-    public int deleteByPeriod(final Timestamp fromDate, final Timestamp toDate) {
-        validate(fromDate);
-        validate(toDate);
-        checkConnection();
-        final String DELETE_BY_PERIOD = String.format("DELETE FROM %s WHERE %s BETWEEN (%s AND %s);",
-                this.db.table,
-                this.db.itemDate,
-                fromDate,
-                toDate
-        );
-        int result = 0;
-        try (PreparedStatement ps = this.connection.prepareStatement(DELETE_BY_PERIOD)) {
-            result = ps.executeUpdate();
-        } catch (SQLException e) {
-            LOG.error("DB update error: DELETE_BY_PERIOD {}", DELETE_BY_PERIOD,  e);
-            throw new RuntimeException("DB error");
-        }
-        return result;
-    }
-
-    public int deleteAll() {
-        final String DELETE_ALL = String.format("TRUNCATE TABLE %s", this.db.table);
-        int result = 0;
-        try (Statement st = this.connection.createStatement()) {
-            result = st.executeUpdate(DELETE_ALL);
-        } catch (SQLException e) {
-            LOG.error("DB update error: DELETE_ALL {}", DELETE_ALL,  e);
-            throw new RuntimeException("DB error");
-        }
-        return result;
-    }
-
-    private Vacancy createItem(final ResultSet resultSet) throws SQLException {
-        return new Vacancy(
-                resultSet.getString(this.db.itemName),
-                resultSet.getString(this.db.itemDesc),
-                resultSet.getString(this.db.itemLink),
-                resultSet.getTimestamp(this.db.itemDate) //TODO define date-converter class
-        );
+    private Vacancy extractVacancy(final ResultSet resultSet) throws SQLException {
+        return Vacancy.newBuilder()
+                .setId(resultSet.getString(this.db.itemId))
+                .setName(resultSet.getString(this.db.itemName))
+                .setDescription(resultSet.getString(this.db.itemDesc))
+                .setLink(resultSet.getString(this.db.itemLink))
+                .setCreated(convertToLocalDateTime(resultSet.getTimestamp(this.db.itemCreated)))
+                .build();
     }
 
     @Override
@@ -396,17 +295,17 @@ public class StoreDB implements AutoCloseable {
     }
 
     private final class DbProperties {
-        private final String driver = config.get("jdbc.driver");
-        private final int attemptsToConnect = Integer.parseInt(config.get("jdbc.attempts"));
-        private final String dbName = config.get("db.name");
-        private final String url = config.get("jdbc.url");
-        private final String user = config.get("jdbc.username");
-        private final String pass = config.get("jdbc.password");
-        private final String table = config.get("db.table.name");
-        private final String itemId = config.get("db.table.item_id");
-        private final String itemName = config.get("db.table.item_name");
-        private final String itemDesc = config.get("db.table.item_desc");
-        private final String itemLink = config.get("db.table.item_link");
-        private final String itemDate = config.get("db.table.item_date");
+        private final String driver = config.getString("jdbc.driver");
+        private final int attemptsToConnect = config.getInt("jdbc.attempts");
+        private final String dbName = config.getString("db.name");
+        private final String url = config.getString("jdbc.url");
+        private final String user = config.getString("jdbc.username");
+        private final String pass = config.getString("jdbc.password");
+        private final String table = config.getString("db.table.name");
+        private final String itemId = config.getString("db.table.item_id");
+        private final String itemName = config.getString("db.table.item_name");
+        private final String itemDesc = config.getString("db.table.item_desc");
+        private final String itemLink = config.getString("db.table.item_link");
+        private final String itemCreated = config.getString("db.table.item_date");
     }
 }
