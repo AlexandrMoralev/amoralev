@@ -22,7 +22,7 @@ import static ru.job4j.exam.jobparser.DateTimeUtil.convertToTimestamp;
  */
 public class StoreDB implements Store<Vacancy>, AutoCloseable {
 
-    private final static Logger LOG = LogManager.getLogger(DateTimeUtil.class);
+    private final static Logger LOG = LogManager.getLogger(StoreDB.class);
     private final Config config;
     private final DbProperties db;
     private Connection connection;
@@ -33,24 +33,22 @@ public class StoreDB implements Store<Vacancy>, AutoCloseable {
         this.init();
     }
 
-    private boolean init() {
+    private void init() {
         try (InputStream in = StoreDB.class
                 .getClassLoader()
                 .getResourceAsStream("jobparser_app.properties")) {
             Properties config = new Properties();
             config.load(in);
-            Class.forName(config.getProperty("jdbc.driver"));
+            Class.forName(db.driver);
             this.connection = DriverManager.getConnection(
-                    config.getProperty("jdbc.url"),
-                    config.getProperty("jdbc.username"),
-                    config.getProperty("jdbc.password")
-            );
+                    db.url,
+                    db.user,
+                    db.pass);
         } catch (Exception e) {
             LOG.error("DB initialisation error", e);
             throw new RuntimeException("DB error", e);
         }
         checkDBStructure();
-        return this.connection != null;
     }
 
     private void checkDBStructure() {
@@ -65,7 +63,8 @@ public class StoreDB implements Store<Vacancy>, AutoCloseable {
                         this.db.itemName
                 );
         try (PreparedStatement ps = this.connection.prepareStatement(CREATE_TABLE_IF_NOT_EXISTS)) {
-            ps.executeUpdate();
+            boolean queryResult = ps.execute();
+            LOG.debug("CREATE_TABLE_IF_NOT_EXISTS executed {}", queryResult);
         } catch (SQLException e) {
             LOG.error("DB schema error", e);
             throw new RuntimeException("DB error");
@@ -74,14 +73,17 @@ public class StoreDB implements Store<Vacancy>, AutoCloseable {
 
     @Override
     public Optional<String> add(final Vacancy vacancy) {
-        final String INSERT_RETURNING = String.format("INSERT INTO %s VALUES (?, ?, ?, ?) RETURNING %s;", this.db.table, this.db.itemId);
+        LOG.debug("adding vacancy {}", vacancy.toString());
+        final String INSERT_RETURNING = String.format("INSERT INTO %s(%s, %s, %s, %s) VALUES (?, ?, ?, ?) RETURNING %s;",
+                this.db.table,
+                this.db.itemName,
+                this.db.itemDesc,
+                this.db.itemLink,
+                this.db.itemCreated,
+                this.db.itemId);
         try (PreparedStatement ps = this.connection.prepareStatement(INSERT_RETURNING)) {
-            ps.setString(1, vacancy.getName());
-            ps.setString(2, vacancy.getDescription());
-            ps.setString(3, vacancy.getLink());
-            ps.setTimestamp(4, convertToTimestamp(vacancy.getCreated()));
-            ps.executeUpdate();
-            ResultSet resultSet = ps.getResultSet();
+            setParameters(ps, vacancy);
+            ResultSet resultSet = ps.executeQuery();
             return resultSet.next() ? Optional.of(String.valueOf(resultSet.getInt(1))) : Optional.empty();
         } catch (SQLException e) {
             LOG.error("DB insert error", e);
@@ -92,37 +94,38 @@ public class StoreDB implements Store<Vacancy>, AutoCloseable {
     @Override
     public void addAll(final Collection<Vacancy> vacancies) {
         if (!vacancies.isEmpty()) {
-            final String INSERT_VALUES = "INSERT INTO %s VALUES (%s, %s, %s, %s);";
-            try (Statement statement = connection.createStatement()) {
+            LOG.debug("adding {} vacancies", vacancies.size());
+            final String INSERT_VALUES = String.format("INSERT INTO %s (%s, %s, %s, %s) VALUES (?, ?, ?, ?);",
+                    this.db.table, this.db.itemName, this.db.itemDesc, this.db.itemLink, this.db.itemCreated);
+            try (PreparedStatement ps = connection.prepareStatement(INSERT_VALUES)) {
                 this.connection.setAutoCommit(false);
                 for (Vacancy vacancy : vacancies) {
-                    statement.addBatch(
-                            String.format(INSERT_VALUES,
-                                    this.db.table,
-                                    vacancy.getName(),
-                                    vacancy.getDescription(),
-                                    vacancy.getLink(),
-                                    convertToTimestamp(vacancy.getCreated()).toString())
-                    );
+                    setParameters(ps, vacancy);
+                    ps.addBatch();
                 }
-                statement.executeBatch();
+                ps.executeBatch();
                 connection.commit();
                 connection.setAutoCommit(true);
             } catch (SQLException e) {
                 LOG.error("DB batch insert error", e);
-                throw new RuntimeException("DB error");
+                throw new RuntimeException("DB error", e);
             }
         }
     }
 
+    private void setParameters(PreparedStatement ps, Vacancy vacancy) throws SQLException {
+        ps.setString(1, vacancy.getName());
+        ps.setString(2, vacancy.getDescription());
+        ps.setString(3, vacancy.getLink());
+        ps.setTimestamp(4, convertToTimestamp(vacancy.getCreated()));
+    }
+
     @Override
     public boolean update(Vacancy vacancy) {
+        LOG.debug("updating vacancy {}", vacancy.toString());
         final String UPDATE_TABLE = String.format("UPDATE %s SET (?, ?, ?, ?) WHERE %s = ?;", this.db.table, this.db.itemId);
         try (PreparedStatement ps = this.connection.prepareStatement(UPDATE_TABLE)) {
-            ps.setString(1, vacancy.getName());
-            ps.setString(2, vacancy.getDescription());
-            ps.setString(3, vacancy.getLink());
-            ps.setTimestamp(4, convertToTimestamp(vacancy.getCreated()));
+            setParameters(ps, vacancy);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             LOG.error("DB update error", e);
@@ -132,6 +135,7 @@ public class StoreDB implements Store<Vacancy>, AutoCloseable {
 
     @Override
     public boolean delete(String id) {
+        LOG.debug("updating vacancy id {}", id);
         final String DELETE_VALUE = String.format("DELETE FROM %s WHERE %s = ?;", this.db.table, this.db.itemId);
         try (PreparedStatement ps = this.connection.prepareStatement(DELETE_VALUE)) {
             ps.setString(1, id);
@@ -144,6 +148,7 @@ public class StoreDB implements Store<Vacancy>, AutoCloseable {
 
     @Override
     public void deleteAll() {
+        LOG.debug("deleting all vacancies ");
         final String DELETE_ALL = String.format("TRUNCATE TABLE %s", this.db.table);
         try (Statement st = this.connection.createStatement()) {
             st.executeUpdate(DELETE_ALL);
@@ -155,6 +160,7 @@ public class StoreDB implements Store<Vacancy>, AutoCloseable {
 
     @Override
     public int deleteByPeriod(LocalDateTime fromDate, LocalDateTime toDate) {
+        LOG.debug("deleting vacancies fromDate {}, toDate {} ", fromDate.toString(), toDate.toString());
         final String DELETE_BY_PERIOD = String.format(
                 "DELETE FROM %s WHERE %s >= ? AND %s <= ?;",
                 this.db.table,
@@ -173,6 +179,7 @@ public class StoreDB implements Store<Vacancy>, AutoCloseable {
 
     @Override
     public Optional<Vacancy> findById(String id) {
+        LOG.debug("find vacancy by id {} ", id);
         final String SELECT = String.format("SELECT * FROM %s WHERE %s = ?;",
                 this.db.table,
                 this.db.itemId);
@@ -190,6 +197,7 @@ public class StoreDB implements Store<Vacancy>, AutoCloseable {
 
     @Override
     public Collection<Vacancy> findByName(final String name) {
+        LOG.debug("find vacancy by name {} ", name);
         if (name.isBlank()) {
             return Collections.emptyList();
         }
@@ -212,7 +220,8 @@ public class StoreDB implements Store<Vacancy>, AutoCloseable {
 
     @Override
     public Collection<Vacancy> findAll() {
-        final String SELECT = String.format("SELECT * FROM %s", this.db.table);
+        LOG.debug("find all vacancies");
+        final String SELECT = String.format("SELECT * FROM %s ORDER BY %s DESC;", this.db.table, this.db.itemCreated);
         try (Statement st = this.connection.createStatement()) {
             ResultSet rs = st.executeQuery(SELECT);
             Collection<Vacancy> result = new ArrayDeque<>();
@@ -228,6 +237,7 @@ public class StoreDB implements Store<Vacancy>, AutoCloseable {
 
     @Override
     public Collection<Vacancy> findByPeriod(LocalDateTime fromDate, LocalDateTime toDate) {
+        LOG.debug("find vacancies fromDate {}, toDate {} ", fromDate.toString(), toDate.toString());
         final String SELECT = String.format("SELECT * FROM %s WHERE %s >= ? AND %s <= ?;",
                 this.db.table,
                 this.db.itemCreated,
@@ -249,6 +259,7 @@ public class StoreDB implements Store<Vacancy>, AutoCloseable {
 
     @Override
     public Collection<Vacancy> findRecent(int number) {
+        LOG.debug("find recent vacancies ");
         if (number < 0) {
             throw new IllegalArgumentException(String.format("Incorrect value %s", number));
         }
@@ -265,6 +276,7 @@ public class StoreDB implements Store<Vacancy>, AutoCloseable {
             while (rs.next()) {
                 result.add(extractVacancy(rs));
             }
+            LOG.debug("found {} recent vacancies", result.size());
             return result;
         } catch (SQLException e) {
             LOG.error("DB findRecent error", e);

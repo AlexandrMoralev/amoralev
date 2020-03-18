@@ -9,8 +9,14 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import static ru.job4j.exam.jobparser.DateTimeUtil.now;
 
 /**
  * ParserSQLru
@@ -51,40 +57,45 @@ public class ParserSQLru {
 
     }
 
-    public Collection<Vacancy> searchVacancies() throws IOException {
-        // TODO check if condition needs optimization
-        LOG.info("searchVacancies start: {}", LocalDateTime.now().toString());
-        while (isDateLimitNotBeenReached(this.parsingDateLimit)) {
-            LOG.info("isDateLimitNotBeenReached finished: {}", System.nanoTime());
-            String nextPage = paging.getNextPage(url);
-            LinkedList<Vacancy> parsedVacancies = new LinkedList<>(parsePage(nextPage));
-            LOG.info("searchVacancies batch: {}", parsedVacancies.getLast().toString());
-            this.store.addAll(parsedVacancies);
-        }
-        LOG.info("searchVacancies finish: {}", LocalDateTime.now().toString());
-        return this.store.findAll();
+    public void searchVacancies() throws IOException {
+        this.searchVacanciesToDate(this.parsingDateLimit);
     }
 
-    private boolean isDateLimitNotBeenReached(LocalDateTime dateLimit) {
-        LOG.info("isDateLimitNotBeenReached start: {}", System.nanoTime());
-        Collection<Vacancy> lastVacancy = store.findRecent(1);
-        if (lastVacancy.isEmpty()) {
-            return true;
-        } else {
-            return lastVacancy.stream().anyMatch(vacancy -> vacancy.getCreated().isAfter(dateLimit));
+    public void searchVacanciesToDate(LocalDateTime dateLimit) throws IOException {
+        LOG.debug("Start search: {}", now());
+        while (true) {
+            String nextPage = paging.getNextPage(url);
+            Collection<Vacancy> parsedVacancies = parsePage(nextPage);
+            if (isParsingLimitReached(parsedVacancies, dateLimit)) {
+                LOG.debug("Parsing limit reached: {}", now());
+                this.store.addAll(
+                        parsedVacancies.stream()
+                                .filter(isAfterParsingDateLimit(dateLimit))
+                                .collect(Collectors.toList())
+                );
+                break;
+            }
+            this.store.addAll(parsedVacancies);
         }
+        LOG.debug("Finish search at: {}", now());
+    }
+
+    private boolean isParsingLimitReached(Collection<Vacancy> parsedVacancies, LocalDateTime parsingDateLimit) {
+        return parsedVacancies.stream()
+                .anyMatch(v -> parsingDateLimit.isAfter(v.getCreated()));
+    }
+
+    private Predicate<Vacancy> isAfterParsingDateLimit(LocalDateTime parsingDateLimit) {
+        return v -> parsingDateLimit.isBefore(v.getCreated());
     }
 
     public Collection<Vacancy> parsePage(String pageUrl) throws IOException {
-        ArrayDeque<Vacancy> result = new ArrayDeque<>(topicsOnPage);
-
-        getTableElements(pageUrl).stream()
+        LOG.debug("Start parsing page: {} at {}", pageUrl, now());
+        List<Vacancy> pageVacancies = getTableElements(pageUrl).stream()
                 .filter(vacancy -> isTargetTopic(vacancy.text()))
-                .peek(v -> LOG.info(v.text()))
-                .filter(vacancy -> parsingDateLimit.isBefore(DateTimeUtil.parseToLocalDateTime(vacancy.child(5).text())))
                 .map(vacancy -> {
-                    String link = getLink(vacancy);
-                    return Vacancy.newBuilder()
+                            String link = getLink(vacancy);
+                            return Vacancy.newBuilder()
                                     .setName(vacancy.child(1).text())
                                     .setCreated(DateTimeUtil.parseToLocalDateTime(vacancy.child(5).text()))
                                     .setLink(link)
@@ -92,8 +103,9 @@ public class ParserSQLru {
                                     .build();
                         }
                 )
-                .forEach(result::add);
-        return result;
+                .collect(Collectors.toList());
+        LOG.debug("Finish parsing page {} at {}. Found {} vacancies", pageUrl, now(), pageVacancies.size());
+        return pageVacancies;
     }
 
     private Elements getTableElements(String pageUrl) throws IOException {

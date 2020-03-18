@@ -52,4 +52,11 @@ public class Config {
         return Integer.valueOf(this.properties.getProperty(key).trim());
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Config{ ");
+        sb.append("properties=").append(properties);
+        sb.append('}');
+        return sb.toString();
+    }
 }

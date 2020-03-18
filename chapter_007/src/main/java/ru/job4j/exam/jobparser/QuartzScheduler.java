@@ -1,5 +1,12 @@
 package ru.job4j.exam.jobparser;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
+
+import static org.quartz.CronScheduleBuilder.cronSchedule;
+
 /**
  * Scheduler
  *
@@ -9,36 +16,27 @@ package ru.job4j.exam.jobparser;
  */
 public class QuartzScheduler {
     // отвечает за расписание запуска парсера
-/*
-    private final Config config;
-    private final static String CRONTIME = "cron.time";
-    private final TriggerBuilder trigger;
 
-    public QuartzScheduler(Config config) {
-        this.config = config;
-        *//*this.trigger = newTrigger()
-                .withSchedule(cronSchedule(config.get(CRONTIME)))
-                .forJob(ParserSQLru.class)
-                .build();*//*
-    }
+    private final static Logger LOG = LogManager.getLogger(QuartzScheduler.class);
+    private final static String CRONTIME = "cron.time";
 
     public static void main(String[] args) {
-        String cronExp = new Config().get("cron.time");
-        JobDetail jobDetail = JobBuilder.newJob(ScheduledJob.class)
-                .withIdentity("ParserSqlRu")
-                .build();
-        final Trigger trigger = TriggerBuilder.newTrigger()
-                .withSchedule(
-                        cronSchedule(cronExp)
-                ).startNow()
-                .build();
+        String cronExp = new Config().getString(CRONTIME);
         SchedulerFactory schedulerFactory = new StdSchedulerFactory();
         try {
             Scheduler scheduler = schedulerFactory.getScheduler();
             scheduler.start();
+            JobDetail jobDetail = JobBuilder.newJob(ScheduledJob.class)
+                    .withIdentity("ParserSqlRu")
+                    .build();
+            Trigger trigger = TriggerBuilder.newTrigger()
+                    .startNow()
+                    .withSchedule(cronSchedule(cronExp))
+                    .withIdentity("ParserSqlRuTrigger")
+                    .build();
             scheduler.scheduleJob(jobDetail, trigger);
         } catch (SchedulerException e) {
-            e.printStackTrace();
+            LOG.error(e);
         }
-    }*/
+    }
 }

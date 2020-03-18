@@ -1,5 +1,10 @@
 package ru.job4j.exam.jobparser;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.joda.time.LocalDateTime;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -14,41 +19,65 @@ import java.util.List;
  */
 public class ParserSQLruTest {
 
-    @Test
-    public void parsePageRAMManualTest() throws Exception {
-        Config config = new Config("jobparser_app.properties");
-        System.out.println(config.toString());
-        Store<Vacancy> store = new InMemoryStore(config);
-        PageCounter pageCounter = new SqlRuPageCounter();
+    private final static Logger LOG = LogManager.getLogger(ParserSQLruTest.class);
+    private static Config config;
+    private PageCounter pageCounter;
 
-        ParserSQLru parserSQLru = new ParserSQLru(config, store, pageCounter);
 
-        List<Vacancy> vacancies = new ArrayList<>(parserSQLru.parsePage("https://www.sql.ru/forum/job-offers/"));
-        System.out.println();
-        System.out.println("==================================================================================");
-        System.out.println();
+    @BeforeClass
+    public static void init() {
+        config = new Config("jobparser_app.properties");
+        LOG.info(config.toString());
+    }
 
-        for (int i = 0; i < vacancies.size(); i++) {
-            System.out.println(String.format("%s - %s", i + 1, vacancies.get(i).toString()));
-        }
+    @Before
+    public void beforeEach() {
+        pageCounter = new SqlRuPageCounter();
     }
 
     @Test
-    public void parsePageDBManualTest() throws Exception {
-        Config config = new Config("jobparser_app.properties");
-        System.out.println(config.toString());
-        Store<Vacancy> store = new StoreDB(config);
-        PageCounter pageCounter = new SqlRuPageCounter();
-
+    public void parsePageInMemmoryStoreManualTest() throws Exception {
+        Store<Vacancy> store = new InMemoryStore(config);
+        store.deleteAll();
         ParserSQLru parserSQLru = new ParserSQLru(config, store, pageCounter);
+        store.addAll(parserSQLru.parsePage("https://www.sql.ru/forum/job-offers/"));
+        List<Vacancy> vacancies = new ArrayList<>(store.findAll());
+        printList(vacancies);
+    }
 
-        List<Vacancy> vacancies = new ArrayList<>(parserSQLru.parsePage("https://www.sql.ru/forum/job-offers/"));
-        System.out.println();
-        System.out.println("==================================================================================");
-        System.out.println();
+    @Test
+    public void searchVacanciesInMemmoryStoreManualTest() throws Exception {
+        Store<Vacancy> store = new InMemoryStore(config);
+        store.deleteAll();
+        ParserSQLru parserSQLru = new ParserSQLru(config, store, pageCounter);
+        parserSQLru.searchVacanciesToDate(LocalDateTime.now().minusDays(365));
+        List<Vacancy> vacancies = new ArrayList<>(store.findAll());
+        printList(vacancies);
+    }
 
-        for (int i = 0; i < vacancies.size(); i++) {
-            System.out.println(String.format("%s - %s", i + 1, vacancies.get(i).toString()));
+    @Test
+    public void parsePageDbStoreManualTest() throws Exception {
+        Store<Vacancy> store = new StoreDB(config);
+        store.deleteAll();
+        ParserSQLru parserSQLru = new ParserSQLru(config, store, pageCounter);
+        store.addAll(parserSQLru.parsePage("https://www.sql.ru/forum/job-offers/"));
+        List<Vacancy> vacancies = new ArrayList<>(store.findAll());
+        printList(vacancies);
+    }
+
+    @Test
+    public void searchVacanciesDbStoreManualTest() throws Exception {
+        Store<Vacancy> store = new StoreDB(config);
+        store.deleteAll();
+        ParserSQLru parserSQLru = new ParserSQLru(config, store, pageCounter);
+        parserSQLru.searchVacanciesToDate(LocalDateTime.now().minusDays(365));
+        List<Vacancy> vacancies = new ArrayList<>(store.findAll());
+        printList(vacancies);
+    }
+
+    private void printList(List<?> objects) {
+        for (int i = 0; i < objects.size(); i++) {
+            LOG.debug(String.format("#%s - %s", i + 1, objects.get(i).toString()));
         }
     }
 }

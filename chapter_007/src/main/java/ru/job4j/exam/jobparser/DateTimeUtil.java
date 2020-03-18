@@ -67,5 +67,9 @@ public final class DateTimeUtil {
         return new Timestamp(localDateTime.toDateTime().getMillis());
     }
 
+    public static String now() {
+        return LocalDateTime.now().toString();
+    }
+
     private static Function<Store<Vacancy>, Optional<LocalDateTime>> getLastParsingDate = store -> store.findRecent(1).stream().findFirst().map(Vacancy::getCreated);
 }
