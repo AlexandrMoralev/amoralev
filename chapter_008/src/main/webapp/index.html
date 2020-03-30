@@ -7,7 +7,10 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
     <script>
+        var counter = 3;
+
         function validate() {
             alert('validate');
             if (!isIdUnique()) {
@@ -18,8 +21,8 @@
                 alert('Заполните поле ' + $('#firstname').attr('name'))
             } else if ($('#lastname').val() === '') {
                 alert('Заполните поле ' + $('#lastname').attr('name'))
-            } else if ($('#description').val() === '') {
-                alert('Заполните поле ' + $('#description').attr('name'))
+            } else if ($('#email').val() === '') {
+                alert('Заполните поле ' + $('#email').attr('name'))
             } else {
                 alert('Validation passed! ');
                 return true;
@@ -47,6 +50,27 @@
             });
             return result;
         }
+
+        function addRow() {
+            var firstname = $('#firstname').val();
+            var lastname = $('#lastname').val();
+            var gender = $("input[name='gender']").val();
+            var email = $('#email').val();
+            var description = $('#description').val();
+            var rowToAdd = '<tr>'
+                + '<td>' + nextId() + '</td>'
+                + '<td>' + firstname + '</td>'
+                + '<td>' + lastname + '</td>'
+                + '<td>' + gender + '</td>'
+                + '<td>' + email + '</td>'
+                + '<td>' + description + '</td>'
+                + '</tr>';
+            $('#users_table tr:last').after(rowToAdd);
+        }
+
+        function nextId() {
+            return ++counter;
+        }
     </script>
 </head>
 <body>
@@ -57,9 +81,9 @@
 
     <form class="form-horizontal" action="/action_page" method="post">
         <div class="form-group">
-            <label class="control-label col-sm-2" for="userId">UserId:</label>
+            <!--<label class="control-label col-sm-2" for="userId">UserId:</label>-->
             <div class="col-xs-4">
-                <input type="text" class="form-control" id="userId" name="userId" placeholder="Enter userId">
+                <input type="hidden" class="form-control" id="userId" name="userId">
             </div>
         </div>
         <div class="form-group">
@@ -75,21 +99,29 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="control-label col-sm-2">Sex:</label>
-            <label class="radio-inline "><input type="radio" name="sex" value="male" checked>Male</label>
-            <label class="radio-inline"><input type="radio" name="sex" value="female">Female</label>
-            <label class="radio-inline"><input type="radio" name="sex" value="other">Other</label>
+            <label class="control-label col-sm-2">Gender:</label>
+            <label class="radio-inline "><input type="radio" name="gender" value="male" checked>Male</label>
+            <label class="radio-inline"><input type="radio" name="gender" value="female">Female</label>
+            <label class="radio-inline"><input type="radio" name="gender" value="other">Other</label>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="email">Email:</label>
+            <div class="col-xs-4">
+                <input type="text" class="form-control" id="email" name="email" placeholder="Enter email">
+            </div>
         </div>
         <div class="form-group">
             <label class="control-label col-sm-2" for="description">Description:</label>
             <div class="col-xs-4">
-                <textarea class="form-control" rows="5" id="description" name="description"></textarea>
+                <textarea class="form-control" rows="5" id="description" name="description"
+                          placeholder="Enter description"></textarea>
             </div>
         </div>
 
         <div class="form-group">
             <div class="col-sm-offset-2 col-xs-4">
-                <button type="submit" class="btn btn-default" onclick="return validate()">Submit</button>
+                <button type="button" class="btn btn-default" onclick="return addRow()">Add user</button>
+                <!--<button type="submit" class="btn btn-default" onclick="return validate()">Submit</button>-->
             </div>
         </div>
     </form>
@@ -100,10 +132,11 @@
         <table class="table table-striped table-hover" id="users_table">
             <thead>
             <tr>
-                <th>UserId</th>
+                <th>#</th>
                 <th>Firstname</th>
                 <th>Lastname</th>
-                <th>Sex</th>
+                <th>Gender</th>
+                <th>Email</th>
                 <th>Description</th>
             </tr>
             </thead>
@@ -114,6 +147,7 @@
                 <td>Doe</td>
                 <td>male</td>
                 <td>john@example.com</td>
+                <td>some txt</td>
             </tr>
             <tr>
                 <td>2</td>
@@ -121,6 +155,7 @@
                 <td>Moe</td>
                 <td>female</td>
                 <td>mary@example.com</td>
+                <td>some desc</td>
             </tr>
             <tr>
                 <td>3</td>
@@ -128,6 +163,7 @@
                 <td>Dooley</td>
                 <td>other</td>
                 <td>july@example.com</td>
+                <td>tl;dr</td>
             </tr>
             </tbody>
         </table>
