@@ -139,4 +139,14 @@
         <url-pattern>/login-view</url-pattern>
     </servlet-mapping>
 
+    <!-- Task.7 Ajax & Jquery - user app-->
+
+    <servlet>
+        <servlet-name>GreetingServlet</servlet-name>
+        <servlet-class>ru.job4j.ajax.GreetingServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GreetingServlet</servlet-name>
+        <url-pattern>/greet</url-pattern>
+    </servlet-mapping>
 </web-app>
