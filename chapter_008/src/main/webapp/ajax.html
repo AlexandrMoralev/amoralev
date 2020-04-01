@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <title>AJAX</title>
+</head>
+<body>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" ></script>
+<script>
+    function sendGreeting() {
+        $.ajax({
+            type: 'GET',
+            url: 'http://localhost:8082/chapter_008_1_0_SNAPSHOT/greet',
+            data: 'name=' + $('#exampleInputEmail').val(),
+            dataType: 'text'
+        }).done(function (data) {
+            replaceTxtWith(data);
+        }).fail(function(err){
+            alert(err.toString());
+        });
+    }
+
+    function replaceTxtWith(data) {
+        $('#answer').empty();
+        $('#answer').append(data.toString());
+    }
+    </script>
+<div class="container">
+    <h1 id="answer"></h1>
+    <form>
+        <div class="form-group">
+            <label for="exampleInputEmail">Email address</label>
+            <input type="email" class="form-control" id="exampleInputEmail" aria-describedby="emailHelp" placeholder="Enter email">
+        </div>
+        <button type="button" class="btn btn-primary" onclick="return sendGreeting()">Submit</button>
+    </form>
+</div>
+</body>
+</html>
