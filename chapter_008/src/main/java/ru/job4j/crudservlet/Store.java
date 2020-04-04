@@ -14,7 +14,7 @@ public interface Store<E> {
 
     Optional<Integer> add(E e);
 
-    boolean update(int id, E e);
+    boolean update(E e);
 
     void delete(int id);
 

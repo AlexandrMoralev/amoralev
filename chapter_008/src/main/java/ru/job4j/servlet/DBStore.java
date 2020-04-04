@@ -2,6 +2,9 @@ package ru.job4j.servlet;
 
 import net.jcip.annotations.ThreadSafe;
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import ru.job4j.controllers.Config;
 import ru.job4j.crudservlet.Store;
 import ru.job4j.crudservlet.User;
 import ru.job4j.filtersecurity.Role;
@@ -10,7 +13,6 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * DBStore - persistence layout
@@ -22,15 +24,9 @@ import java.util.stream.Collectors;
 @ThreadSafe
 public enum DBStore implements Store<User> {
     INSTANCE;
-    private final BasicDataSource source = new BasicDataSource();
-    private static final String DB_DRIVER = "org.postgresql.Driver";
-    private static final String DB_CONNECTION_URL = "jdbc:postgresql://localhost:5432/";
-    private static final String DB_USER = "postgres";
-    private static final String DB_PWD = "admin";
-    private static final String DB_EXISTS = "SELECT EXISTS(SELECT * FROM pg_database WHERE datname = 'users_app');";
-    private static final String CREATE_DB = "CREATE DATABASE users_app;";
-    private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, name VARCHAR(120), login VARCHAR(160), email VARCHAR(160), created VARCHAR(60), pwd VARCHAR(128), role_desc VARCHAR(20));";
-    private static final String DROP_TABLE_IF_EXISTS = "DROP TABLE IF EXISTS users;";
+
+    private static final Logger LOG = LogManager.getLogger(DBStore.class);
+
     private static final String INSERT_INTO_USERS = "INSERT INTO users(name,login,email,created,pwd,role_desc) VALUES(?,?,?,?,?,?) RETURNING id;";
     private static final String UPDATE_USERS = "UPDATE users SET name = ?, login = ?, email = ?, created = ?, pwd = ?, role_desc = ? WHERE id = ? ;";
     private static final String DELETE_FROM_USERS = "DELETE FROM users WHERE id = ? ;";
@@ -39,77 +35,103 @@ public enum DBStore implements Store<User> {
     private static final String SELECT_BY_LOGIN = "SELECT * FROM users WHERE login = ? ;";
     private static final String CHECK_CREDENTIAL = "SELECT * FROM users WHERE login = ? AND pwd = ?;";
 
+    private BasicDataSource source;
+    private Config config;
+
     DBStore() {
-        source.setDriverClassName(DB_DRIVER);
-        source.setUrl(DB_CONNECTION_URL);
-        source.setUsername(DB_USER);
-        source.setPassword(DB_PWD);
-        source.setMinIdle(5);
-        source.setMaxIdle(10);
-        source.setMaxOpenPreparedStatements(100);
-        init();
+        config = new Config();
+        source = new BasicDataSource();
+        initSource();
+        initDB();
     }
 
-    private void init() {
-        try (Connection connection = DriverManager.getConnection(DB_CONNECTION_URL, DB_USER, DB_PWD);
+    private void initSource() {
+        source.setDriverClassName(config.getString("db.driver"));
+        source.setUrl(config.getString("db.connection.url") + config.getString("db.name"));
+        source.setUsername(config.getString("db.user"));
+        source.setPassword(config.getString("db.pwd"));
+        source.setMinIdle(config.getInt("db.idle.min"));
+        source.setTimeBetweenEvictionRunsMillis(Long.valueOf(config.getInt("db.time.between.evictions")));
+        source.setMaxIdle(config.getInt("db.idle.max"));
+        source.setMaxOpenPreparedStatements(config.getInt("db.max.open.prepared.statements"));
+    }
+
+    private void initDB() {
+        try (Connection connection = DriverManager.getConnection(config.getString("db.connection.url"), config.getString("db.user"), config.getString("db.pwd"));
              Statement st = connection.createStatement()
         ) {
-            ResultSet rs = st.executeQuery(DB_EXISTS);
+            String checkDatabaseExists = String.format("SELECT EXISTS(SELECT * FROM pg_database WHERE datname = '%s');", config.getString("db.name"));
+            ResultSet rs = st.executeQuery(checkDatabaseExists);
             if (rs.next()) {
                 if (!rs.getBoolean(1)) {
-                    st.execute(CREATE_DB);
+                    String createDatabase = String.format("CREATE DATABASE %s;", config.getString("db.name"));
+                    st.execute(createDatabase);
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("DB init error", e);
         }
         try (Connection connection = source.getConnection();
              Statement st = connection.createStatement()
         ) {
-            st.execute(DROP_TABLE_IF_EXISTS);
-            st.execute(CREATE_TABLE);
+            st.execute("CREATE TABLE IF NOT EXISTS users("
+                    + "id SERIAL PRIMARY KEY,"
+                    + " name VARCHAR(128),"
+                    + " login VARCHAR(256),"
+                    + " email VARCHAR(256),"
+                    + " created VARCHAR(64),"
+                    + " pwd VARCHAR(128),"
+                    + " role_desc VARCHAR(64),"
+                    + "CONSTRAINT unq_credentials UNIQUE (login, pwd),"
+                    + "CONSTRAINT unq_email UNIQUE (email));");
+
+            st.execute("TRUNCATE TABLE users CASCADE;");
             addRootUser(connection);
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("DB init error", e);
         }
     }
 
     private void addRootUser(Connection connection) throws SQLException {
         PreparedStatement ps = connection.prepareStatement(INSERT_INTO_USERS);
         setQueryParameters(
-                new User(0,
-                        "root",
-                        "root",
-                        "root@root.ru",
-                        "root",
-                        DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now()),
-                        Role.ROOT),
+                User.newBuilder()
+                        .setId(0)
+                        .setName("root")
+                        .setLogin("root")
+                        .setEmail("root@root.ru")
+                        .setCreated(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now()))
+                        .setPassword("root")
+                        .setRole(Role.ROOT)
+                        .build(),
                 ps);
+
     }
 
     @Override
     public Optional<Integer> add(User user) {
-        Optional<Integer> userId = Optional.empty();
         try (Connection connection = source.getConnection()) {
             PreparedStatement ps = connection.prepareStatement(INSERT_INTO_USERS);
             setQueryParameters(user, ps);
             if (ps.executeUpdate() > 0) {
                 ResultSet rs = ps.getGeneratedKeys();
-                userId = Optional.of(rs.getInt(1));
+                return Optional.of(rs.getInt(1));
+            } else {
+                return Optional.empty();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("DB error", e);
+            throw new RuntimeException("DB insert error");
         }
-        return userId;
     }
 
     @Override
-    public boolean update(int id, User user) {
+    public boolean update(User user) {
         boolean isUpdated = false;
         try (Connection connection = source.getConnection()) {
             PreparedStatement ps = connection.prepareStatement(UPDATE_USERS);
             setQueryParameters(user, ps);
-            ps.setInt(7, id);
+            ps.setInt(7, user.getId());
             int result = ps.executeUpdate();
             if (result == 1) {
                 isUpdated = true;
@@ -117,7 +139,8 @@ public enum DBStore implements Store<User> {
                 throw new SQLException(result + " users updated");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("DB error", e);
+            throw new RuntimeException("DB update error");
         }
         return isUpdated;
     }
@@ -138,89 +161,91 @@ public enum DBStore implements Store<User> {
             ps.setInt(1, userId);
             ps.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("DB error", e);
+            throw new RuntimeException("DB error deleting user");
         }
     }
 
     @Override
     public Collection<User> findAll() {
-        Collection<User> allUsers = new ArrayDeque<>();
         try (Connection connection = source.getConnection()) {
             PreparedStatement ps = connection.prepareStatement(SELECT_ALL);
             ResultSet rs = ps.executeQuery();
+            Collection<User> allUsers = new ArrayDeque<>();
             while (rs.next()) {
                 allUsers.add(extractData(rs));
             }
+            return allUsers;
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("DB error", e);
+            throw new RuntimeException("DB findAll error");
         }
-        return allUsers;
     }
 
     @Override
     public Optional<User> findById(int id) {
-        Optional<User> optionalUser = Optional.empty();
         try (Connection connection = source.getConnection()) {
             PreparedStatement ps = connection.prepareStatement(SELECT_BY_ID);
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                optionalUser = Optional.of(extractData(rs));
+                return Optional.of(extractData(rs));
+            } else {
+                return Optional.empty();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("DB error", e);
+            throw new RuntimeException("DB findById error");
         }
-        return optionalUser;
     }
 
     @Override
     public Optional<User> findByLogin(String login) {
-        Optional<User> optionalUser = Optional.empty();
         try (Connection connection = source.getConnection()) {
             PreparedStatement ps = connection.prepareStatement(SELECT_BY_LOGIN);
             ps.setString(1, login);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                optionalUser = Optional.of(extractData(rs));
+                return Optional.of(extractData(rs));
+            } else {
+                return Optional.empty();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("DB error", e);
+            throw new RuntimeException("DB findByLogin error");
         }
-        return optionalUser;
     }
 
     @Override
     public boolean isCredential(String login, String password) {
-        boolean isCredential = false;
         try (Connection connection = source.getConnection()) {
             PreparedStatement ps = connection.prepareStatement(CHECK_CREDENTIAL);
             ps.setString(1, login);
             ps.setString(2, password);
             ResultSet rs = ps.executeQuery();
-            List<Optional<User>> users = new ArrayList<>();
+            List<User> users = new ArrayList<>();
             while (rs.next()) {
-                users.add(Optional.of(extractData(rs)));
+                users.add(extractData(rs));
             }
-            isCredential = users.stream()
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toList())
-                    .size() == 1;
+            if (users.size() > 1) {
+                throw new SQLException(users.size() + " has the same credentials");
+            }
+            return users.size() == 1;
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("DB error", e);
+            throw new RuntimeException("DB isCredential error");
         }
-        return isCredential;
     }
 
     private User extractData(ResultSet resultSet) throws SQLException {
-        return new User(
-                resultSet.getInt(1),
-                resultSet.getString(2),
-                resultSet.getString(3),
-                resultSet.getString(4),
-                resultSet.getString(5),
-                resultSet.getString(6),
-                Role.valueOf(resultSet.getString(7))
-        );
+        return User.newBuilder()
+                .setId(resultSet.getInt(1))
+                .setName(resultSet.getString(2))
+                .setLogin(resultSet.getString(3))
+                .setEmail(resultSet.getString(4))
+                .setCreated(resultSet.getString(5))
+                .setPassword(resultSet.getString(6))
+                .setRole(Role.valueOf(resultSet.getString(7)))
+                .build();
     }
 }

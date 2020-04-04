@@ -28,21 +28,20 @@ public enum MemoryStore implements Store<User> {
         this.users = new ConcurrentHashMap<>();
         int rootIndex = 0;
         this.users.put(rootIndex,
-                new User(rootIndex,
-                        "root",
-                        "root",
-                        "root@root.ru",
-                        "at the dawn of a new era",
-                        "root",
-                        Role.ROOT)
+                User.newBuilder()
+                        .setId(rootIndex)
+                        .setName("root")
+                        .setLogin("root")
+                        .setEmail("root@root.ru")
+                        .setCreated("at the dawn of a new era")
+                        .setPassword("root")
+                        .setRole(Role.ROOT)
+                        .build()
         );
     }
 
     private Function<Map.Entry<Integer, User>, User> extractUser() {
-        return entry -> {
-            User cachedUser = entry.getValue();
-            return new User.Builder().of(cachedUser).setId(entry.getKey()).build();
-        };
+        return entry -> User.newBuilder().of(entry.getValue()).setId(entry.getKey()).build();
     }
 
     @Override
@@ -59,8 +58,8 @@ public enum MemoryStore implements Store<User> {
     }
 
     @Override
-    public boolean update(int userId, User user) {
-        return this.users.replace(userId, user) != null;
+    public boolean update(User user) {
+        return this.users.replace(user.getId(), user) != null;
     }
 
     @Override
@@ -74,12 +73,13 @@ public enum MemoryStore implements Store<User> {
                 .map(extractUser())
                 .collect(Collectors.toList());
     }
+
     @Override
     public Optional<User> findById(int userId) {
         User cachedUser = this.users.get(userId);
         return cachedUser == null
                 ? Optional.empty()
-                : Optional.of(new User.Builder().of(cachedUser).setId(userId).build());
+                : Optional.of(User.newBuilder().of(cachedUser).setId(userId).build());
     }
 
     @Override

@@ -30,7 +30,7 @@ public enum ValidationService implements Validation<User> {
         return current.filter(user -> !user.equals(diffUser))
                 .map(user -> {
                     User updated = combine(user, diffUser);
-                    this.store.update(diffUser.getId(), updated);
+                    this.store.update(updated);
                     return updated;
                 }).isPresent();
     }
@@ -50,7 +50,9 @@ public enum ValidationService implements Validation<User> {
     }
 
     public boolean delete(int userId) {
-        validateInput(userId);
+        if (!isIdValid(userId)) {
+            return false;
+        }
         boolean result = this.store.findById(userId).isPresent();
         if (result) {
             this.store.delete(userId);
@@ -63,7 +65,9 @@ public enum ValidationService implements Validation<User> {
     }
 
     public Optional<User> findById(int userId) {
-        validateInput(userId);
+        if (!isIdValid(userId)) {
+            return Optional.empty();
+        }
         return this.store.findById(userId);
     }
 
@@ -83,10 +87,8 @@ public enum ValidationService implements Validation<User> {
         }
     }
 
-    private void validateInput(int userId) {
-        if (userId < 0) {
-            throw new IllegalStateException("userId is invalid " + userId);
-        }
+    private boolean isIdValid(Integer userId) {
+        return userId != null && userId > 0;
     }
 }
 

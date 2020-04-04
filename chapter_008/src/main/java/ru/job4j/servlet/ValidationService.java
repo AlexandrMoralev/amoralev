@@ -3,12 +3,12 @@ package ru.job4j.servlet;
 import ru.job4j.crudservlet.MemoryStore;
 import ru.job4j.crudservlet.Store;
 import ru.job4j.crudservlet.User;
-import ru.job4j.filtersecurity.Role;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,52 +19,35 @@ public enum ValidationService {
     ValidationService() {
     }
 
-    public boolean add(String name, String login, String email, String password, Role role) {
-        validateInput(List.of(name, login, email));
-        boolean result = false;
-        if (STORE.findByLogin(login).isEmpty()) {
-            if (validateEmail(email)) {
-                Optional<Integer> userId = STORE.add(
-                        new User.Builder()
-                                .setName(name)
-                                .setLogin(login)
-                                .setEmail(email)
-                                .setPassword(password)
-                                .setRole(role)
-                                .build());
-                result = userId.isPresent();
+    public Optional<Integer> add(User user) {
+        validateInput(List.of(user.getName(), user.getLogin(), user.getEmail()));
+        if (STORE.findByLogin(user.getLogin()).isEmpty()) {
+            if (validateEmail(user.getEmail())) {
+                return STORE.add(user);
             }
         }
-        return result;
+        return Optional.empty();
     }
 
-    public boolean update(int userId, String name, String login, String email, String password, Role role) {
-        validateInput(userId);
-        validateInput(List.of(name, login, email));
-        Optional<User> optionalUser = STORE.findById(userId);
-        boolean isUnique = optionalUser.map(user -> !user.getLogin().equals(login) || !user.getEmail().equals(email)).orElse(false);
-        return isUnique
-                && STORE.update(
-                userId,
-                new User.Builder()
-                        .setId(userId)
-                        .setName(name)
-                        .setLogin(login)
-                        .setEmail(email)
-                        .setPassword(password)
-                        .setRole(role)
-                        .build()
-        );
-    }
-
-    public boolean delete(int userId) {
-        validateInput(userId);
-        boolean result = false;
-        if (STORE.findById(userId).isPresent()) {
-            STORE.delete(userId);
-            result = true;
+    public boolean update(User user) {
+        if (!isIdValid(user.getId())) {
+            return false;
         }
-        return result;
+        validateInput(List.of(user.getName(), user.getLogin(), user.getEmail()));
+        boolean isUnique = STORE.findById(user.getId())
+                .map(isUserUnique(user))
+                .orElse(false);
+        return isUnique && STORE.update(user);
+    }
+
+    private Function<User, Boolean> isUserUnique(User user) {
+        return u -> !u.getLogin().equals(user.getLogin()) || !u.getEmail().equals(user.getEmail());
+    }
+
+    public void delete(int userId) {
+        if (isIdValid(userId)) {
+            STORE.delete(userId);
+        }
     }
 
     public Collection<User> findAll() {
@@ -72,7 +55,9 @@ public enum ValidationService {
     }
 
     public Optional<User> findById(int userId) {
-        validateInput(userId);
+        if (!isIdValid(userId)) {
+            return Optional.empty();
+        }
         return STORE.findById(userId);
     }
 
@@ -118,10 +103,8 @@ public enum ValidationService {
         }
     }
 
-    private void validateInput(int userId) {
-        if (userId < 0) {
-            throw new IllegalStateException("userId is invalid " + userId);
-        }
+    private boolean isIdValid(Integer userId) {
+        return userId != null && userId > 0;
     }
 
     private <E> void validateInput(List<E> params) {

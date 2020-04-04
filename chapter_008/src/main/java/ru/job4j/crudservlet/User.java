@@ -26,13 +26,13 @@ public class User {
     private final Role role;
 
 
-    public User(Integer userId,
-                String name,
-                String login,
-                String email,
-                String created,
-                String password,
-                Role role
+    private User(Integer userId,
+                 String name,
+                 String login,
+                 String email,
+                 String created,
+                 String password,
+                 Role role
     ) {
         this.id = userId;
         this.name = name;
@@ -41,6 +41,16 @@ public class User {
         this.created = created;
         this.password = password;
         this.role = role;
+    }
+
+    private User(Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+        this.login = builder.login;
+        this.email = builder.email;
+        this.created = builder.created;
+        this.password = builder.password;
+        this.role = builder.role;
     }
 
     public Integer getId() {
@@ -95,8 +105,12 @@ public class User {
                 id, name, login, email, created, role.getDescription());
     }
 
+    public static Builder newBuilder() {
+        return new User.Builder();
+    }
+
     public static class Builder {
-        private Integer id = null;
+        private Integer id;
         private String name;
         private String login;
         private String email;
@@ -154,15 +168,5 @@ public class User {
             return new User(this);
         }
 
-    }
-
-    private User(Builder builder) {
-        this.id = builder.id;
-        this.name = builder.name;
-        this.login = builder.login;
-        this.email = builder.email;
-        this.created = builder.created;
-        this.password = builder.password;
-        this.role = builder.role;
     }
 }
