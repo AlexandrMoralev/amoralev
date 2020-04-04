@@ -24,6 +24,10 @@ public interface Store<E> {
 
     Optional<E> findByLogin(String login);
 
+    Collection<E> findByCountry(String country);
+
+    Collection<E> findByCity(String city);
+
     boolean isCredential(String login, String password);
 
 }

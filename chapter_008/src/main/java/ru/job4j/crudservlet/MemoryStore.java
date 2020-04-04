@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -40,10 +41,6 @@ public enum MemoryStore implements Store<User> {
         );
     }
 
-    private Function<Map.Entry<Integer, User>, User> extractUser() {
-        return entry -> User.newBuilder().of(entry.getValue()).setId(entry.getKey()).build();
-    }
-
     @Override
     public Optional<Integer> add(User user) {
         Optional<Integer> userId = Optional.empty();
@@ -69,9 +66,7 @@ public enum MemoryStore implements Store<User> {
 
     @Override
     public Collection<User> findAll() {
-        return this.users.entrySet().stream()
-                .map(extractUser())
-                .collect(Collectors.toList());
+        return getUsersBy(allPredicate());
     }
 
     @Override
@@ -91,7 +86,41 @@ public enum MemoryStore implements Store<User> {
     }
 
     @Override
+    public Collection<User> findByCountry(String country) {
+        return getUsersBy(countryPredicate(country));
+    }
+
+    @Override
+    public Collection<User> findByCity(String city) {
+        return getUsersBy(cityPredicate(city));
+    }
+
+    private Collection<User> getUsersBy(Predicate<Map.Entry<Integer, User>> predicate) {
+        return this.users.entrySet().stream()
+                .filter(predicate)
+                .map(extractUser())
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public boolean isCredential(String login, String password) {
         return this.users.values().stream().anyMatch(user -> login.equals(user.getLogin()) && password.equals(user.getPassword()));
     }
+
+    private Function<Map.Entry<Integer, User>, User> extractUser() {
+        return entry -> User.newBuilder().of(entry.getValue()).setId(entry.getKey()).build();
+    }
+
+    private Predicate<Map.Entry<Integer, User>> allPredicate() {
+        return entry -> true;
+    }
+
+    private Predicate<Map.Entry<Integer, User>> countryPredicate(String country) {
+        return entry -> entry.getValue().getCountry().equalsIgnoreCase(country);
+    }
+
+    private Predicate<Map.Entry<Integer, User>> cityPredicate(String city) {
+        return entry -> entry.getValue().getCity().equalsIgnoreCase(city);
+    }
+
 }

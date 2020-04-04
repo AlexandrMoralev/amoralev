@@ -37,7 +37,7 @@ public enum Dispatcher {
 
     public Function<HttpServletRequest, Boolean> create() {
         return request ->
-                logic.add(new User.Builder()
+                logic.add(User.newBuilder()
                         .setName(request.getParameter("name"))
                         .setLogin(request.getParameter("login"))
                         .setEmail(request.getParameter("email"))
@@ -49,7 +49,7 @@ public enum Dispatcher {
 
     public Function<HttpServletRequest, Boolean> update() {
         return request ->
-                logic.update(new User.Builder()
+                logic.update(User.newBuilder()
                         .setId(Integer.parseInt(request.getParameter("id")))
                         .setName(request.getParameter("name"))
                         .setLogin(request.getParameter("login"))
@@ -60,8 +60,10 @@ public enum Dispatcher {
     }
 
     public Function<HttpServletRequest, Boolean> delete() {
-        return request ->
-                logic.delete(Integer.parseInt(request.getParameter("id")));
+        return request -> {
+            logic.delete(Integer.parseInt(request.getParameter("id")));
+            return true;
+        };
     }
 
     public Function<HttpServletRequest, Boolean> noAction() {

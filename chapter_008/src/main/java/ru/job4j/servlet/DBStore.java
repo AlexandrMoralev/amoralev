@@ -105,7 +105,6 @@ public enum DBStore implements Store<User> {
                         .setRole(Role.ROOT)
                         .build(),
                 ps);
-
     }
 
     @Override
@@ -214,6 +213,16 @@ public enum DBStore implements Store<User> {
             LOG.error("DB error", e);
             throw new RuntimeException("DB findByLogin error");
         }
+    }
+
+    @Override
+    public Collection<User> findByCountry(String country) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Collection<User> findByCity(String city) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

@@ -3,17 +3,21 @@ package ru.job4j.crudservlet;
 import ru.job4j.servlet.Validation;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-public enum  ValidationStub implements Validation<User> {
+public enum ValidationStub implements Validation<User> {
     INSTANCE;
 
-    private final Map<Integer, User> store = new HashMap<>();
+    private Map<Integer, User> store;
     private int id = 0;
 
     ValidationStub() {
+    }
+
+    ValidationStub(Map<Integer, User> store) {
+        this.store = store;
     }
 
     @Override
@@ -32,8 +36,8 @@ public enum  ValidationStub implements Validation<User> {
     }
 
     @Override
-    public boolean delete(int userId) {
-        return Optional.ofNullable(this.store.remove(userId)).isPresent();
+    public void delete(int userId) {
+        this.store.remove(userId);
     }
 
     @Override
@@ -49,6 +53,16 @@ public enum  ValidationStub implements Validation<User> {
     @Override
     public Optional<User> findByLogin(String login) {
         return this.store.values().stream().filter(u -> u.getLogin().equalsIgnoreCase(login)).findFirst();
+    }
+
+    @Override
+    public Collection<User> findByCountry(String country) {
+        return this.store.values().stream().filter(u -> u.getCountry().equalsIgnoreCase(country)).collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<User> findByCity(String city) {
+        return this.store.values().stream().filter(u -> u.getCity().equalsIgnoreCase(city)).collect(Collectors.toList());
     }
 
     @Override
