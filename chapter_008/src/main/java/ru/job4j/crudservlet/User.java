@@ -24,6 +24,8 @@ public class User {
     private final String created;
     private final String password;
     private final Role role;
+    private final String country;
+    private final String city;
 
 
     private User(Integer userId,
@@ -32,7 +34,9 @@ public class User {
                  String email,
                  String created,
                  String password,
-                 Role role
+                 Role role,
+                 String country,
+                 String city
     ) {
         this.id = userId;
         this.name = name;
@@ -41,6 +45,8 @@ public class User {
         this.created = created;
         this.password = password;
         this.role = role;
+        this.country = country;
+        this.city = city;
     }
 
     private User(Builder builder) {
@@ -51,6 +57,8 @@ public class User {
         this.created = builder.created;
         this.password = builder.password;
         this.role = builder.role;
+        this.country = builder.country;
+        this.city = builder.city;
     }
 
     public Integer getId() {
@@ -79,6 +87,14 @@ public class User {
 
     public Role getRole() {
         return role;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public String getCity() {
+        return city;
     }
 
     @Override
@@ -117,6 +133,8 @@ public class User {
         private String created = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now());
         private String password;
         private Role role;
+        private String country;
+        private String city;
 
         public Builder of(User user) {
             ofNullable(user.getId()).ifPresent(v -> this.id = v);
@@ -126,6 +144,8 @@ public class User {
             ofNullable(user.getCreated()).ifPresent(v -> this.created = v);
             ofNullable(user.getPassword()).ifPresent(v -> this.password = v);
             Optional.of(user.getRole()).ifPresent(v -> this.role = v);
+            ofNullable(user.getCountry()).ifPresent(v -> this.country = v);
+            ofNullable(user.getCity()).ifPresent(v -> this.city = v);
             return this;
         }
 
@@ -161,6 +181,16 @@ public class User {
 
         public Builder setRole(Role role) {
             this.role = role;
+            return this;
+        }
+
+        public Builder setCountry(String country) {
+            this.country = country;
+            return this;
+        }
+
+        public Builder setCity(String city) {
+            this.city = city;
             return this;
         }
 
