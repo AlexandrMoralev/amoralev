@@ -19,46 +19,37 @@ import static java.util.Optional.ofNullable;
 public class User {
     private final Integer id;
     private final String name;
-    private final String login;
-    private final String email;
+    private final String login; // == email
     private final String created;
     private final String password;
     private final Role role;
-    private final String country;
-    private final String city;
-
+    private final Address address;
 
     private User(Integer userId,
                  String name,
                  String login,
-                 String email,
                  String created,
                  String password,
                  Role role,
-                 String country,
-                 String city
+                 Address address
     ) {
         this.id = userId;
         this.name = name;
         this.login = login;
-        this.email = email;
         this.created = created;
         this.password = password;
         this.role = role;
-        this.country = country;
-        this.city = city;
+        this.address = address;
     }
 
     private User(Builder builder) {
         this.id = builder.id;
         this.name = builder.name;
         this.login = builder.login;
-        this.email = builder.email;
         this.created = builder.created;
         this.password = builder.password;
         this.role = builder.role;
-        this.country = builder.country;
-        this.city = builder.city;
+        this.address = builder.address;
     }
 
     public Integer getId() {
@@ -73,10 +64,6 @@ public class User {
         return this.login;
     }
 
-    public String getEmail() {
-        return this.email;
-    }
-
     public String getCreated() {
         return this.created;
     }
@@ -89,12 +76,8 @@ public class User {
         return role;
     }
 
-    public String getCountry() {
-        return country;
-    }
-
-    public String getCity() {
-        return city;
+    public Address getAddress() {
+        return address;
     }
 
     @Override
@@ -106,19 +89,18 @@ public class User {
             return false;
         }
         User user = (User) o;
-        return Objects.equals(getLogin(), user.getLogin())
-                && Objects.equals(getEmail(), user.getEmail());
+        return Objects.equals(getLogin(), user.getLogin());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getLogin(), getEmail());
+        return Objects.hash(getLogin());
     }
 
     @Override
     public String toString() {
-        return String.format("User{ id=%s, name=%s , login=%s, email=%s, created=%s, role=%s }",
-                id, name, login, email, created, role.getDescription());
+        return String.format("User{ id=%s, name=%s , login=%s, created=%s, role=%s, address=%s }",
+                id, name, login, created, role.getDescription(), address.toString());
     }
 
     public static Builder newBuilder() {
@@ -129,23 +111,19 @@ public class User {
         private Integer id;
         private String name;
         private String login;
-        private String email;
         private String created = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now());
         private String password;
         private Role role;
-        private String country;
-        private String city;
+        private Address address;
 
         public Builder of(User user) {
             ofNullable(user.getId()).ifPresent(v -> this.id = v);
             ofNullable(user.getName()).ifPresent(v -> this.name = v);
             ofNullable(user.getLogin()).ifPresent(v -> this.login = v);
-            ofNullable(user.getEmail()).ifPresent(v -> this.email = v);
             ofNullable(user.getCreated()).ifPresent(v -> this.created = v);
             ofNullable(user.getPassword()).ifPresent(v -> this.password = v);
             Optional.of(user.getRole()).ifPresent(v -> this.role = v);
-            ofNullable(user.getCountry()).ifPresent(v -> this.country = v);
-            ofNullable(user.getCity()).ifPresent(v -> this.city = v);
+            Optional.of(user.getAddress()).ifPresent(v -> this.address = v);
             return this;
         }
 
@@ -164,11 +142,6 @@ public class User {
             return this;
         }
 
-        public Builder setEmail(String email) {
-            this.email = email;
-            return this;
-        }
-
         public Builder setCreated(String created) {
             this.created = created;
             return this;
@@ -184,13 +157,8 @@ public class User {
             return this;
         }
 
-        public Builder setCountry(String country) {
-            this.country = country;
-            return this;
-        }
-
-        public Builder setCity(String city) {
-            this.city = city;
+        public Builder setAddress(Address address) {
+            this.address = address;
             return this;
         }
 

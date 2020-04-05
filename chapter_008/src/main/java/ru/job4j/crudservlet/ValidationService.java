@@ -3,8 +3,6 @@ package ru.job4j.crudservlet;
 import ru.job4j.servlet.Validation;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * ValidationService - logic layout
@@ -21,8 +19,8 @@ public enum ValidationService implements Validation<User> {
     }
 
     public Optional<Integer> add(User user) {
-        validateInput(List.of(user.getName(), user.getLogin(), user.getEmail()));
-        if (validateEmail(user.getEmail())) { // TODO  && validatePassword(user.getPassword())
+        validateInput(List.of(user.getName(), user.getLogin(), user.getRole(), user.getAddress().getCountry(), user.getAddress().getCity()));
+        if (validateEmail(user.getLogin())) { // TODO  && validatePassword(user.getPassword())
             return this.store.add(user);
         } else {
             return Optional.empty();
@@ -33,7 +31,7 @@ public enum ValidationService implements Validation<User> {
         if (!isIdValid(user.getId())) {
             return false;
         }
-        validateInput(List.of(user.getName(), user.getLogin(), user.getEmail()));
+        validateInput(List.of(user.getName(), user.getLogin(), user.getRole(), user.getAddress().getCountry(), user.getAddress().getCity()));
         return this.store.update(user);
     }
 
@@ -93,33 +91,6 @@ public enum ValidationService implements Validation<User> {
         return params.stream().noneMatch(v -> v.strip().isBlank()) && store.isCredential(login, password);
     }
 
-
-    private boolean validateEmail(String email) {
-        Pattern pattern = Pattern.compile("\\A[^@]+@([^@\\.]+\\.)+[^@\\.]+\\z");
-        Matcher match = pattern.matcher(email);
-        return match.matches();
-    }
-
-    /**
-     * Validates if the password is secure
-     * <p>
-     * Explanations:
-     * <p>
-     * (?=.*[0-9]) a digit must occur at least once
-     * (?=.*[a-z]) a lower case letter must occur at least once
-     * (?=.*[A-Z]) an upper case letter must occur at least once
-     * (?=.*[@#$%^&+=]) a special character must occur at least once
-     * (?=\\S+$) no whitespace allowed in the entire string
-     * .{8,} at least 8 characters
-     *
-     * @param password String password to validate
-     * @return chec
-     */
-    private boolean validatePassword(String password) {
-        Pattern pattern = Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$");
-        Matcher match = pattern.matcher(password);
-        return match.matches();
-    }
 
     private void validateInput(Object obj) {
         if (obj == null) {

@@ -32,11 +32,11 @@ public enum MemoryStore implements Store<User> {
                 User.newBuilder()
                         .setId(rootIndex)
                         .setName("root")
-                        .setLogin("root")
-                        .setEmail("root@root.ru")
+                        .setLogin("root@root.ru")
                         .setCreated("at the dawn of a new era")
                         .setPassword("root")
                         .setRole(Role.ROOT)
+                        .setAddress(Address.newBuilder().setCountry("Russia").setCity("Spb").build())
                         .build()
         );
     }
@@ -116,11 +116,11 @@ public enum MemoryStore implements Store<User> {
     }
 
     private Predicate<Map.Entry<Integer, User>> countryPredicate(String country) {
-        return entry -> entry.getValue().getCountry().equalsIgnoreCase(country);
+        return entry -> entry.getValue().getAddress().getCountry().equalsIgnoreCase(country);
     }
 
     private Predicate<Map.Entry<Integer, User>> cityPredicate(String city) {
-        return entry -> entry.getValue().getCity().equalsIgnoreCase(city);
+        return entry -> entry.getValue().getAddress().getCity().equalsIgnoreCase(city);
     }
 
 }

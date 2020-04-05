@@ -15,7 +15,6 @@
 <form action="${pageContext.servletContext.contextPath}/users" method="post">
     Name : <input type='text' name='name'/><br>
     Login : <input type='text' name='login'/><br>
-    e-mail : <input type='text' name='email'/><br>
     Password : <input type='password' name='password'/><br>
     Role : <select name="role" title="choose role">
             <option value="admin">admin</option>
@@ -25,6 +24,8 @@
             <option value="guest">guest</option>
         </select>
     <br>
+    Country : <input type='text' name='country'/><br>
+    City : <input type='text' name='city'/><br>
     <input type="submit" name="action" value="create">
 </form>
 </body>

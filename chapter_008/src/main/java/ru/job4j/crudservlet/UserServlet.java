@@ -2,6 +2,7 @@ package ru.job4j.crudservlet;
 
 import net.jcip.annotations.ThreadSafe;
 import ru.job4j.filtersecurity.Role;
+import ru.job4j.servlet.Validation;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -26,7 +27,7 @@ import static java.util.Optional.ofNullable;
  */
 @ThreadSafe
 public class UserServlet extends HttpServlet {
-    private final ValidationService logic;
+    private final Validation<User> logic;
     private final Dispatcher dispatcher;
 
     public UserServlet() {
@@ -94,7 +95,10 @@ public class UserServlet extends HttpServlet {
         }
 
         private Function<ServletRequest, Boolean> delete() {
-            return request -> logic.delete(Integer.parseInt(request.getParameter("userId")));
+            return request -> {
+                logic.delete(Integer.parseInt(request.getParameter("userId")));
+                return true;
+            };
         }
 
         private Function<ServletRequest, User> extractUser = request -> {
@@ -102,9 +106,14 @@ public class UserServlet extends HttpServlet {
             ofNullable(request.getParameter("userId")).map(Integer::parseInt).ifPresent(user::setId);
             ofNullable(request.getParameter("name")).map(String::strip).ifPresent(user::setName);
             ofNullable(request.getParameter("login")).map(String::strip).ifPresent(user::setLogin);
-            ofNullable(request.getParameter("email")).map(String::strip).ifPresent(user::setEmail);
             ofNullable(request.getParameter("password")).map(String::strip).ifPresent(user::setPassword);
             ofNullable(request.getParameter("role")).map(String::strip).map(Role::valueOf).ifPresent(user::setRole);
+            String country = ofNullable(request.getParameter("country")).map(String::strip).orElse("");
+            String city = ofNullable(request.getParameter("city")).map(String::strip).orElse("");
+            user.setAddress(Address.newBuilder()
+                    .setCountry(country)
+                    .setCity(city)
+                    .build());
             return user.build();
         };
     }

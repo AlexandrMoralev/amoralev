@@ -20,9 +20,9 @@ public enum ValidationService {
     }
 
     public Optional<Integer> add(User user) {
-        validateInput(List.of(user.getName(), user.getLogin(), user.getEmail()));
+        validateInput(List.of(user.getName(), user.getLogin()));
         if (STORE.findByLogin(user.getLogin()).isEmpty()) {
-            if (validateEmail(user.getEmail())) {
+            if (validateEmail(user.getLogin())) {
                 return STORE.add(user);
             }
         }
@@ -33,7 +33,7 @@ public enum ValidationService {
         if (!isIdValid(user.getId())) {
             return false;
         }
-        validateInput(List.of(user.getName(), user.getLogin(), user.getEmail()));
+        validateInput(List.of(user.getName(), user.getLogin()));
         boolean isUnique = STORE.findById(user.getId())
                 .map(isUserUnique(user))
                 .orElse(false);
@@ -41,7 +41,7 @@ public enum ValidationService {
     }
 
     private Function<User, Boolean> isUserUnique(User user) {
-        return u -> !u.getLogin().equals(user.getLogin()) || !u.getEmail().equals(user.getEmail());
+        return u -> !u.getLogin().equals(user.getLogin());
     }
 
     public void delete(int userId) {

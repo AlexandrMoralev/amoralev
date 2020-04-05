@@ -17,8 +17,9 @@
         <tr>
             <td>Name : <input type='text' name='name' value='${requestScope.user.name}'/></td>
             <td>Login : <input type='text' name='login' value='${requestScope.user.login}'/></td>
-            <td>e-mail : <input type='text' name='email' value='${requestScope.user.email}'/></td>
             <td>role : <input type='text' name='role' value='${requestScope.user.role}'/></td>
+            <td>country : <input type='text' name='country' value='${requestScope.user.address.country}'/></td>
+            <td>city : <input type='text' name='city' value='${requestScope.user.address.city}'/></td>
             <td><input type='hidden' name='id' value='${requestScope.user.id}'></td>
             <td><input type='hidden' name='pwd' value='${requestScope.user.password}'></td>
             <td><input type='submit' name='action' value='update'></td>

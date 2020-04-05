@@ -5,6 +5,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.job4j.controllers.Config;
+import ru.job4j.crudservlet.Address;
 import ru.job4j.crudservlet.Store;
 import ru.job4j.crudservlet.User;
 import ru.job4j.filtersecurity.Role;
@@ -27,12 +28,14 @@ public enum DBStore implements Store<User> {
 
     private static final Logger LOG = LogManager.getLogger(DBStore.class);
 
-    private static final String INSERT_INTO_USERS = "INSERT INTO users(name,login,email,created,pwd,role_desc) VALUES(?,?,?,?,?,?) RETURNING id;";
-    private static final String UPDATE_USERS = "UPDATE users SET name = ?, login = ?, email = ?, created = ?, pwd = ?, role_desc = ? WHERE id = ? ;";
+    private static final String INSERT_INTO_USERS = "INSERT INTO users(name,login,created,pwd,role_desc,country,city) VALUES(?,?,?,?,?,?,?) RETURNING id;";
+    private static final String UPDATE_USERS = "UPDATE users SET name = ?, login = ?, created = ?, pwd = ?, role_desc = ?, country = ?, city = ? WHERE id = ? ;";
     private static final String DELETE_FROM_USERS = "DELETE FROM users WHERE id = ? ;";
-    private static final String SELECT_ALL = "SELECT * FROM users ;";
-    private static final String SELECT_BY_ID = "SELECT * FROM users WHERE id = ? ;";
+    private static final String SELECT_ALL_USERS = "SELECT * FROM users ;";
+    private static final String SELECT_USER_BY_ID = "SELECT * FROM users WHERE id = ? ;";
     private static final String SELECT_BY_LOGIN = "SELECT * FROM users WHERE login = ? ;";
+    private static final String SELECT_BY_COUNTRY = "SELECT * FROM users WHERE country = ? ;";
+    private static final String SELECT_BY_CITY = "SELECT * FROM users WHERE city = ? ;";
     private static final String CHECK_CREDENTIAL = "SELECT * FROM users WHERE login = ? AND pwd = ?;";
 
     private BasicDataSource source;
@@ -74,18 +77,20 @@ public enum DBStore implements Store<User> {
         try (Connection connection = source.getConnection();
              Statement st = connection.createStatement()
         ) {
-            st.execute("CREATE TABLE IF NOT EXISTS users("
-                    + "id SERIAL PRIMARY KEY,"
-                    + " name VARCHAR(128),"
-                    + " login VARCHAR(256),"
-                    + " email VARCHAR(256),"
+            st.execute("CREATE TABLE IF NOT EXISTS users(" // TODO normalize user_address relation
+                    + "id SERIAL PRIMARY KEY NOT NULL,"
+                    + " name VARCHAR(128) NOT NULL,"
+                    + " login VARCHAR(256) NOT NULL,"
                     + " created VARCHAR(64),"
                     + " pwd VARCHAR(128),"
-                    + " role_desc VARCHAR(64),"
-                    + "CONSTRAINT unq_credentials UNIQUE (login, pwd),"
-                    + "CONSTRAINT unq_email UNIQUE (email));");
-
-            st.execute("TRUNCATE TABLE users CASCADE;");
+                    + " role_desc VARCHAR(64) NOT NULL,"
+                    + " country VARCHAR(256) NOT NULL,"
+                    + " city VARCHAR(256) NOT NULL,"
+                    + "CONSTRAINT unq_login UNIQUE (login),"
+                    + "CONSTRAINT unq_country UNIQUE (country),"
+                    + "CONSTRAINT unq_city UNIQUE (city)"
+                    + ");");
+            st.execute("TRUNCATE TABLE users;");
             addRootUser(connection);
         } catch (SQLException e) {
             LOG.error("DB init error", e);
@@ -98,13 +103,14 @@ public enum DBStore implements Store<User> {
                 User.newBuilder()
                         .setId(0)
                         .setName("root")
-                        .setLogin("root")
-                        .setEmail("root@root.ru")
+                        .setLogin("root@root.ru")
                         .setCreated(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now()))
                         .setPassword("root")
                         .setRole(Role.ROOT)
+                        .setAddress(Address.newBuilder().setCountry("Russia").setCity("Spb").build())
                         .build(),
                 ps);
+        ps.execute();
     }
 
     @Override
@@ -130,7 +136,7 @@ public enum DBStore implements Store<User> {
         try (Connection connection = source.getConnection()) {
             PreparedStatement ps = connection.prepareStatement(UPDATE_USERS);
             setQueryParameters(user, ps);
-            ps.setInt(7, user.getId());
+            ps.setInt(8, user.getId());
             int result = ps.executeUpdate();
             if (result == 1) {
                 isUpdated = true;
@@ -147,10 +153,11 @@ public enum DBStore implements Store<User> {
     private void setQueryParameters(User user, PreparedStatement ps) throws SQLException {
         ps.setString(1, user.getName());
         ps.setString(2, user.getLogin());
-        ps.setString(3, user.getEmail());
-        ps.setString(4, user.getCreated());
-        ps.setString(5, user.getPassword());
-        ps.setString(6, user.getRole().getDescription());
+        ps.setString(3, user.getCreated());
+        ps.setString(4, user.getPassword());
+        ps.setString(5, user.getRole().getDescription());
+        ps.setString(6, user.getAddress().getCountry());
+        ps.setString(7, user.getAddress().getCity());
     }
 
     @Override
@@ -167,24 +174,13 @@ public enum DBStore implements Store<User> {
 
     @Override
     public Collection<User> findAll() {
-        try (Connection connection = source.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement(SELECT_ALL);
-            ResultSet rs = ps.executeQuery();
-            Collection<User> allUsers = new ArrayDeque<>();
-            while (rs.next()) {
-                allUsers.add(extractData(rs));
-            }
-            return allUsers;
-        } catch (SQLException e) {
-            LOG.error("DB error", e);
-            throw new RuntimeException("DB findAll error");
-        }
+        return getUsers(SELECT_ALL_USERS, "DB findAll error");
     }
 
     @Override
     public Optional<User> findById(int id) {
         try (Connection connection = source.getConnection()) {
-            PreparedStatement ps = connection.prepareStatement(SELECT_BY_ID);
+            PreparedStatement ps = connection.prepareStatement(SELECT_USER_BY_ID);
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -217,12 +213,12 @@ public enum DBStore implements Store<User> {
 
     @Override
     public Collection<User> findByCountry(String country) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return getUsers(SELECT_BY_COUNTRY, "DB findByCountry error");
     }
 
     @Override
     public Collection<User> findByCity(String city) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return getUsers(SELECT_BY_CITY, "DB findByCity error");
     }
 
     @Override
@@ -246,15 +242,32 @@ public enum DBStore implements Store<User> {
         }
     }
 
+    private Collection<User> getUsers(String query, String errMsg) {
+        try (Connection connection = source.getConnection()) {
+            PreparedStatement ps = connection.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+            Collection<User> allUsers = new ArrayDeque<>();
+            while (rs.next()) {
+                allUsers.add(extractData(rs));
+            }
+            return allUsers;
+        } catch (SQLException e) {
+            LOG.error("DB error", e);
+            throw new RuntimeException(errMsg);
+        }
+    }
+
     private User extractData(ResultSet resultSet) throws SQLException {
         return User.newBuilder()
                 .setId(resultSet.getInt(1))
                 .setName(resultSet.getString(2))
                 .setLogin(resultSet.getString(3))
-                .setEmail(resultSet.getString(4))
-                .setCreated(resultSet.getString(5))
-                .setPassword(resultSet.getString(6))
-                .setRole(Role.valueOf(resultSet.getString(7)))
+                .setCreated(resultSet.getString(4))
+                .setPassword(resultSet.getString(5))
+                .setRole(Role.valueOf(resultSet.getString(6)))
+                .setAddress(Address.newBuilder()
+                        .setCountry(resultSet.getString(7))
+                        .setCity(resultSet.getString(8)).build())
                 .build();
     }
 }

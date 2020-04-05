@@ -57,12 +57,12 @@ public enum ValidationStub implements Validation<User> {
 
     @Override
     public Collection<User> findByCountry(String country) {
-        return this.store.values().stream().filter(u -> u.getCountry().equalsIgnoreCase(country)).collect(Collectors.toList());
+        return this.store.values().stream().filter(u -> u.getAddress().getCountry().equalsIgnoreCase(country)).collect(Collectors.toList());
     }
 
     @Override
     public Collection<User> findByCity(String city) {
-        return this.store.values().stream().filter(u -> u.getCity().equalsIgnoreCase(city)).collect(Collectors.toList());
+        return this.store.values().stream().filter(u -> u.getAddress().getCity().equalsIgnoreCase(city)).collect(Collectors.toList());
     }
 
     @Override

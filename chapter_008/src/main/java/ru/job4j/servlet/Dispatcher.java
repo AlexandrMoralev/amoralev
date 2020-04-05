@@ -1,5 +1,6 @@
 package ru.job4j.servlet;
 
+import ru.job4j.crudservlet.Address;
 import ru.job4j.crudservlet.User;
 import ru.job4j.crudservlet.ValidationService;
 import ru.job4j.filtersecurity.Role;
@@ -38,12 +39,15 @@ public enum Dispatcher {
     public Function<HttpServletRequest, Boolean> create() {
         return request ->
                 logic.add(User.newBuilder()
-                        .setName(request.getParameter("name"))
-                        .setLogin(request.getParameter("login"))
-                        .setEmail(request.getParameter("email"))
-                        .setPassword(request.getParameter("password"))
-                        .setRole(Role.valueOf(request.getParameter("role").toUpperCase()))
-                        .build()
+                                .setName(request.getParameter("name"))
+                                .setLogin(request.getParameter("login"))
+                                .setPassword(request.getParameter("password"))
+                                .setRole(Role.valueOf(request.getParameter("role").toUpperCase()))
+                                .setAddress(Address.newBuilder()
+                                        .setCountry(request.getParameter("country"))
+                                        .setCity(request.getParameter("city"))
+                                        .build())
+                                .build()
                 ).isPresent();
     }
 
@@ -53,9 +57,12 @@ public enum Dispatcher {
                         .setId(Integer.parseInt(request.getParameter("id")))
                         .setName(request.getParameter("name"))
                         .setLogin(request.getParameter("login"))
-                        .setEmail(request.getParameter("email"))
                         .setPassword(request.getParameter("password"))
                         .setRole(Role.valueOf(request.getParameter("role").toUpperCase()))
+                        .setAddress(Address.newBuilder()
+                                .setCountry(request.getParameter("country"))
+                                .setCity(request.getParameter("city"))
+                                .build())
                         .build());
     }
 

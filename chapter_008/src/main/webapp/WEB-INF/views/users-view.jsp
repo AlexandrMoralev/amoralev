@@ -17,9 +17,10 @@
         <th>id</th>
         <th>name</th>
         <th>login</th>
-        <th>email</th>
         <th>created</th>
         <th>role</th>
+        <th>country</th>
+        <th>city</th>
         <th>actions</th>
     </tr>
     <c:forEach items="${requestScope.userList}" var="user">
@@ -27,9 +28,10 @@
             <td> ${user.id} </td>
             <td> ${user.name}</td>
             <td> ${user.login}</td>
-            <td> ${user.email}</td>
             <td> ${user.created}</td>
             <td> ${user.role.description}</td>
+            <td> ${user.address.country}</td>
+            <td> ${user.address.city}</td>
             <td>
                 <form>
                     <button formaction="${pageContext.servletContext.contextPath}/update-user" formmethod="get" name="id" value="${user.id}">
