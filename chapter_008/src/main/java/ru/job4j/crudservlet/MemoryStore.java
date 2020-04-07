@@ -12,6 +12,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static java.util.Optional.ofNullable;
+
 /**
  * MemoryStore - persistence layout
  *
@@ -22,12 +24,17 @@ import java.util.stream.Collectors;
 @ThreadSafe
 public enum MemoryStore implements Store<User> {
     INSTANCE;
-    private final AtomicInteger idCounter = new AtomicInteger(1);
+    private final AtomicInteger userIdCounter = new AtomicInteger(1);
+    private final AtomicInteger addressIdCounter = new AtomicInteger(1);
     private final ConcurrentHashMap<Integer, User> users;
+    private final ConcurrentHashMap<Integer, Address> addresses;
 
     MemoryStore() {
         this.users = new ConcurrentHashMap<>();
+        this.addresses = new ConcurrentHashMap<>();
         int rootIndex = 0;
+        Address rootAddress = Address.newBuilder().setId(rootIndex).setCountry("Russia").setCity("Spb").build();
+        this.addresses.put(rootIndex, rootAddress);
         this.users.put(rootIndex,
                 User.newBuilder()
                         .setId(rootIndex)
@@ -36,7 +43,7 @@ public enum MemoryStore implements Store<User> {
                         .setCreated("at the dawn of a new era")
                         .setPassword("root")
                         .setRole(Role.ROOT)
-                        .setAddress(Address.newBuilder().setCountry("Russia").setCity("Spb").build())
+                        .setAddress(rootAddress)
                         .build()
         );
     }
@@ -44,11 +51,17 @@ public enum MemoryStore implements Store<User> {
     @Override
     public Optional<Integer> add(User user) {
         Optional<Integer> userId = Optional.empty();
-        if (!users.containsKey(user.getId())
-                && !this.users.contains(user)
-        ) {
-            int id = idCounter.getAndIncrement();
-            this.users.put(id, user);
+        if (!users.containsKey(user.getId()) && !this.users.contains(user)) {
+            Address address = user.getAddress();
+            int id = userIdCounter.getAndIncrement();
+            if (address.getId() != null && addresses.get(address.getId()).equals(address)) {
+                this.users.put(id, user);
+            } else {
+                int addressId = addressIdCounter.getAndIncrement();
+                Address storedAddress = Address.newBuilder().of(address).setId(addressId).build();
+                this.addresses.put(addressId, storedAddress);
+                this.users.put(id, User.newBuilder().of(user).setAddress(storedAddress).build());
+            }
             userId = Optional.of(id);
         }
         return userId;
@@ -56,7 +69,15 @@ public enum MemoryStore implements Store<User> {
 
     @Override
     public boolean update(User user) {
-        return this.users.replace(user.getId(), user) != null;
+        Address address = user.getAddress();
+        if (address.getId() != null && addresses.get(address.getId()).equals(address)) {
+            return this.users.replace(user.getId(), user) != null;
+        } else {
+            int addressId = addressIdCounter.getAndIncrement();
+            Address storedAddress = Address.newBuilder().of(address).setId(addressId).build();
+            this.addresses.put(addressId, storedAddress);
+            return this.users.replace(user.getId(), User.newBuilder().of(user).setAddress(storedAddress).build()) != null;
+        }
     }
 
     @Override
@@ -95,16 +116,31 @@ public enum MemoryStore implements Store<User> {
         return getUsersBy(cityPredicate(city));
     }
 
-    private Collection<User> getUsersBy(Predicate<Map.Entry<Integer, User>> predicate) {
-        return this.users.entrySet().stream()
-                .filter(predicate)
-                .map(extractUser())
-                .collect(Collectors.toList());
+    @Override
+    public Optional<Address> getAddress(int id) {
+        return ofNullable(this.addresses.get(id));
+    }
+
+    @Override
+    public Collection<String> getAllCountries() {
+        return this.addresses.values().stream().map(Address::getCountry).collect(Collectors.toSet());
+    }
+
+    @Override
+    public Collection<Address> getAddressesInCountry(String country) {
+        return this.addresses.values().stream().filter(a -> a.getCountry().equalsIgnoreCase(country)).collect(Collectors.toSet());
     }
 
     @Override
     public boolean isCredential(String login, String password) {
         return this.users.values().stream().anyMatch(user -> login.equals(user.getLogin()) && password.equals(user.getPassword()));
+    }
+
+    private Collection<User> getUsersBy(Predicate<Map.Entry<Integer, User>> predicate) {
+        return this.users.entrySet().stream()
+                .filter(predicate)
+                .map(extractUser())
+                .collect(Collectors.toList());
     }
 
     private Function<Map.Entry<Integer, User>, User> extractUser() {

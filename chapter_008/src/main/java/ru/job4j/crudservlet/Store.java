@@ -28,6 +28,12 @@ public interface Store<E> {
 
     Collection<E> findByCity(String city);
 
+    Optional<Address> getAddress(int id);
+
+    Collection<String> getAllCountries();
+
+    Collection<Address> getAddressesInCountry(String country);
+
     boolean isCredential(String login, String password);
 
 }

@@ -46,43 +46,45 @@ public enum ValidationService implements Validation<User> {
     }
 
     public Optional<User> findById(int userId) {
-        if (!isIdValid(userId)) {
-            return Optional.empty();
-        }
-        return this.store.findById(userId);
+        return isIdValid(userId) ? this.store.findById(userId) : Optional.empty();
     }
 
     @Override
     public Optional<User> findByLogin(String login) {
         validateInput(login);
         String validatedLogin = login.strip();
-        if (validatedLogin.isBlank()) {
-            return Optional.empty();
-        } else {
-            return this.store.findByLogin(login);
-        }
+        return validatedLogin.isBlank() ? Optional.empty() : this.store.findByLogin(login);
     }
 
     @Override
     public Collection<User> findByCountry(String country) {
         validateInput(country);
         String validatedCountry = country.strip();
-        if (validatedCountry.isBlank()) {
-            return Collections.emptyList();
-        } else {
-            return this.store.findByCountry(validatedCountry);
-        }
+        return validatedCountry.isBlank() ? Collections.emptyList() : this.store.findByCountry(validatedCountry);
     }
 
     @Override
     public Collection<User> findByCity(String city) {
         validateInput(city);
         String validatedCity = city.strip();
-        if (validatedCity.isBlank()) {
-            return Collections.emptyList();
-        } else {
-            return this.store.findByCity(validatedCity);
-        }
+        return validatedCity.isBlank() ? Collections.emptyList() : this.store.findByCity(validatedCity);
+    }
+
+    @Override
+    public Optional<Address> getAddress(int id) {
+        return isIdValid(id) ? this.store.getAddress(id) : Optional.empty();
+    }
+
+    @Override
+    public Collection<String> getAllCountries() {
+        return this.store.getAllCountries();
+    }
+
+    @Override
+    public Collection<Address> getAddressesInCountry(String country) {
+        validateInput(country);
+        String validatedCountry = country.strip();
+        return validatedCountry.isBlank() ? Collections.emptyList() : this.store.getAddressesInCountry(validatedCountry);
     }
 
     public boolean isCredential(String login, String password) {

@@ -3,6 +3,7 @@ package ru.job4j.crudservlet;
 import ru.job4j.servlet.Validation;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,6 +64,21 @@ public enum ValidationStub implements Validation<User> {
     @Override
     public Collection<User> findByCity(String city) {
         return this.store.values().stream().filter(u -> u.getAddress().getCity().equalsIgnoreCase(city)).collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<Address> getAddress(int id) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Collection<String> getAllCountries() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Collection<Address> getAddressesInCountry(String country) {
+        return Collections.emptyList();
     }
 
     @Override
