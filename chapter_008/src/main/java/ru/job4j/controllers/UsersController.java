@@ -22,7 +22,7 @@ import java.io.IOException;
 @ThreadSafe
 public class UsersController extends HttpServlet {
     private final Validation<User> logic = ValidationService.INSTANCE;
-    private final Dispatcher dispatcher = Dispatcher.INSTANCE;
+    private final Dispatcher actionDispatcher = Dispatcher.INSTANCE;
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -34,7 +34,7 @@ public class UsersController extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.getRequestDispatcher("/WEB-INF/views/result-page-view.jsp?result="
-                + (dispatcher.execute(req) ? "1" : "0"))
+                + (actionDispatcher.execute(req) ? "1" : "0"))
                 .forward(req, resp);
     }
 }

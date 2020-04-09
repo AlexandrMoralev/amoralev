@@ -54,12 +54,12 @@ public enum Dispatcher {
     public Function<HttpServletRequest, Boolean> update() {
         return request ->
                 logic.update(User.newBuilder()
-                        .setId(Integer.parseInt(request.getParameter("id")))
+                        .setId(Integer.valueOf(request.getParameter("userId")))
                         .setName(request.getParameter("name"))
                         .setLogin(request.getParameter("login"))
-                        .setPassword(request.getParameter("password"))
                         .setRole(Role.valueOf(request.getParameter("role").toUpperCase()))
                         .setAddress(Address.newBuilder()
+                                .setId(Integer.valueOf(request.getParameter("addressId")))
                                 .setCountry(request.getParameter("country"))
                                 .setCity(request.getParameter("city"))
                                 .build())
@@ -68,7 +68,7 @@ public enum Dispatcher {
 
     public Function<HttpServletRequest, Boolean> delete() {
         return request -> {
-            logic.delete(Integer.parseInt(request.getParameter("id")));
+            logic.delete(Integer.parseInt(request.getParameter("userId")));
             return true;
         };
     }

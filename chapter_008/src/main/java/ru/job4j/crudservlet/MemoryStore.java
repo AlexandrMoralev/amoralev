@@ -51,7 +51,7 @@ public enum MemoryStore implements Store<User> {
     @Override
     public Optional<Integer> add(User user) {
         Optional<Integer> userId = Optional.empty();
-        if (!users.containsKey(user.getId()) && !this.users.contains(user)) {
+        if (!this.users.contains(user)) {
             Address address = user.getAddress();
             int id = userIdCounter.getAndIncrement();
             if (address.getId() != null && addresses.get(address.getId()).equals(address)) {
@@ -70,7 +70,7 @@ public enum MemoryStore implements Store<User> {
     @Override
     public boolean update(User user) {
         Address address = user.getAddress();
-        if (address.getId() != null && addresses.get(address.getId()).equals(address)) {
+        if (address.getId() != null  && addresses.get(address.getId()).equals(address)) {
             return this.users.replace(user.getId(), user) != null;
         } else {
             int addressId = addressIdCounter.getAndIncrement();

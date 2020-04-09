@@ -25,7 +25,7 @@ public class UserUpdateController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Optional<User> optionalUser = logic.findById(Integer.parseInt(req.getParameter("id")));
+        Optional<User> optionalUser = logic.findById(Integer.parseInt(req.getParameter("userId")));
         if (optionalUser.isPresent()) {
             req.setAttribute("user", optionalUser.get());
             req.getRequestDispatcher("/WEB-INF/views/user-update-view.jsp")

@@ -34,10 +34,10 @@
             <td> ${user.address.city}</td>
             <td>
                 <form>
-                    <button formaction="${pageContext.servletContext.contextPath}/update-user" formmethod="get" name="id" value="${user.id}">
+                    <button formaction="${pageContext.servletContext.contextPath}/update-user" formmethod="get" name="userId" value="${user.id}">
                         Update
                     </button>
-                    <button formaction="${pageContext.servletContext.contextPath}/users?action=delete&id=${user.id}" formmethod="post">
+                    <button formaction="${pageContext.servletContext.contextPath}/users?action=delete&userId=${user.id}" formmethod="post">
                         Delete
                     </button>
                 </form>
