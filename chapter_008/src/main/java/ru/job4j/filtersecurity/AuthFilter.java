@@ -22,6 +22,7 @@ public class AuthFilter implements Filter {
         } else {
             boolean isNeedToLogin = !(req.getRequestURI().contains("/login-view")
                     || req.getRequestURI().contains("/create-user")
+                    || req.getRequestURI().contains("/addresses")
                     || (req.getRequestURI().equals(req.getContextPath() + "/users") && "create".equalsIgnoreCase(req.getParameter("action"))));
             if (!isNeedToLogin) {
                 chain.doFilter(request, response);

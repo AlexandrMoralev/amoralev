@@ -1,5 +1,6 @@
 package ru.job4j.servlet;
 
+import ru.job4j.crudservlet.Address;
 import ru.job4j.crudservlet.Store;
 
 import java.util.Collection;
@@ -31,6 +32,12 @@ public interface Validation<E> extends Store<E> {
     Collection<E> findByCountry(String country);
 
     Collection<E> findByCity(String city);
+
+    Optional<Address> getAddress(int id);
+
+    Collection<String> getAllCountries();
+
+    Collection<Address> getAddressesInCountry(String country);
 
     boolean isCredential(String login, String password);
 

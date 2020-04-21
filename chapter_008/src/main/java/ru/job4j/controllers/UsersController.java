@@ -34,7 +34,7 @@ public class UsersController extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.getRequestDispatcher("/WEB-INF/views/result-page-view.jsp?result="
-                + (actionDispatcher.execute(req) ? "1" : "0"))
+                + (actionDispatcher.execute(req) ? "Action was completed successfully " : "Action error"))
                 .forward(req, resp);
     }
 }

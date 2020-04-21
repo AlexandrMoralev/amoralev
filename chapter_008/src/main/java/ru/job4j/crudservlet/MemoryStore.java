@@ -32,12 +32,15 @@ public enum MemoryStore implements Store<User> {
     MemoryStore() {
         this.users = new ConcurrentHashMap<>();
         this.addresses = new ConcurrentHashMap<>();
-        int rootIndex = 0;
-        Address rootAddress = Address.newBuilder().setId(rootIndex).setCountry("Russia").setCity("Spb").build();
-        this.addresses.put(rootIndex, rootAddress);
-        this.users.put(rootIndex,
+        addInitData();
+    }
+
+    private void addInitData() {
+        AtomicInteger index = new AtomicInteger(0);
+        Address rootAddress = Address.newBuilder().setId(index.get()).setCountry("Russia").setCity("Spb").build();
+        this.users.put(index.get(),
                 User.newBuilder()
-                        .setId(rootIndex)
+                        .setId(0)
                         .setName("root")
                         .setLogin("root@root.ru")
                         .setCreated("at the dawn of a new era")
@@ -46,6 +49,12 @@ public enum MemoryStore implements Store<User> {
                         .setAddress(rootAddress)
                         .build()
         );
+        this.addresses.put(index.get(), rootAddress);
+
+        Address usaAddress = Address.newBuilder().setId(index.incrementAndGet()).setCountry("USA").setCity("NY").build();
+        this.addresses.put(index.get(), usaAddress);
+        Address ukAddress = Address.newBuilder().setId(index.incrementAndGet()).setCountry("UK").setCity("London").build();
+        this.addresses.put(index.get(), ukAddress);
     }
 
     @Override

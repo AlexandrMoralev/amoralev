@@ -32,6 +32,7 @@ public class UserUpdateController extends HttpServlet {
                     .forward(req, resp);
         } else {
             req.setAttribute("action", "noAction");
+            req.setAttribute("msg", "no user found");
             req.getRequestDispatcher("/WEB-INF/views/result-page-view.jsp")
                     .forward(req, resp);
         }
