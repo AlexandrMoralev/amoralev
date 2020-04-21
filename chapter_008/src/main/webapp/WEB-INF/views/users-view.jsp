@@ -6,48 +6,64 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>All users</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <style rel="stylesheet" type="text/css">
+        <%@include file="/WEB-INF/css/styles.css" %>
+    </style>
 </head>
 <body>
-<h1>Users web-app</h1>
-<br>
-<h2>All users</h2>
-<br>
-<table style="width:auto; height:auto;" border="2">
-    <tr>
-        <th>id</th>
-        <th>name</th>
-        <th>login</th>
-        <th>created</th>
-        <th>role</th>
-        <th>country</th>
-        <th>city</th>
-        <th>actions</th>
-    </tr>
-    <c:forEach items="${requestScope.userList}" var="user">
+<div class="container">
+    <h1>Users web-app</h1>
+    <br>
+    <h2>All users</h2>
+
+    <table class="table table-hover" id="table">
+        <thead>
         <tr>
-            <td> ${user.id} </td>
-            <td> ${user.name}</td>
-            <td> ${user.login}</td>
-            <td> ${user.created}</td>
-            <td> ${user.role.description}</td>
-            <td> ${user.address.country}</td>
-            <td> ${user.address.city}</td>
-            <td>
-                <form>
-                    <button formaction="${pageContext.servletContext.contextPath}/update-user" formmethod="get" name="userId" value="${user.id}">
-                        Update
-                    </button>
-                    <button formaction="${pageContext.servletContext.contextPath}/users?action=delete&userId=${user.id}" formmethod="post">
-                        Delete
-                    </button>
-                </form>
-            </td>
+            <th>id</th>
+            <th>name</th>
+            <th>login</th>
+            <th>country</th>
+            <th>city</th>
+            <th>role</th>
+            <th colspan="2">action</th>
         </tr>
-    </c:forEach>
-</table>
-<br>
-<form>
-    <button formaction="${pageContext.servletContext.contextPath}/create-user" formmethod="get">Create new user</button>
-</form>
+        </thead>
+        <tbody id="datatable">
+        <c:forEach items="${requestScope.userList}" var="user">
+            <tr>
+                <td>${user.id}</td>
+                <td>${user.name}</td>
+                <td>${user.login}</td>
+                <td>${user.address.country}</td>
+                <td>${user.address.city}</td>
+                <td>${user.role.description}</td>
+                <td>
+                    <form action="${pageContext.servletContext.contextPath}/update-user" method="GET">
+                        <input type="hidden" name="userId" value="${user.id}"/>
+                        <button type="submit" class="btn btn-info btn-sm btn-green">Update user</button>
+                    </form>
+                </td>
+                <td>
+                    <form action="${pageContext.servletContext.contextPath}/users?action=delete&userId=${user.id}"
+                          method="POST">
+                        <input type="hidden" name="userId" value="${user.id}"/>
+                        <button type="submit" class="btn btn-info btn-sm btn-green">Delete user</button>
+                    </form>
+                </td>
+            </tr>
+        </c:forEach>
+        </tbody>
+    </table>
+
+    <div class="form-group">
+        <form action="${pageContext.servletContext.contextPath}/create-user" method="GET">
+            <button type="submit" class="btn btn-primary btn-green" onclick="return validate()">Add user</button>
+        </form>
+    </div>
+</div>
 </body>
 </html>

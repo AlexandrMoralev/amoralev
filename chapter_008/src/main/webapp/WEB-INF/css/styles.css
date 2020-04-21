@@ -1,0 +1,93 @@
+body {
+    background-color: #f1f1f1;
+    /*background-color: ghostwhite;*/
+}
+
+h2 {
+    color: #000000;
+    text-align: left;
+}
+
+p {
+    font-family: Verdana, serif;
+    color: #000000;
+    text-align: left;
+    font-size: 15px;
+}
+
+label {
+    color: #000000;
+    /*background-color: lightslategray;*/
+}
+
+.errorMessage {
+    font-family: Verdana, serif;
+    background-color: #ffcb00;
+    text-align: center;
+    font-size: 15px;
+}
+
+.infoMessage {
+    font-family: Verdana, serif;
+    background-color: lightgreen;
+    text-align: center;
+    font-size: 15px;
+}
+
+.btn-green {
+    color: white;
+    background-color: green;
+}
+
+
+table {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif, serif;
+    font-size: 13px;
+    border-radius: 5px;
+    border-spacing: 0;
+    text-align: center;
+    background-color: white;
+}
+
+thead {
+    background-color: #6f8788;
+}
+
+th {
+    /*background: #BCEBDD;*/
+    background: darkslategrey;
+    /*color: #008B8B;*/
+    color: white;
+    font-size: 14px;
+    padding: 10px 10px;
+    text-align: center;
+}
+
+th, td {
+    border-style: solid;
+    border-width: 0 1px 1px 0;
+    border-color: gainsboro;
+}
+
+th:first-child {
+    border-top-left-radius: 5px;
+}
+
+th:last-child {
+    border-top-right-radius: 5px;
+    border-right: none;
+}
+
+tr:last-child td:first-child {
+    border-radius: 0 0 0 5px;
+}
+
+tr:last-child td:last-child {
+    border-radius: 0 0 5px 0;
+}
+
+tr td:last-child {
+    border-right: none;
+}
+
+
