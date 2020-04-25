@@ -18,6 +18,8 @@ public class Account {
     private String fio;
     private String phone;
 
+    private Account() {}
+
     private Account(Builder builder) {
         this.id = builder.id;
         this.fio = builder.fio;

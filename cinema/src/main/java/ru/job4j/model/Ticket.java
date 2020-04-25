@@ -18,14 +18,17 @@ public class Ticket {
     private int row;
     private int seat;
     private int price;
-    private boolean isOrdered;
+    private boolean ordered;
+
+    private Ticket() {
+    }
 
     private Ticket(Builder builder) {
         this.id = builder.id;
         this.row = builder.row;
         this.seat = builder.seat;
         this.price = builder.price;
-        this.isOrdered = builder.isOrdered;
+        this.ordered = builder.isOrdered;
     }
 
     public Long getId() {
@@ -44,8 +47,8 @@ public class Ticket {
         return price;
     }
 
-    public boolean isOrdered() {
-        return isOrdered;
+    public boolean getOrdered() {
+        return ordered;
     }
 
     @Override
@@ -73,7 +76,7 @@ public class Ticket {
         sb.append(", row=").append(row);
         sb.append(", seat=").append(seat);
         sb.append(", price=").append(price);
-        sb.append(", isOrdered=").append(isOrdered);
+        sb.append(", ordered=").append(ordered);
         sb.append('}');
         return sb.toString();
     }
@@ -95,7 +98,7 @@ public class Ticket {
             Optional.of(user.getRow()).ifPresent(v -> this.row = v);
             Optional.of(user.getSeat()).ifPresent(v -> this.seat = v);
             Optional.of(user.getPrice()).ifPresent(v -> this.price = v);
-            Optional.of(user.isOrdered()).ifPresent(v -> this.isOrdered = v);
+            Optional.of(user.getOrdered()).ifPresent(v -> this.isOrdered = v);
             return this;
         }
 
@@ -119,7 +122,7 @@ public class Ticket {
             return this;
         }
 
-        public Builder setIsOrdered(boolean isOrdered) {
+        public Builder setOrdered(boolean isOrdered) {
             this.isOrdered = isOrdered;
             return this;
         }
