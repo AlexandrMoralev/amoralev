@@ -1,7 +1,9 @@
 package ru.job4j.service;
 
+import ru.job4j.exception.OrderValidationException;
 import ru.job4j.model.Account;
-import ru.job4j.model.Ticket;
+
+import java.util.Collection;
 
 /**
  * Validation
@@ -12,7 +14,10 @@ import ru.job4j.model.Ticket;
  */
 public interface Validation {
 
-    boolean isAccountValid(Account account);
+    String ACCOUNT_INVALID = "invalid.account.%s";
+    String TICKET_INVALID = "invalid.ticket.%s";
 
-    boolean isTicketValid(Ticket ticket);
+    void validateAccount(Account account) throws OrderValidationException;
+
+    void validateTickets(Collection<Integer> ticketIds) throws OrderValidationException;
 }
