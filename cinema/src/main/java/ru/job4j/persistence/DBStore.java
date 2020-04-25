@@ -4,6 +4,8 @@ import ru.job4j.model.Account;
 import ru.job4j.model.Ticket;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
 
 /**
  * DBStore
@@ -20,11 +22,11 @@ public enum DBStore implements Store {
 
     @Override
     public Collection<Ticket> getAllTickets() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
-    public boolean createOrder(Collection<Integer> ticketIds, Account customer) {
-        return false;
+    public Optional<Long> createOrder(Collection<Integer> ticketIds, Account customer) {
+        return Optional.empty();
     }
 }

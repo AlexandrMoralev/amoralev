@@ -6,11 +6,11 @@ import ru.job4j.persistence.DBStore;
 import ru.job4j.persistence.Store;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public enum OrderingService implements Ordering {
     INSTANCE;
 
-    private final Validation validator = ValidationService.INSTANCE;
     private final Store store = DBStore.INSTANCE;
 
     OrderingService() {
@@ -22,7 +22,7 @@ public enum OrderingService implements Ordering {
     }
 
     @Override
-    public boolean createOrder(Collection<Integer> ticketIds, Account customer) {
-        return validator.isAccountValid(customer) && store.createOrder(ticketIds, customer);
+    public Optional<Long> createOrder(Collection<Integer> ticketIds, Account customer) {
+         return store.createOrder(ticketIds, customer);
     }
 }

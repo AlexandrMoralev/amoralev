@@ -4,6 +4,7 @@ import ru.job4j.model.Account;
 import ru.job4j.model.Ticket;
 
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * Ordering
@@ -16,6 +17,6 @@ public interface Ordering {
 
     Collection<Ticket> getAllTickets();
 
-    boolean createOrder(Collection<Integer> ticketIds, Account customer);
+    Optional<Long> createOrder(Collection<Integer> ticketIds, Account customer);
 
 }
