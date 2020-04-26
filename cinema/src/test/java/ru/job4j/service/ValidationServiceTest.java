@@ -31,14 +31,14 @@ class ValidationServiceTest {
     static void init() {
         baseAccount = Account.newBuilder().setId(ACC_ID).setFio(ACC_FIO).setPhone(ACC_PHONE).build();
         accountsWithNulls = Map.of(
-                acc_error("id"), Account.newBuilder().of(baseAccount).setId(null).build(),
-                acc_error("fio"), Account.newBuilder().of(baseAccount).setFio(null).build(),
-                acc_error("phone"), Account.newBuilder().of(baseAccount).setPhone(null).build()
+                accError("id"), Account.newBuilder().of(baseAccount).setId(null).build(),
+                accError("fio"), Account.newBuilder().of(baseAccount).setFio(null).build(),
+                accError("phone"), Account.newBuilder().of(baseAccount).setPhone(null).build()
         );
         accountsWithInvalidFields = Map.of(
-                acc_error("id"), Account.newBuilder().of(baseAccount).setId((long) -1).build(),
-                acc_error("fio"), Account.newBuilder().of(baseAccount).setFio("Иваныч").build(),
-                acc_error("phone"), Account.newBuilder().of(baseAccount).setPhone("8333s44455").build()
+                accError("id"), Account.newBuilder().of(baseAccount).setId((long) -1).build(),
+                accError("fio"), Account.newBuilder().of(baseAccount).setFio("Иваныч").build(),
+                accError("phone"), Account.newBuilder().of(baseAccount).setPhone("8333s44455").build()
         );
         ticketsWithInvalidIds = Set.of(
                 List.of(1, 0),
@@ -61,7 +61,7 @@ class ValidationServiceTest {
     void testNullAccountShouldFailCheck() {
         Exception exception = assertThrows(OrderValidationException.class, () -> service.validateAccount(null));
         String actualMessage = exception.getMessage();
-        assertTrue(actualMessage.contains(acc_error(ERROR)));
+        assertTrue(actualMessage.contains(accError(ERROR)));
     }
 
     @Test
@@ -107,19 +107,19 @@ class ValidationServiceTest {
         Exception exception = assertThrows(OrderValidationException.class, () -> service.validateTickets(null));
         String actualMessage = exception.getMessage();
 
-        assertTrue(actualMessage.contains(ticket_error("empty")));
+        assertTrue(actualMessage.contains(ticketError("empty")));
     }
 
     @Test
     void testEmptyTicketIdsShouldFailCheck() {
         Exception exception = assertThrows(OrderValidationException.class, () -> service.validateTickets(Collections.emptyList()));
         String actualMessage = exception.getMessage();
-        assertTrue(actualMessage.contains(ticket_error("empty")));
+        assertTrue(actualMessage.contains(ticketError("empty")));
     }
 
     @Test
     void testTicketIdsValidationErrors() {
-        String idError = ticket_error("id");
+        String idError = ticketError("id");
         ticketsWithInvalidIds.forEach(invalidTicketIds -> {
             Exception exception = assertThrows(OrderValidationException.class, () -> service.validateTickets(invalidTicketIds));
             String actualMessage = exception.getMessage();
@@ -131,14 +131,14 @@ class ValidationServiceTest {
     void testDuplicateTicketIdsShouldCauseValidationErrors() {
         Exception exception = assertThrows(OrderValidationException.class, () -> service.validateTickets(List.of(1, 2, 1)));
         String actualMessage = exception.getMessage();
-        assertTrue(actualMessage.contains(ticket_error("duplication")));
+        assertTrue(actualMessage.contains(ticketError("duplication")));
     }
 
-    private static String acc_error(String code) {
+    private static String accError(String code) {
         return String.format(ACCOUNT_INVALID, code);
     }
 
-    private static String ticket_error(String code) {
+    private static String ticketError(String code) {
         return String.format(TICKET_INVALID, code);
     }
 }
