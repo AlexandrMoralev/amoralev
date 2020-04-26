@@ -16,6 +16,7 @@ public interface Validation {
 
     String ACCOUNT_INVALID = "invalid.account.%s";
     String TICKET_INVALID = "invalid.ticket.%s";
+    String ERROR = "error";
 
     void validateAccount(Account account) throws OrderValidationException;
 
