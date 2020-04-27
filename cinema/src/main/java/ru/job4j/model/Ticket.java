@@ -14,7 +14,7 @@ import static java.util.Optional.ofNullable;
  */
 public class Ticket {
 
-    private long id;
+    private Long id;
     private int row;
     private int seat;
     private int price;
