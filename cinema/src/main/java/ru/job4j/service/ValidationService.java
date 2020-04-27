@@ -1,7 +1,9 @@
 package ru.job4j.service;
 
+import net.jcip.annotations.ThreadSafe;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ru.job4j.Config;
 import ru.job4j.exception.OrderValidationException;
 import ru.job4j.model.Account;
 
@@ -13,30 +15,28 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
+@ThreadSafe
 public enum ValidationService implements Validation {
     INSTANCE;
 
     private static final Logger LOG = LogManager.getLogger(ValidationService.class);
+    private final Config config = Config.INSTANCE;
+
     private final Pattern fioValidator = Pattern.compile("^[А-я]+ [А-я]+ [А-я]+$");
-    //    private final Pattern phoneValidator = Pattern.compile("/\\+7\\(\\d{3}\\)\\d{3}-\\d{2}-\\d{2}/"); // TODO fix phone regexp
-    private final int hallSize = 9; // TODO get from properties
+    private final Integer hallSize = config.getInt("hall.size").orElse(null);
 
     ValidationService() {
     }
 
-    private final Function<Account, String> checkNull = account -> account != null ? "" : ERROR;
-    private final Function<Account, String> checkId = account -> (account.getId() != null && account.getId() > 0) ? "" : "id";
-    private final Function<Account, String> checkFio = account -> account.getFio() != null && fioValidator.matcher(account.getFio()).matches() ? "" : "fio";
-    //    private final Function<Account, String> checkPhone = account -> account.getPhone() != null && phoneValidator.matcher(account.getPhone()).matches() ? "" : "phone";
-    private final Predicate<String> simplePhonePredicate = phone -> phone.chars().noneMatch(Character::isLetter);
-    private final Function<Account, String> checkPhone = account -> account.getPhone() != null && simplePhonePredicate.test(account.getPhone()) ? "" : "phone";
-
-    private final Predicate<String> failedCheck = msg -> !msg.isBlank();
-
-    private final Predicate<Integer> invalidIdCheck = ticketId -> ticketId != null && (ticketId <= 0 || ticketId > hallSize);
-
     @Override
     public void validateAccount(Account account) throws OrderValidationException {
+
+        Function<Account, String> checkNull = acc -> acc != null ? "" : ERROR;
+        Function<Account, String> checkId = acc -> acc.getId() != null && acc.getId() > 0 ? "" : "id";
+        Function<Account, String> checkFio = acc -> acc.getFio() != null && fioValidator.matcher(acc.getFio()).matches() ? "" : "fio";
+        Function<Account, String> checkPhone = acc -> acc.getPhone() != null && acc.getPhone().chars().noneMatch(Character::isLetter) ? "" : "phone";
+        Predicate<String> failedCheck = msg -> !msg.isBlank();
+
         Optional<String> errorMessage = List.of(checkNull, checkId, checkFio, checkPhone).stream()
                 .map(check -> check.apply(account))
                 .filter(failedCheck)
@@ -50,6 +50,9 @@ public enum ValidationService implements Validation {
 
     @Override
     public void validateTickets(Collection<Integer> ticketIds) throws OrderValidationException {
+
+        Predicate<Integer> invalidIdCheck = ticketId -> ticketId != null && (ticketId <= 0 || ticketId > hallSize);
+
         if (ticketIds == null || ticketIds.isEmpty()) {
             generateException(
                     String.format(TICKET_INVALID, "empty")
