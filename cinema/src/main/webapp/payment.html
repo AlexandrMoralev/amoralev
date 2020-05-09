@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Cinema app. Payment page.</title>
+</head>
+<body>
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+<script>
+
+    var ticketIds = [];
+    var seats = [];
+    $(
+        function () {
+            var address = window.location.href;
+            var splittedBySum = address.split('&sum=');
+            var sum = Number(splittedBySum[1]);
+            var splittedBySeats = splittedBySum[0].split('?seats=');
+            var tickets = splittedBySeats[1].split(',');
+            tickets.forEach(function (value) {
+                var splittedTicket = value.split(':');
+                var id = splittedTicket[0];
+                ticketIds.push(id);
+                var rowAndSeat = splittedTicket[1].split('-');
+                var row = rowAndSeat[0];
+                var seat = rowAndSeat[1];
+                seats.push(' ряд ' + row + ' место ' + seat);
+            });
+            var header = 'Выбраны места:';
+            var body = '' + seats.join(',<br>') + ',<br> Сумма к оплате: ' + sum + ' рублей.';
+            $("#summaryHeader").html(header);
+            $("#summaryBody").html(body);
+        }
+    );
+
+    $(document).ready(function () {
+        $('#account').submit(function (e) {
+            var username = $("#username").val();
+            var phone = $("#phone").val();
+            var order = {
+                account: {
+                    id: null,
+                    fio: username,
+                    phone: phone
+                },
+                ticketIds: ticketIds
+            };
+            jQuery.ajax({
+                type: 'POST',
+                url: 'http://localhost:8080/cinema/api',
+                dataType: 'application/json',
+                data: JSON.stringify(order),
+                complete: function () {
+                    console.log(' payOrder done ');
+                    alert('Оплата успешно выполнена.');
+                    setTimeout(goBack, 2000);
+                }
+            });
+            e.preventDefault();
+        });
+    });
+
+    function goBack() {
+        window.location.href = './';
+    }
+
+
+</script>
+
+<div class="container">
+    <div class="row pt-3">
+        <h3 id="summaryHeader"></h3>
+    </div>
+    <div class="row pt-3" id="summaryBody">
+    </div>
+    <div class="row  pt-3">
+        <form id="account" method="post">
+            <h4>Форма оплаты</h4>
+            <div class="form-group">
+                <label for="username">ФИО</label>
+                <input type="text"
+                       class="form-control"
+                       id="username"
+                       placeholder="ФИО"
+                       pattern="^[А-я]+ [А-я]+ [А-я]+$"
+                       required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Номер телефона</label>
+                <input type="text"
+                       class="form-control"
+                       id="phone"
+                       placeholder="+7 (999) 999-99-99"
+                       pattern="\+7 \([0-9]{3}\) [0-9]{3}-[0-9]{2}-[0-9]{2}"
+                       required>
+            </div>
+            <button type="button" class="btn btn-info" onclick="goBack()">Назад</button>
+            <button id="payment" type="submit" class="btn btn-success">Оплатить</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

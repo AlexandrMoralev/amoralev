@@ -10,7 +10,9 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
@@ -20,6 +22,8 @@ class TicketJsonMappingTest {
     private Ticket firstTicket;
 
     private Ticket secondTicket;
+
+    private Ticket thirdTicket;
 
     private ObjectMapper mapper;
 
@@ -38,6 +42,13 @@ class TicketJsonMappingTest {
                 .setId(2L)
                 .setRow(2)
                 .setSeat(1)
+                .setPrice(100)
+                .setOrdered(true)
+                .build();
+        thirdTicket = Ticket.newBuilder()
+                .setId(3L)
+                .setRow(1)
+                .setSeat(2)
                 .setPrice(100)
                 .setOrdered(true)
                 .build();
@@ -69,6 +80,26 @@ class TicketJsonMappingTest {
     void testTicketsCollectionJsonMapping() throws IOException {
 
         Collection<Ticket> tickets = List.of(firstTicket, secondTicket);
+
+        StringWriter sw = new StringWriter();
+        mapper.writeValue(sw, tickets);
+
+        String ticketsAsJson = sw.toString();
+
+        JsonNode jsonNode = mapper.readTree(ticketsAsJson);
+
+        Collection<Ticket> ticketsFromJson = Arrays.asList(mapper.treeToValue(jsonNode, Ticket[].class));
+
+        assertIterableEquals(tickets, ticketsFromJson);
+    }
+
+    @Test
+    void testTicketsJsonMapping() throws IOException {
+
+        Collection<Ticket> tickets = List.of(firstTicket, secondTicket, thirdTicket)
+                .stream()
+                .sorted(Comparator.comparing(Ticket::getRow).thenComparing(Ticket::getSeat))
+                .collect(Collectors.toList());
 
         StringWriter sw = new StringWriter();
         mapper.writeValue(sw, tickets);

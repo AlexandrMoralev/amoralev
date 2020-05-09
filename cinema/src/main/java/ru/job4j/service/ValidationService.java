@@ -32,7 +32,7 @@ public enum ValidationService implements Validation {
     public void validateAccount(Account account) throws OrderValidationException {
 
         Function<Account, String> checkNull = acc -> acc != null ? "" : ERROR;
-        Function<Account, String> checkId = acc -> acc.getId() != null && acc.getId() > 0 ? "" : "id";
+        Function<Account, String> checkId = acc -> acc.getId() == null || acc.getId() > 0 ? "" : "id";
         Function<Account, String> checkFio = acc -> acc.getFio() != null && fioValidator.matcher(acc.getFio()).matches() ? "" : "fio";
         Function<Account, String> checkPhone = acc -> acc.getPhone() != null && acc.getPhone().chars().noneMatch(Character::isLetter) ? "" : "phone";
         Predicate<String> failedCheck = msg -> !msg.isBlank();
@@ -49,9 +49,9 @@ public enum ValidationService implements Validation {
     }
 
     @Override
-    public void validateTickets(Collection<Integer> ticketIds) throws OrderValidationException {
+    public void validateTickets(Collection<Long> ticketIds) throws OrderValidationException {
 
-        Predicate<Integer> invalidIdCheck = ticketId -> ticketId != null && (ticketId <= 0 || ticketId > hallSize);
+        Predicate<Long> invalidIdCheck = ticketId -> ticketId != null && (ticketId <= 0 || ticketId > hallSize);
 
         if (ticketIds == null || ticketIds.isEmpty()) {
             generateException(
@@ -62,7 +62,7 @@ public enum ValidationService implements Validation {
                     String.format(TICKET_INVALID, "duplication")
             );
         } else {
-            Optional<Integer> invalidTicketId = ticketIds.stream()
+            Optional<Long> invalidTicketId = ticketIds.stream()
                     .filter(invalidIdCheck)
                     .findFirst();
             if (invalidTicketId.isPresent()) {

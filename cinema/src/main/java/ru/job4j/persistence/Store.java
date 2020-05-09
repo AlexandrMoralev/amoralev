@@ -17,5 +17,5 @@ public interface Store {
 
     Collection<Ticket> getAllTickets();
 
-    Optional<Long> createOrder(Collection<Integer> ticketIds, Account customer);
+    Optional<Long> createOrder(Collection<Long> ticketIds, Account customer);
 }

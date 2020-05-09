@@ -20,5 +20,5 @@ public interface Validation {
 
     void validateAccount(Account account) throws OrderValidationException;
 
-    void validateTickets(Collection<Integer> ticketIds) throws OrderValidationException;
+    void validateTickets(Collection<Long> ticketIds) throws OrderValidationException;
 }

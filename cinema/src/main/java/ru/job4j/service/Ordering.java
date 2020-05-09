@@ -4,6 +4,8 @@ import ru.job4j.model.Account;
 import ru.job4j.model.Ticket;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -15,8 +17,8 @@ import java.util.Optional;
  */
 public interface Ordering {
 
-    Collection<Ticket> getAllTickets();
+    Map<Integer, List<Ticket>> getAllTickets();
 
-    Optional<Long> createOrder(Collection<Integer> ticketIds, Account customer);
+    Optional<Long> createOrder(Collection<Long> ticketIds, Account customer);
 
 }

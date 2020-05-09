@@ -6,55 +6,166 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <title>Hello, world!</title>
+    <title>Cinema app. Order page.</title>
 </head>
 <body>
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+<script>
 
+    $(document).ready(function () {
+        getSeats();
+        setInterval(function () {
+            getSeats();
+        }, 1000);
+    });
+
+    function getSeats() {
+        $.ajax({
+            type: 'GET',
+            url: 'http://localhost:8080/cinema/api',
+            dataType: 'application/json',
+            complete: function (data) {
+                updateHall(JSON.parse(data.responseText));
+            }
+        }).fail(function (err) {
+            if (err.status !== 200) {
+                var msg = err.message;
+                console.log('ajax failed: ' + err.status + ' ' + msg);
+                alert('Не удалось загрузить данные.');
+            }
+        });
+    }
+
+
+    function updateHall(hall) {
+        var orderedTickets = findSelected();
+        var theader = '<tr>\r\n <th style="width: 120px;">Ряд / Место</th>';
+        var tbody = '';
+
+        for (var currentRow in hall) {
+            var hallRow = hall[currentRow];
+            theader += '<th>' + currentRow + '</th>\r\n';
+            tbody += '<tr>\r\n <th>' + currentRow + '</th>';
+
+            for (var currentSeat in hallRow) {
+                var place = hallRow[currentSeat];
+                var ticketId = place.id;
+                var row = place.row;
+                var seat = place.seat;
+                var price = place.price;
+                var ordered = place.ordered;
+
+                var userSelection = considerUserSelection(orderedTickets, ordered, ticketId);
+                var selectionStyle = stylizeUserSelection(orderedTickets, ordered, ticketId);
+                tbody += '<td ' + selectionStyle + '><input type="checkbox" name="seat" value="' + ticketId + '" ' + userSelection + '> Ряд ' + row + ', Место ' + seat + ', Цена ' + price + '</td>';
+            }
+            tbody += '</tr>'
+        }
+        theader += '</tr>';
+        $("#thead").html(theader);
+        $("#tbody").html(tbody);
+    }
+
+    function considerUserSelection(orderedTickets, isOrdered, ticketId) {
+        var id = ticketId.toString();
+        if (isOrdered) {
+
+            if ($.inArray(id, orderedTickets) !== -1) {
+                orderedTickets.splice(orderedTickets.indexOf(id), 1);
+                return ' checked="false" disabled';
+            } else {
+                return ' checked="false" disabled';
+            }
+        } else {
+            if ($.inArray(id, orderedTickets) !== -1) {
+                return ' checked="true"';
+            } else {
+                return '';
+            }
+        }
+    }
+
+    function stylizeUserSelection(orderedTickets, isOrdered, ticketId) {
+        var id = ticketId.toString();
+        if (isOrdered) {
+            if ($.inArray(id, orderedTickets) !== -1) {
+                orderedTickets.splice(orderedTickets.indexOf(id), 1);
+                return 'id="ordered' + id + '" style="background-color: red;"';
+            } else {
+                return 'style="background-color: yellow;"'; // FIXME style doesnt work, check isOrdered condition
+            }
+        } else {
+            if ($.inArray(id, orderedTickets) !== -1) {
+                return 'id="selected' + id + '" style="background-color: green;"';
+            } else {
+                return '';
+            }
+        }
+    }
+
+    function findSelected() {
+        var selected = [];
+        $('input:checkbox:checked').each(function () {
+            selected.push($(this).val().toString())
+        });
+        return selected;
+    }
+
+    function goToPayment() {
+        getSeats();
+        var selectedTickets = findSelected();
+        if (selectedTickets.length > 0) {
+            var sum = 0;
+            var seats = [];
+            selectedTickets.forEach(function (ticketId) {
+                var selectedCell = document.getElementById('selected' + ticketId);
+                if (selectedCell !== null) {
+                    var cellText = selectedCell.innerText;
+
+                    var splittedByPrice = cellText.split(', Цена ');
+                    var price = ~~splittedByPrice[1].trim();
+
+                    var splittedBySeat = splittedByPrice[0].split(', Место ');
+                    var seat = splittedBySeat[1].trim();
+
+                    var splittedByRow = splittedBySeat[0].split(' Ряд ');
+                    var row = splittedByRow[1].trim();
+
+                    seats.push(ticketId + ':' + row + '-' + seat);
+                    sum += price;
+                }
+            });
+            window.location.href = './payment.html?seats=' + seats.join(',') + '&sum=' + sum;
+        } else {
+            alert("Выберите места.");
+        }
+    }
+
+</script>
 <div class="container">
     <div class="row pt-3">
         <h4>
             Бронирование мест на сеанс
         </h4>
         <table class="table table-bordered">
-            <thead>
-            <tr>
-                <th style="width: 120px;">Ряд / Место</th>
-                <th>1</th>
-                <th>2</th>
-                <th>3</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <th>1</th>
-                <td><input type="radio" name="place" value="11"> Ряд 1, Место 1</td>
-                <td><input type="radio" name="place" value="11"> Ряд 1, Место 1</td>
-                <td><input type="radio" name="place" value="11"> Ряд 1, Место 1</td>
-            </tr>
-            <tr>
-                <th>2</th>
-                <td><input type="radio" name="place" value="11"> Ряд 2, Место 1</td>
-                <td><input type="radio" name="place" value="11"> Ряд 2, Место 1</td>
-                <td><input type="radio" name="place" value="11"> Ряд 2, Место 1</td>
-            </tr>
-            <tr>
-                <th>3</th>
-                <td><input type="radio" name="place" value="11"> Ряд 3, Место 1</td>
-                <td><input type="radio" name="place" value="11"> Ряд 3, Место 1</td>
-                <td><input type="radio" name="place" value="11"> Ряд 3, Место 1</td>
-            </tr>
-            </tbody>
+            <thead id="thead"></thead>
+            <tbody id="tbody"></tbody>
         </table>
     </div>
     <div class="row float-right">
-        <button type="button" class="btn btn-success">Оплатить</button>
+        <button type="button" class="btn btn-success" onclick="goToPayment()">Оплатить</button>
     </div>
 </div>
 </body>

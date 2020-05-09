@@ -19,3 +19,4 @@ before_install:
     - psql -c 'create database tracker_db;' -U postgres
     - psql -c 'create database users_app;' -U postgres
     - psql -c 'create database vacancies_db;' -U postgres
+    - psql -c 'create database cinema_app;' -U postgres

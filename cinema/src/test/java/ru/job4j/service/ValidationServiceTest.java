@@ -25,25 +25,24 @@ class ValidationServiceTest {
 
     private static Map<String, Account> accountsWithInvalidFields;
     private static Map<String, Account> accountsWithNulls;
-    private static Set<Collection<Integer>> ticketsWithInvalidIds;
+    private static Set<Collection<Long>> ticketsWithInvalidIds;
 
     @BeforeAll
     static void init() {
         baseAccount = Account.newBuilder().setId(ACC_ID).setFio(ACC_FIO).setPhone(ACC_PHONE).build();
         accountsWithNulls = Map.of(
-                accError("id"), Account.newBuilder().of(baseAccount).setId(null).build(),
                 accError("fio"), Account.newBuilder().of(baseAccount).setFio(null).build(),
                 accError("phone"), Account.newBuilder().of(baseAccount).setPhone(null).build()
         );
         accountsWithInvalidFields = Map.of(
-                accError("id"), Account.newBuilder().of(baseAccount).setId((long) -1).build(),
+                accError("id"), Account.newBuilder().of(baseAccount).setId(-1L).build(),
                 accError("fio"), Account.newBuilder().of(baseAccount).setFio("Иваныч").build(),
                 accError("phone"), Account.newBuilder().of(baseAccount).setPhone("8333s44455").build()
         );
         ticketsWithInvalidIds = Set.of(
-                List.of(1, 0),
-                List.of(1, -2),
-                List.of(1, Integer.MAX_VALUE)
+                List.of(1L, 0L),
+                List.of(1L, -2L),
+                List.of(1L, Long.MAX_VALUE)
         );
     }
 
@@ -96,7 +95,7 @@ class ValidationServiceTest {
     @Test
     void testValidTicketIdsShouldPassChecks() {
         try {
-            service.validateTickets(List.of(1, 2, 3));
+            service.validateTickets(List.of(1L, 2L, 3L));
         } catch (OrderValidationException e) {
             fail();
         }
@@ -129,7 +128,7 @@ class ValidationServiceTest {
 
     @Test
     void testDuplicateTicketIdsShouldCauseValidationErrors() {
-        Exception exception = assertThrows(OrderValidationException.class, () -> service.validateTickets(List.of(1, 2, 1)));
+        Exception exception = assertThrows(OrderValidationException.class, () -> service.validateTickets(List.of(1L, 2L, 1L)));
         String actualMessage = exception.getMessage();
         assertTrue(actualMessage.contains(ticketError("duplication")));
     }

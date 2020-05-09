@@ -39,10 +39,16 @@ public enum Config {
         String fileName = (propertiesFileName == null || propertiesFileName.isBlank())
                 ? defaultPropsFileName
                 : propertiesFileName;
-        try (InputStream inputStream = Config.class
-                .getClassLoader()
-                .getResourceAsStream(fileName)
-        ) {
+
+        try {
+            ClassLoader classLoader = getClass().getClassLoader();
+            if (classLoader == null) {
+                throw new RuntimeException("");
+            }
+            InputStream inputStream = classLoader.getResourceAsStream(fileName);
+            if (inputStream == null) {
+                throw new RuntimeException("Error reading properties file.");
+            }
             properties.load(inputStream);
         } catch (IOException | NullPointerException e) {
             LOG.error("Error loading properties", e);
@@ -52,10 +58,10 @@ public enum Config {
 
     private void checkMandatoryFields() {
         Stream.of(
-                "db.connection.url",
-                "db.user",
-                "db.pwd",
-                "db.driver",
+                "cinema.db.connection.url",
+                "cinema.db.user",
+                "cinema.db.pwd",
+                "cinema.db.driver",
                 "hall.size"
         )
                 .filter(key -> !properties.containsKey(key))

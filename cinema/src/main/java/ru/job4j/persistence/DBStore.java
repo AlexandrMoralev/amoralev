@@ -8,11 +8,13 @@ import ru.job4j.Config;
 import ru.job4j.model.Account;
 import ru.job4j.model.Ticket;
 
-import java.sql.*;
-import java.util.ArrayDeque;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 
@@ -28,15 +30,22 @@ public enum DBStore implements Store {
     INSTANCE;
 
     private static final Logger LOG = LogManager.getLogger(DBStore.class);
-    private final Config config = Config.INSTANCE;
-    private final BasicDataSource source = new BasicDataSource();
-    private final Integer hallSize;
+
+    private Config config;
+    private BasicDataSource source;
+    private Integer hallSize;
 
     DBStore() {
-        config.getString("db.driver").ifPresent(source::setDriverClassName);
-        config.getString("db.connection.url").ifPresent(source::setUrl);
-        config.getString("db.user").ifPresent(source::setUsername);
-        config.getString("db.pwd").ifPresent(source::setPassword);
+        config = Config.INSTANCE;
+        source = new BasicDataSource();
+        applyConfig(config, source);
+    }
+
+    private void applyConfig(Config config, BasicDataSource source) {
+        config.getString("cinema.db.driver").ifPresent(source::setDriverClassName);
+        config.getString("cinema.db.connection.url").ifPresent(source::setUrl);
+        config.getString("cinema.db.user").ifPresent(source::setUsername);
+        config.getString("cinema.db.pwd").ifPresent(source::setPassword);
         config.getInt("db.pool.idle.min").ifPresent(source::setMinIdle);
         config.getInt("db.pool.idle.max").ifPresent(source::setMaxIdle);
         config.getInt("db.pool.open-prepared-statements.max").ifPresent(source::setMaxOpenPreparedStatements);
@@ -51,14 +60,14 @@ public enum DBStore implements Store {
              PreparedStatement ps = connection.prepareStatement("SELECT * FROM hall;")
         ) {
             ResultSet rs = ps.executeQuery();
-            Collection<Ticket> tickets = new ArrayDeque<>(hallSize);
+            Collection<Ticket> tickets = new ArrayList<>(hallSize);
             while (rs.next()) {
                 tickets.add(extractTicket(rs));
             }
             return tickets;
         } catch (SQLException e) {
             LOG.error(e.getMessage(), e);
-            throw new RuntimeException(String.format("DB error: %s", e.getMessage()));
+            throw new RuntimeException(String.format("DB error: %s", e.getMessage()), e);
         }
     }
 
@@ -73,31 +82,60 @@ public enum DBStore implements Store {
     }
 
     @Override
-    public Optional<Long> createOrder(Collection<Integer> ticketIds, Account customer) {
+    public Optional<Long> createOrder(Collection<Long> ticketIds, Account customer) {
         try (Connection connection = source.getConnection();
-             PreparedStatement psa = connection.prepareStatement("INSERT INTO account (fio, phone) VALUES (?, ?) RETURNING account_id;");
-             PreparedStatement pst = connection.prepareStatement("UPDATE hall SET ordered = ? WHERE ticket_id IN (?);")
+             PreparedStatement selectAccId = connection.prepareStatement("SELECT account_id FROM accounts WHERE fio = ? AND phone = ?;");
+             PreparedStatement checkTicketOrdered = connection.prepareStatement("SELECT ordered FROM hall WHERE ticket_id = ?;");
+             PreparedStatement insertAcc = connection.prepareStatement("INSERT INTO accounts (fio, phone) VALUES (?, ?) RETURNING account_id;");
+             PreparedStatement bindTicketToAcc = connection.prepareStatement("UPDATE hall SET ordered = ? WHERE ticket_id = ?;")
         ) {
+            if (ticketIds.isEmpty()) {
+                return Optional.empty();
+            }
             connection.setAutoCommit(false);
-            psa.setString(1, customer.getFio());
-            psa.setString(2, customer.getPhone());
-            ResultSet rs = psa.executeQuery();
-            Optional<Long> accountId = Optional.empty();
-            if (rs.next()) {
-                accountId = Optional.of(rs.getLong(1));
-            }
-            Savepoint accountCreated = connection.setSavepoint();
-            if (accountId.isEmpty()) {
+            Optional<Long> accountId = getAccountIdFrom(selectAccId, customer)
+                    .or(() -> getAccountIdFrom(insertAcc, customer));
+            if (accountId.isEmpty() || ticketIds.stream().anyMatch(id -> isTicketReserved(checkTicketOrdered, id))) {
                 connection.rollback();
+                return Optional.empty();
             }
-            pst.setLong(1, accountId.get());
-            pst.setString(2, ticketIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
-            if (pst.executeUpdate() != ticketIds.size()) {
-                connection.rollback(accountCreated);
+            for (Long id : ticketIds) {
+                bindTicketToAcc.setLong(1, accountId.get());
+                bindTicketToAcc.setLong(2, id);
+                bindTicketToAcc.executeUpdate();
             }
             connection.commit();
             connection.setAutoCommit(true);
             return accountId;
+        } catch (SQLException e) {
+            LOG.error(e.getMessage(), e);
+            throw new RuntimeException(String.format("DB error: %s", e.getMessage()));
+        }
+    }
+
+    private boolean isTicketReserved(PreparedStatement ps, Long ticketId) {
+        try {
+            ps.setLong(1, ticketId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return Optional.ofNullable(rs.getObject(1)).isPresent();
+            }
+            return false;
+        } catch (SQLException e) {
+            LOG.error(e.getMessage(), e);
+            throw new RuntimeException(String.format("DB error: %s", e.getMessage()));
+        }
+    }
+
+    private Optional<Long> getAccountIdFrom(PreparedStatement ps, Account customer) {
+        try {
+            ps.setString(1, customer.getFio());
+            ps.setString(2, customer.getPhone());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return Optional.of(rs.getLong(1));
+            }
+            return Optional.empty();
         } catch (SQLException e) {
             LOG.error(e.getMessage(), e);
             throw new RuntimeException(String.format("DB error: %s", e.getMessage()));

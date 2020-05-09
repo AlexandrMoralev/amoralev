@@ -1,6 +1,5 @@
 package ru.job4j.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
@@ -20,8 +19,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Optional;
+import java.util.Map;
 
 /**
  * HallServlet
@@ -50,11 +50,8 @@ public class HallServlet extends HttpServlet {
         }
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(sb.toString());
-        Account account = mapper.readValue(jsonNode.get("account").asText(), Account.class);
-        Collection<Integer> ticketIds = mapper.readValue(
-                jsonNode.get("ticketIds").asText(),
-                new TypeReference<>() {
-                });
+        Account account = mapper.readValue(jsonNode.get("account").toString(), Account.class);
+        Collection<Long> ticketIds = Arrays.asList(mapper.readValue(jsonNode.get("ticketIds").toString(), Long[].class));
         validateOrder(response, account, ticketIds);
         orderingService.createOrder(ticketIds, account).ifPresent(orderId -> sendData(OK, response));
     }
@@ -63,12 +60,10 @@ public class HallServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-
-        Optional.ofNullable(request.getParameter("tickets"))
-                .ifPresent(t -> sendData(orderingService.getAllTickets(), response));
+        sendData(orderingService.getAllTickets(), response);
     }
 
-    private void validateOrder(HttpServletResponse response, Account account, Collection<Integer> ticketIds) {
+    private void validateOrder(HttpServletResponse response, Account account, Collection<Long> ticketIds) {
         try {
             validationService.validateAccount(account);
             validationService.validateTickets(ticketIds);
@@ -82,20 +77,22 @@ public class HallServlet extends HttpServlet {
         try (PrintWriter writer = response.getWriter()
         ) {
             ObjectMapper mapper = new ObjectMapper();
-            writer.println(mapper.writeValueAsString(object));
+            writer.append(mapper.writeValueAsString(object));
+            writer.flush();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new RuntimeException(SERVER_ERROR);
         }
     }
 
-    private void sendData(Collection objects, HttpServletResponse response) {
+    private void sendData(Map objects, HttpServletResponse response) {
         try (PrintWriter writer = response.getWriter();
              StringWriter sw = new StringWriter()
         ) {
             ObjectMapper mapper = new ObjectMapper();
             mapper.writeValue(sw, objects);
-            writer.println(sw.toString());
+            writer.append(sw.toString());
+            writer.flush();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new RuntimeException(SERVER_ERROR);
