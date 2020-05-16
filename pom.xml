@@ -14,19 +14,25 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <db.url>jdbc:postgresql://127.0.0.1:5432/tracker_db</db.url>
+                <db.url>jdbc:postgresql://127.0.0.1:5432</db.url>
                 <db.username>postgres</db.username>
                 <db.password>admin</db.password>
                 <db.driver>org.postgresql.Driver</db.driver>
+                <tracker.db.name>tracker_db</tracker.db.name>
+                <cinema.db.name>test_cinema_app</cinema.db.name>
+                <liquibase.cinema.changelog>db/master.xml</liquibase.cinema.changelog>
             </properties>
         </profile>
         <profile>
             <id>production</id>
             <properties>
-                <db.url>jdbc:postgresql://127.0.0.1:5432/tracker_db</db.url>
+                <db.url>jdbc:postgresql://127.0.0.1:5432</db.url>
                 <db.username>postgres</db.username>
                 <db.password>admin</db.password>
                 <db.driver>org.postgresql.Driver</db.driver>
+                <tracker.db.name>tracker_db</tracker.db.name>
+                <cinema.db.name>cinema_app</cinema.db.name>
+                <liquibase.cinema.changelog>db/master.xml</liquibase.cinema.changelog>
             </properties>
         </profile>
     </profiles>
@@ -47,6 +53,7 @@
         <module>chapter_006</module>
         <module>chapter_007</module>
         <module>chapter_008</module>
+        <module>cinema</module>
     </modules>
 
     <dependencies>

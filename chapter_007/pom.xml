@@ -81,10 +81,12 @@
                 <version>3.8.3</version>
                 <configuration>
                     <changeLogFile>src/main/resources/db/master.xml</changeLogFile>
-                    <url>${db.url}</url>
+                    <url>${db.url}/${tracker.db.name}</url>
                     <driver>${db.driver}</driver>
                     <username>${db.username}</username>
                     <password>${db.password}</password>
+                    <propertyFile>src/main/resources/db/liquibase.properties</propertyFile>
+                    <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
                 </configuration>
                 <executions>
                     <execution>
