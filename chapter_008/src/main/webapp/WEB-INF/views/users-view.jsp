@@ -29,11 +29,16 @@
             <th>country</th>
             <th>city</th>
             <th>role</th>
-            <th colspan="2">action</th>
+            <th>photo</th>
+            <th colspan="3">action</th>
         </tr>
         </thead>
         <tbody id="datatable">
         <c:forEach items="${requestScope.userList}" var="user">
+            <c:set var="hasPhoto" value="${false}" scope="request"/>
+            <c:if test="${not empty user.photoId}">
+                <c:set var="hasPhoto" value="${true}" scope="request"/>
+            </c:if>
             <tr>
                 <td>${user.id}</td>
                 <td>${user.name}</td>
@@ -41,6 +46,14 @@
                 <td>${user.address.country}</td>
                 <td>${user.address.city}</td>
                 <td>${user.role.description}</td>
+                <td>
+                    <c:if test="${hasPhoto}">
+                        <img src="${pageContext.servletContext.contextPath}/download?name=${user.photoId}" width="100px"
+                            height="100px"/></td>
+                    </c:if>
+                    <c:if test="${!hasPhoto}">
+                        <span>no photo</span>
+                    </c:if>
                 <td>
                     <form action="${pageContext.servletContext.contextPath}/update-user" method="GET">
                         <input type="hidden" name="userId" value="${user.id}"/>
@@ -54,6 +67,12 @@
                         <button type="submit" class="btn btn-info btn-sm btn-green">Delete user</button>
                     </form>
                 </td>
+                <c:if test="${hasPhoto}">
+                <td>
+                        <a class="btn btn-sm btn-green" href="${pageContext.servletContext.contextPath}/download?name=${user.photoId}">Download
+                            photo</a>
+                </td>
+                </c:if>
             </tr>
         </c:forEach>
         </tbody>

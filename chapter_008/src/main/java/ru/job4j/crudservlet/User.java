@@ -24,6 +24,7 @@ public class User {
     private final String password;
     private final Role role;
     private final Address address;
+    private final String photoId;
 
     private User(Integer userId,
                  String name,
@@ -31,7 +32,8 @@ public class User {
                  String created,
                  String password,
                  Role role,
-                 Address address
+                 Address address,
+                 String photoId
     ) {
         this.id = userId;
         this.name = name;
@@ -40,6 +42,7 @@ public class User {
         this.password = password;
         this.role = role;
         this.address = address;
+        this.photoId = photoId;
     }
 
     private User(Builder builder) {
@@ -50,6 +53,7 @@ public class User {
         this.password = builder.password;
         this.role = builder.role;
         this.address = builder.address;
+        this.photoId = builder.photoId;
     }
 
     public Integer getId() {
@@ -80,6 +84,10 @@ public class User {
         return address;
     }
 
+    public String getPhotoId() {
+        return photoId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -99,8 +107,8 @@ public class User {
 
     @Override
     public String toString() {
-        return String.format("User{ id=%s, name=%s , login=%s, created=%s, role=%s, address=%s }",
-                id, name, login, created, role.getDescription(), address.toString());
+        return String.format("User{ id=%s, name=%s , login=%s, created=%s, role=%s, address=%s, hasPhoto=%s }",
+                id, name, login, created, role.getDescription(), address.toString(), photoId.isBlank());
     }
 
     public static Builder newBuilder() {
@@ -115,6 +123,7 @@ public class User {
         private String password;
         private Role role;
         private Address address;
+        private String photoId;
 
         public Builder of(User user) {
             ofNullable(user.getId()).ifPresent(v -> this.id = v);
@@ -124,6 +133,7 @@ public class User {
             ofNullable(user.getPassword()).ifPresent(v -> this.password = v);
             Optional.of(user.getRole()).ifPresent(v -> this.role = v);
             Optional.of(user.getAddress()).ifPresent(v -> this.address = v);
+            Optional.ofNullable(user.getPhotoId()).ifPresent(v -> this.photoId = v);
             return this;
         }
 
@@ -159,6 +169,11 @@ public class User {
 
         public Builder setAddress(Address address) {
             this.address = address;
+            return this;
+        }
+
+        public Builder setPhotoId(String photoId) {
+            this.photoId = photoId;
             return this;
         }
 

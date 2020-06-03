@@ -98,6 +98,32 @@
                 }
             });
         }
+
+        $(function () {
+            $('#fileUpload').on('submit', function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var data = new FormData();
+                var filesField = form.find('input[type="file"]');
+                var file = filesField.prop('files')[0];
+                var fileName = file.name;
+                data.append(fileName, file);
+
+                $.ajax({
+                    url: "<%=request.getContextPath()%>/upload",
+                    method: "POST",
+                    data: data,
+                    async: false,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    complete: function (data) {
+                        $('input[name="photoId"]').val(fileName);
+                    }
+                });
+                e.preventDefault();
+            })
+        });
     </script>
     <style rel="stylesheet" type="text/css">
         <%@include file="/WEB-INF/css/styles.css" %>
@@ -109,6 +135,10 @@
     <br>
     <h2>Update user</h2>
     <div class="form-group">
+        <c:set var="fileId" value="${false}" scope="request"/>
+        <c:if test="${not empty user.photoId}">
+            <c:set var="fileId" value="${user.photoId}" scope="request"/>
+        </c:if>
         <form action="${pageContext.servletContext.contextPath}/users" method="post">
             <input type="hidden" name="userId" value="${user.id}"/>
             <input type="hidden" name="addressId" value="${user.address.id}">
@@ -186,9 +216,29 @@
                     </select>
                 </div>
             </div>
+
+            <div class="form-group row">
+                <div class="col-sm-4">
+                    <input type="hidden"
+                           class="form-control"
+                           name="photoId"
+                           id="photoId"
+                           value="${fileId}">
+                </div>
+            </div>
+
             <div class="col-sm-offset-0">
                 <button type="submit" class="btn btn-primary btn-green">Update user</button>
             </div>
+        </form>
+    </div>
+    <div class="form-group">
+        <form id="fileUpload">
+            <div class="checkbox">
+                <label for="file"></label>
+                <input id="file" type="file" name="file">
+            </div>
+            <button type="submit" class="btn btn-info">Загрузить файл</button>
         </form>
     </div>
     <div class="form-group">

@@ -70,6 +70,32 @@
                 }
             });
         }
+
+        $(function () {
+            $('#fileUpload').on('submit', function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var data = new FormData();
+
+                var filesField = form.find('input[type="file"]');
+                var file = filesField.prop('files')[0];
+                var fileName = file.name;
+                data.append(fileName, file);
+                $.ajax({
+                    url: "<%=request.getContextPath()%>/upload",
+                    method: "POST",
+                    data: data,
+                    async: false,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    complete: function (data) {
+                        $('input[name="photoId"]').val(fileName);
+                    }
+                });
+                e.preventDefault();
+            })
+        });
     </script>
     <style rel="stylesheet" type="text/css">
         <%@include file="/WEB-INF/css/styles.css" %>
@@ -89,7 +115,8 @@
                            class="form-control"
                            name="name"
                            id="name"
-                           title="Enter name">
+                           title="Enter name"
+                           required>
                 </div>
             </div>
             <div class="form-group row">
@@ -99,7 +126,8 @@
                            class="form-control"
                            name="login"
                            id="login"
-                           title="Enter login">
+                           title="Enter login"
+                           required>
                 </div>
             </div>
             <div class="form-group row">
@@ -110,7 +138,8 @@
                            maxlength="16"
                            name="password"
                            id="password"
-                           title="Enter password">
+                           title="Enter password"
+                           required>
                 </div>
             </div>
             <div class="form-group row">
@@ -145,17 +174,37 @@
                             required></select>
                 </div>
             </div>
+            <div class="form-group row">
+                <div class="col-sm-4">
+                    <input type="hidden"
+                           class="form-control"
+                           name="photoId"
+                           id="photoId"
+                           value="">
+                </div>
+            </div>
+
             <div class="col-sm-offset-0">
                 <input type="hidden"
                        class="btn btn-primary btn-green"
                        name="action"
                        value="create">
-                </input>
                 <button type="submit" class="btn btn-primary btn-green" onclick="return validate()">Create new user
                 </button>
             </div>
         </form>
     </div>
+
+    <div class="form-group">
+        <form id="fileUpload">
+            <div class="checkbox">
+                <label for="file"></label>
+                <input id="file" type="file" name="file">
+            </div>
+            <button type="submit" class="btn btn-info">Загрузить файл</button>
+        </form>
+    </div>
+
     <div class="form-group">
         <form action="${pageContext.servletContext.contextPath}/users" method="GET">
             <div class="col-sm-offset-0">

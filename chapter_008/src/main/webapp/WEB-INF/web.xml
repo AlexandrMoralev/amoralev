@@ -160,4 +160,23 @@
         <servlet-name>AddressController</servlet-name>
         <url-pattern>/addresses</url-pattern>
     </servlet-mapping>
+
+    <!-- Task.9 File uploading/downloading -->
+    <servlet>
+        <servlet-name>UploadServlet</servlet-name>
+        <servlet-class>ru.job4j.uploaddownloadfiles.UploadServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UploadServlet</servlet-name>
+        <url-pattern>/upload</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>DownloadServlet</servlet-name>
+        <servlet-class>ru.job4j.uploaddownloadfiles.DownloadServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DownloadServlet</servlet-name>
+        <url-pattern>/download</url-pattern>
+    </servlet-mapping>
+
 </web-app>
