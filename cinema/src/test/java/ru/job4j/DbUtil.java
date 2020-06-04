@@ -13,7 +13,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.NoSuchElementException;
 
 public enum DbUtil {
     INSTANCE;
@@ -39,7 +38,6 @@ public enum DbUtil {
             liquibase.update("test");
         } catch (SQLException | LiquibaseException e) {
             LOG.error(e.getMessage(), e);
-            throw new NoSuchElementException(e.getMessage());
         } finally {
             if (connection != null) {
                 try {

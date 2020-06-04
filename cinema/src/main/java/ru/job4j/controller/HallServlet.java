@@ -35,7 +35,6 @@ public class HallServlet extends HttpServlet {
     private static final Logger LOG = LogManager.getLogger(HallServlet.class);
     private static final String OK = "{\"message\":\"success\"}";
     private static final String ERROR = "{\"message\":\"%s\"}";
-    private static final String SERVER_ERROR = "server error";
 
     private final Ordering orderingService = OrderingService.INSTANCE;
     private final Validation validationService = ValidationService.INSTANCE;
@@ -81,7 +80,6 @@ public class HallServlet extends HttpServlet {
             writer.flush();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new RuntimeException(SERVER_ERROR);
         }
     }
 
@@ -95,7 +93,6 @@ public class HallServlet extends HttpServlet {
             writer.flush();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new RuntimeException(SERVER_ERROR);
         }
     }
 

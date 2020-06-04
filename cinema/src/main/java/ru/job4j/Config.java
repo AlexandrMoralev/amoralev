@@ -43,16 +43,15 @@ public enum Config {
         try {
             ClassLoader classLoader = getClass().getClassLoader();
             if (classLoader == null) {
-                throw new RuntimeException("");
+                throw new NullPointerException("Cannot get classloader");
             }
             InputStream inputStream = classLoader.getResourceAsStream(fileName);
             if (inputStream == null) {
-                throw new RuntimeException("Error reading properties file.");
+                throw new NullPointerException("Error reading properties file.");
             }
             properties.load(inputStream);
         } catch (IOException | NullPointerException e) {
             LOG.error("Error loading properties", e);
-            throw new RuntimeException("Unexpected error", e);
         }
     }
 
@@ -67,9 +66,7 @@ public enum Config {
                 .filter(key -> !properties.containsKey(key))
                 .findAny()
                 .ifPresent(s -> {
-                    String message = String.format("Property: %s not found", s);
-                    LOG.error(message);
-                    throw new RuntimeException(message);
+                    throw new RuntimeException(String.format("Property: %s not found", s));
                 });
     }
 

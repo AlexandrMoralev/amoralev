@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
@@ -67,8 +68,8 @@ public enum DBStore implements Store {
             return tickets;
         } catch (SQLException e) {
             LOG.error(e.getMessage(), e);
-            throw new RuntimeException(String.format("DB error: %s", e.getMessage()), e);
         }
+        return Collections.emptyList();
     }
 
     private Ticket extractTicket(ResultSet rs) throws SQLException {
@@ -109,8 +110,8 @@ public enum DBStore implements Store {
             return accountId;
         } catch (SQLException e) {
             LOG.error(e.getMessage(), e);
-            throw new RuntimeException(String.format("DB error: %s", e.getMessage()));
         }
+        return Optional.empty();
     }
 
     private boolean isTicketReserved(PreparedStatement ps, Long ticketId) {
@@ -120,11 +121,10 @@ public enum DBStore implements Store {
             if (rs.next()) {
                 return Optional.ofNullable(rs.getObject(1)).isPresent();
             }
-            return false;
         } catch (SQLException e) {
             LOG.error(e.getMessage(), e);
-            throw new RuntimeException(String.format("DB error: %s", e.getMessage()));
         }
+        return false;
     }
 
     private Optional<Long> getAccountIdFrom(PreparedStatement ps, Account customer) {
@@ -135,10 +135,9 @@ public enum DBStore implements Store {
             if (rs.next()) {
                 return Optional.of(rs.getLong(1));
             }
-            return Optional.empty();
         } catch (SQLException e) {
             LOG.error(e.getMessage(), e);
-            throw new RuntimeException(String.format("DB error: %s", e.getMessage()));
         }
+        return Optional.empty();
     }
 }
