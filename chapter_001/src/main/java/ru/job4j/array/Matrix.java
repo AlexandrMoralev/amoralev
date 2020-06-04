@@ -14,7 +14,7 @@ public class Matrix {
      * @param size - int dimension of a two-dimensional array
      * @return multiplication table of a given size
      */
-    int[][] multiple(int size) {
+    public int[][] multiple(int size) {
         int[][] result = new int[size][size];
 
         for (int i = 0; i < size; i++) {
