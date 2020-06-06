@@ -3,9 +3,9 @@ package ru.job4j.exam.jobparser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.LocalDateTime;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ public class ParserSQLruTest {
         LOG.info(config.toString());
     }
 
-    @Before
+    @BeforeEach
     public void beforeEach() {
         pageCounter = new SqlRuPageCounter();
     }

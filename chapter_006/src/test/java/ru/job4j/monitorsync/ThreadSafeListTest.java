@@ -1,13 +1,14 @@
 package ru.job4j.monitorsync;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * ThreadSafeListTest
@@ -41,7 +42,7 @@ public class ThreadSafeListTest {
         addFourth.run();
     };
 
-    @Before
+    @BeforeEach
     public void init() {
         list = new ThreadSafeList<>();
     }
@@ -121,10 +122,15 @@ public class ThreadSafeListTest {
         assertThat(it.hasNext(), is(false));
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void whenIteratorNextFromEmptyListThenNextThrowsNSEException() {
-        it = list.iterator();
-        it.next();
+        assertThrows(NoSuchElementException.class,
+                () -> {
+                    it = list.iterator();
+                    it.next();
+                }
+        );
+
     }
 
     @Test

@@ -1,6 +1,6 @@
 package ru.job4j.exam;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * GameTest

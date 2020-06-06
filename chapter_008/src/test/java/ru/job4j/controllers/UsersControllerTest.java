@@ -1,11 +1,9 @@
 package ru.job4j.controllers;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 import ru.job4j.crudservlet.ValidationService;
 import ru.job4j.crudservlet.ValidationStub;
@@ -18,16 +16,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(PowerMockRunner.class)
+//@RunWith(PowerMockRunner.class)
 @PrepareForTest(ValidationService.class)
 public class UsersControllerTest {
-    @Ignore // run manually
+    @Disabled // run manually
     @Test
     public void whenAddUserThenStoreIt() throws ServletException, IOException {
 
@@ -64,8 +62,8 @@ public class UsersControllerTest {
         when(req.getParameter("action")).thenReturn("create");
         when(req.getParameter("role")).thenReturn(Role.USER.name());
 
-         new UsersController().doPost(req, resp);
-         assertThat(validation.findAll().iterator().next().getName(), is(""));
+        new UsersController().doPost(req, resp);
+        assertThat(validation.findAll().iterator().next().getName(), is(""));
     }
 }
 
@@ -75,7 +73,7 @@ public class BarTest {
 
     private Bar bar;
 
-    @Before
+    @BeforeEach
     public void createBar() {
         bar = new Bar();
     }

@@ -1,14 +1,14 @@
 package ru.job4j.tracker;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 
 /**
  * ValidateInputTest
@@ -27,7 +27,7 @@ public class ValidateInputTest {
     /**
      * Method loadOut - replaces stdOut with "buffered" for tests
      */
-    @Before
+    @BeforeEach
     public void loadOut() {
         System.setOut(new PrintStream(this.out));
     }
@@ -35,7 +35,7 @@ public class ValidateInputTest {
     /**
      * Method loadStdOut - replaces "buffered" out with stdOut back
      */
-    @After
+    @AfterEach
     public void loadStdOut() {
         System.setOut(this.stdOut);
     }

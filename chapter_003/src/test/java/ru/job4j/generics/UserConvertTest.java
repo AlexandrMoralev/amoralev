@@ -1,12 +1,14 @@
 package ru.job4j.generics;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 
 /**
  * UserConvertTest

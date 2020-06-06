@@ -1,14 +1,15 @@
 package ru.job4j.trees;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * TreeTest
@@ -22,7 +23,7 @@ public class TreeTest {
     private Tree<Integer> tree;
     private Iterator it;
 
-    @Before
+    @BeforeEach
     public void init() {
         tree = new Tree<>(1);
     }
@@ -86,9 +87,11 @@ public class TreeTest {
         assertThat(tree.add(1, 2), is(false));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenAddNullShouldThrowIAException() {
-        tree.add(1, null);
+        assertThrows(IllegalArgumentException.class,
+                () -> tree.add(1, null)
+        );
     }
 
     // isBinary tests
@@ -138,19 +141,27 @@ public class TreeTest {
         assertThat(it.next(), is(2));
     }
 
-    @Test(expected = ConcurrentModificationException.class)
+    @Test
     public void whenTreeIteratorHasBeenModifiedThenNextThrowsCMException() {
-        tree.add(1, 2);
-        it = tree.iterator();
-        tree.add(1, 3);
-        it.next();
+        assertThrows(ConcurrentModificationException.class,
+                () -> {
+                    tree.add(1, 2);
+                    it = tree.iterator();
+                    tree.add(1, 3);
+                    it.next();
+                }
+        );
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void whenIteratorCallsNextWithoutArrayElementsThenNextThrowsNSEException() {
-        it = tree.iterator();
-        assertThat(it.next(), is(1));
-        it.next();
+        assertThrows(NoSuchElementException.class,
+                () -> {
+                    it = tree.iterator();
+                    assertThat(it.next(), is(1));
+                    it.next();
+                }
+        );
     }
 
     @Test

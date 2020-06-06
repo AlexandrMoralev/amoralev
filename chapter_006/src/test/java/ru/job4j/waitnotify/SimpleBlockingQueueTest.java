@@ -1,10 +1,11 @@
 package ru.job4j.waitnotify;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * SimpleBlockingQueue
@@ -21,7 +22,7 @@ public class SimpleBlockingQueueTest {
     private final Integer[] array = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     private Integer[] result;
 
-    @Before
+    @BeforeEach
     public void init() {
         queue = new SimpleBlockingQueue<>();
         result = new Integer[array.length];
@@ -49,9 +50,11 @@ public class SimpleBlockingQueueTest {
         assertThat(queue.isEmpty(), is(false));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenOfferNullShouldThrowIAException() {
-        queue.offer(null);
+        assertThrows(IllegalArgumentException.class,
+                () -> queue.offer(null)
+        );
     }
 
     @Test

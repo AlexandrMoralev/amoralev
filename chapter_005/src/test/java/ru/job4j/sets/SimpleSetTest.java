@@ -1,14 +1,15 @@
 package ru.job4j.sets;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * SimpleSetTest
@@ -25,7 +26,7 @@ public class SimpleSetTest {
     String second = "second";
     String third = "third";
 
-    @Before
+    @BeforeEach
     public void init() {
         set = new SimpleSet<>();
     }
@@ -47,9 +48,11 @@ public class SimpleSetTest {
         assertThat(set.iterator().next(), is(first));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenAddNullShouldThrowIAException() {
-        set.add(null);
+        assertThrows(IllegalArgumentException.class,
+                () -> set.add(null)
+        );
     }
 
     @Test
@@ -72,18 +75,26 @@ public class SimpleSetTest {
         assertThat(it.next(), is(first));
     }
 
-    @Test(expected = ConcurrentModificationException.class)
+    @Test
     public void whenSetIteratorHasBeenModifiedThenNextThrowsCMException() {
-        set.add(first);
-        it = set.iterator();
-        set.add(second);
-        it.next();
+        assertThrows(ConcurrentModificationException.class,
+                () -> {
+                    set.add(first);
+                    it = set.iterator();
+                    set.add(second);
+                    it.next();
+                }
+        );
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void whenIteratorCallsNextWithoutArrayElementsThenNextThrowsNSEException() {
-        it = set.iterator();
-        it.next();
+        assertThrows(NoSuchElementException.class,
+                () -> {
+                    it = set.iterator();
+                    it.next();
+                }
+        );
     }
 
     @Test

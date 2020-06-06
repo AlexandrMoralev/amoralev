@@ -1,12 +1,12 @@
 package ru.job4j.pools;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 
 /**
  * ThreadPoolTest
@@ -20,7 +20,7 @@ public class ThreadPoolTest {
     private ThreadPool pool;
     private AtomicInteger sum;
 
-    @Before
+    @BeforeEach
     public void init() {
         pool = new ThreadPool();
     }

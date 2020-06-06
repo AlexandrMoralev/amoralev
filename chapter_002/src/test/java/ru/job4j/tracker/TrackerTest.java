@@ -1,13 +1,13 @@
 package ru.job4j.tracker;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * TrackerTest
@@ -19,12 +19,12 @@ import static org.junit.Assert.assertTrue;
 public class TrackerTest {
     private Tracker tracker;
 
-    @Before
+    @BeforeEach
     public void init() {
         this.tracker = new Tracker();
     }
 
-    @After
+    @AfterEach
     public void cleanUp() {
         this.tracker = null;
     }

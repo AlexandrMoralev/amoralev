@@ -1,14 +1,15 @@
 package ru.job4j.exam;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * WordAnalyzerTest
@@ -27,7 +28,7 @@ public class WordAnalyzerTest {
     private final String aaabbbccc = "aaabbbccc";
     private final String bbccaa = "bbccaa";
 
-    @Before
+    @BeforeEach
     public void init() {
         wordAnalyzer = new WordAnalyzer();
     }
@@ -52,14 +53,18 @@ public class WordAnalyzerTest {
         assertThat(wordAnalyzer.hasSameSymbols(fgh, String.valueOf("")), is(false));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenFirstWordIsNullShouldThrowIAException() {
-        wordAnalyzer.hasSameSymbols(abcdef, null);
+        assertThrows(IllegalArgumentException.class,
+                () -> wordAnalyzer.hasSameSymbols(abcdef, null)
+        );
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenSecondWordIsNullShouldThrowIAException() {
-        wordAnalyzer.hasSameSymbols(null, abcdef);
+        assertThrows(IllegalArgumentException.class,
+                () -> wordAnalyzer.hasSameSymbols(null, abcdef)
+        );
     }
 
     // isAnagram() tests
@@ -83,9 +88,11 @@ public class WordAnalyzerTest {
         assertThat(wordAnalyzer.isAnagram(nbvcxz, String.valueOf("")), is(false));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenAnyWordIsNullShouldThrowIAException() {
-        wordAnalyzer.isAnagram(null, null);
+        assertThrows(IllegalArgumentException.class,
+                () -> wordAnalyzer.isAnagram(null, null)
+        );
     }
 
     // countCharMatches() tests
@@ -111,9 +118,11 @@ public class WordAnalyzerTest {
         assertThat(wordAnalyzer.countCharMatches(nbvcxz, String.valueOf("")), is(0));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenWordsIsNullShouldThrowIAException() {
-        wordAnalyzer.countCharMatches(null, null);
+        assertThrows(IllegalArgumentException.class,
+                () -> wordAnalyzer.countCharMatches(null, null)
+        );
     }
 
     // findDuplicateChars() tests
@@ -139,9 +148,11 @@ public class WordAnalyzerTest {
         assertThat(wordAnalyzer.findDuplicateChars(String.valueOf("")), is(Collections.EMPTY_SET));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenWordIsNullShouldThrowIAException() {
-        wordAnalyzer.findDuplicateChars(null);
+        assertThrows(IllegalArgumentException.class,
+                () -> wordAnalyzer.findDuplicateChars(null)
+        );
     }
 
     // countCharDuplicates() tests
@@ -170,9 +181,11 @@ public class WordAnalyzerTest {
         assertThat(wordAnalyzer.countCharDuplicates(String.valueOf("")), is(Collections.EMPTY_MAP));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenWordIsNullThenThrowIAException() {
-        wordAnalyzer.countCharDuplicates(null);
+        assertThrows(IllegalArgumentException.class,
+                () -> wordAnalyzer.countCharDuplicates(null)
+        );
     }
 
     private Map<Character, Integer> fillMap(String word) {

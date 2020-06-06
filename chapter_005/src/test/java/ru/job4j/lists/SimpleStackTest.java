@@ -1,12 +1,13 @@
 package ru.job4j.lists;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.NoSuchElementException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * SimpleStackTest
@@ -19,7 +20,7 @@ public class SimpleStackTest {
 
     private SimpleStack<String> stack;
 
-    @Before
+    @BeforeEach
     public void init() {
         stack = new SimpleStack<>();
     }
@@ -39,8 +40,10 @@ public class SimpleStackTest {
         assertThat(stack.poll(), is("first"));
     }
 
-    @Test (expected = NoSuchElementException.class)
+    @Test
     public void whenPollElementFromEmptyStackThenThrowNSEException() {
-        stack.poll();
+        assertThrows(NoSuchElementException.class,
+                () -> stack.poll()
+        );
     }
 }

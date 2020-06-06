@@ -1,12 +1,12 @@
 package ru.job4j.iterators;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 
 /**
  * EvenArrayIteratorTest
@@ -19,8 +19,8 @@ public class EvenArrayIteratorTest {
 
     private Iterator<Integer> it;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    public void init() {
         it = new EvenArrayIterator(new int[]{4, 2, 1, 1});
     }
 

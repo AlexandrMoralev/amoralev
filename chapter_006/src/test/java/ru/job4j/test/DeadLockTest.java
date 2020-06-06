@@ -1,13 +1,13 @@
 package ru.job4j.test;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CountDownLatch;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 
 /**
  * DeadLockTest
@@ -23,7 +23,7 @@ public class DeadLockTest {
     private Thread reversed;
     private CountDownLatch latch;
 
-    @Before
+    @BeforeEach
     public void init() {
         direct = new Thread(dLInstance.getDirectBlock());
         reversed = new Thread(dLInstance.getReversedBlock());
@@ -50,7 +50,7 @@ public class DeadLockTest {
                 is(true));
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void whenRepeatingTestsThenResultIsGuaranteed() throws InterruptedException {
         for (int i = 0; i < 20; i++) {

@@ -1,6 +1,6 @@
 package ru.job4j.jdbc;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import ru.job4j.tracker.Comment;
 import ru.job4j.tracker.Item;
 
@@ -10,7 +10,7 @@ import java.sql.DriverManager;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * TrackerSQLTest

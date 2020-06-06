@@ -1,8 +1,8 @@
 package ru.job4j.maps;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.GregorianCalendar;
 
@@ -25,7 +25,7 @@ public class UserMapTest {
     private User fourth;
     private Object[] result;
 
-    @Before
+    @BeforeEach
     public void init() {
         this.map = new UserMap();
         this.first = new User("Andrey",
@@ -42,19 +42,19 @@ public class UserMapTest {
         result = map.getMap().keySet().toArray();
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void whenDoesntOverrideEqualsAndHashcode() {
         assertThat(result.length, is(2));
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void whenOverrideOnlyHashcode() {
         assertThat(result.length, is(2));
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void whenOverrideOnlyEquals() {
         assertThat(result.length, is(2));

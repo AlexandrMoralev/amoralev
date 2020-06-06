@@ -1,10 +1,11 @@
 package ru.job4j.monitorsync;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * UserStorageTest
@@ -21,7 +22,7 @@ public class UserStorageTest {
     private final User third = new User(999);
     private final User debtor = new User(-1000);
 
-    @Before
+    @BeforeEach
     public void init() {
         storage = new UserStorage();
         storage.add(first);
@@ -43,9 +44,11 @@ public class UserStorageTest {
         assertThat(storage.add(first), is(false));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenAddingNullShouldThrowIAException() {
-        storage.add(null);
+        assertThrows(IllegalArgumentException.class,
+                () -> storage.add(null)
+        );
     }
 
     // update() tests
@@ -63,9 +66,11 @@ public class UserStorageTest {
         assertThat(storage.update(debtor), is(false));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenUpdateNullShouldThrowIAException() {
-        storage.update(null);
+        assertThrows(IllegalArgumentException.class,
+                () -> storage.update(null)
+        );
     }
 
     // delete() tests
@@ -83,9 +88,11 @@ public class UserStorageTest {
         assertThat(storage.delete(new User()), is(false));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenDeleteNullShouldThrowIAException() {
-        storage.delete(null);
+        assertThrows(IllegalArgumentException.class,
+                () -> storage.delete(null)
+        );
     }
 
     // transfer() tests

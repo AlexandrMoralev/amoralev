@@ -1,13 +1,13 @@
 package ru.job4j.lambda;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 
 /**
  * FunctionCalculatorTest
@@ -26,7 +26,7 @@ public class FunctionCalculatorTest {
     /**
      * Init. New instances construction.
      */
-    @Before
+    @BeforeEach
     public void init() {
         this.calc = new FunctionCalculator();
         this.expected = new ArrayList<>();

@@ -1,9 +1,11 @@
 package ru.job4j.inheritance;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import java.util.Stack;
-import static org.junit.Assert.*;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 /**

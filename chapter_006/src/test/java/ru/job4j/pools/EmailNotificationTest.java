@@ -1,14 +1,15 @@
 package ru.job4j.pools;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * EmailNotificationTest
@@ -30,12 +31,12 @@ public class EmailNotificationTest {
     /**
      * Method setBufferedOutput - replaces stdOut to buffered out
      */
-    @Before
+    @BeforeEach
     public void setBufferedOutput() {
         System.setOut(new PrintStream(out));
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         this.notification = new EmailNotification();
     }
@@ -43,7 +44,7 @@ public class EmailNotificationTest {
     /**
      * Method setStdOutputBack - replaces buffered out back to std System.out after test
      */
-    @After
+    @AfterEach
     public void setStdOutputBack() {
         System.setOut(stdOut);
     }
@@ -62,8 +63,10 @@ public class EmailNotificationTest {
         );
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenEmailToInvalidUserShouldThrowIAException() {
-        notification.emailTo(emptyUser);
+        assertThrows(IllegalArgumentException.class,
+                () -> notification.emailTo(emptyUser)
+        );
     }
 }

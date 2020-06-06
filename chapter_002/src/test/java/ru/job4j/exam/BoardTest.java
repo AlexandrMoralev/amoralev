@@ -1,13 +1,13 @@
 package ru.job4j.exam;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.*;
-import static org.hamcrest.core.Is.*;
+import static org.hamcrest.core.Is.is;
 
 /**
  * BoardTest

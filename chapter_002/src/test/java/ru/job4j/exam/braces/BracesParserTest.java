@@ -1,12 +1,13 @@
 package ru.job4j.exam.braces;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * BracesParserTest
@@ -27,7 +28,7 @@ public class BracesParserTest {
     private static final String FOURTH = "12:b;5(";
     private static final String FIFTH = "{[}]";
 
-    @Before
+    @BeforeEach
     public void init() {
         bracesParser = new BracesParser();
     }
@@ -62,8 +63,10 @@ public class BracesParserTest {
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenStringIsNullShouldThrowIAException() {
-        bracesParser.parse(null);
+        assertThrows(IllegalArgumentException.class,
+                () -> bracesParser.parse(null)
+        );
     }
 }

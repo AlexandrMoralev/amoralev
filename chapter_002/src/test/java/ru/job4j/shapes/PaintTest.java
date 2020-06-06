@@ -1,15 +1,15 @@
 package ru.job4j.shapes;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.StringJoiner;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 
 /**
  * PaintTest
@@ -29,7 +29,7 @@ public class PaintTest {
     /**
      * Method loadOutput replaces standard output to buffer output for tests
      */
-    @Before
+    @BeforeEach
     public void loadOutput() {
         System.out.println("execute before method");
         System.setOut(new PrintStream(this.outputStream));
@@ -38,7 +38,7 @@ public class PaintTest {
     /**
      * Method backOutput replaces buffer output back to standard output
      */
-    @After
+    @AfterEach
     public void backOutput() {
         System.setOut(this.stdOut);
         System.out.println("execute after method");

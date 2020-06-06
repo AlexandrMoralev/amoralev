@@ -1,6 +1,6 @@
 package ru.job4j.jdbc.xslt;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -9,8 +9,8 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 
 /**
  * StoreXMLTest

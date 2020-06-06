@@ -1,14 +1,15 @@
 package ru.job4j.exam;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * StoreTest
@@ -31,7 +32,7 @@ public class StoreTest {
 
     private final Info zeroInfo = new Info(0, 0, 0);
 
-    @Before
+    @BeforeEach
     public void init() {
         store = new Store();
         previous = new ArrayList<>();
@@ -139,8 +140,10 @@ public class StoreTest {
         );
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenAnyListIsNullShouldThrowIAException() {
-        store.diff(null, null);
+        assertThrows(IllegalArgumentException.class,
+                () -> store.diff(null, null)
+        );
     }
 }

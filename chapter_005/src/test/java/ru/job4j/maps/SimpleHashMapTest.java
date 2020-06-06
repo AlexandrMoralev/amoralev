@@ -1,14 +1,15 @@
 package ru.job4j.maps;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * SimpleHashMapTest
@@ -30,7 +31,7 @@ public class SimpleHashMapTest {
     private String result;
     private SimpleHashMap.Bucket bucket;
 
-    @Before
+    @BeforeEach
     public void init() {
         table = new SimpleHashMap<>(3);
         result = "";
@@ -44,7 +45,7 @@ public class SimpleHashMapTest {
         table.insert(7, "7");
         table.insert(9, "9");
         table.insert(11, "11");
-        Iterator<SimpleHashMap.Bucket> iterator = table.iterator();
+        Iterator<SimpleHashMap.Bucket> iterator = (Iterator<SimpleHashMap.Bucket>) table.iterator();
         while (iterator.hasNext()) {
             System.out.println(iterator.next().getValue());
         }
@@ -68,9 +69,11 @@ public class SimpleHashMapTest {
         assertThat(result, is(false));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenInsertElementWithNullKeyShouldThrowIAException() {
-        table.insert(null, fst);
+        assertThrows(IllegalArgumentException.class,
+                () -> table.insert(null, fst)
+        );
     }
 
     @Test
@@ -100,9 +103,11 @@ public class SimpleHashMapTest {
         assertThat(table.get("fourth") == null, is(true));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenGetElementByNullKeyShouldThrowIAException() {
-        table.get(null);
+        assertThrows(IllegalArgumentException.class,
+                () -> table.get(null)
+        );
     }
 
     // Delete tests
@@ -116,9 +121,11 @@ public class SimpleHashMapTest {
         assertThat(result, is(true));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenDeleteElementByNullKeyShouldThrowIAException() {
-        table.delete(null);
+        assertThrows(IllegalArgumentException.class,
+                () -> table.delete(null)
+        );
     }
 
     @Test
@@ -133,13 +140,15 @@ public class SimpleHashMapTest {
     public void whenSetIteratorHasNextThenReturnsTrue() {
         table.insert(first, fst);
         it = table.iterator();
-        assertThat(it.hasNext() && it.hasNext(), is(true));
+        it.hasNext();
+        assertThat(it.hasNext(), is(true));
     }
 
     @Test
     public void whenSetIteratorHasntNextThenReturnsFalse() {
         it = table.iterator();
-        assertThat(it.hasNext() && it.hasNext(), is(false));
+        it.hasNext();
+        assertThat(it.hasNext(), is(false));
     }
 
     @Test
@@ -150,18 +159,26 @@ public class SimpleHashMapTest {
         assertThat(bucket.getKey(), is(first));
     }
 
-    @Test(expected = ConcurrentModificationException.class)
+    @Test
     public void whenIteratorHasBeenModifiedThenNextThrowsCMException() {
-        table.insert(first, fst);
-        it = table.iterator();
-        table.insert(second, snd);
-        it.next();
+        assertThrows(ConcurrentModificationException.class,
+                () -> {
+                    table.insert(first, fst);
+                    it = table.iterator();
+                    table.insert(second, snd);
+                    it.next();
+                }
+        );
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void whenIteratorCallsNextWithoutArrayElementsThenNextThrowsNSEException() {
-        it = table.iterator();
-        it.next();
+        assertThrows(NoSuchElementException.class,
+                () -> {
+                    it = table.iterator();
+                    it.next();
+                }
+        );
     }
 
     @Test
@@ -191,12 +208,9 @@ public class SimpleHashMapTest {
         table.insert(second, snd);
         table.insert(third, thrd);
         it = table.iterator();
-
-        assertThat(it.hasNext()
-                        && it.hasNext()
-                        && it.hasNext(),
-                is(true)
-        );
+        it.hasNext();
+        it.hasNext();
+        assertThat(it.hasNext(), is(true));
 
         bucket = (SimpleHashMap.Bucket) it.next();
         result += bucket.getKey() + " ";

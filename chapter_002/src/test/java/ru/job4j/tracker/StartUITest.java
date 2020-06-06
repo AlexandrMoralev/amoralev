@@ -1,15 +1,17 @@
 package ru.job4j.tracker;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Date;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * StartUITest
@@ -33,7 +35,7 @@ public class StartUITest {
     /**
      * Method setBufferedOutput - replaces stdOut to "buffered" out
      */
-    @Before
+    @BeforeEach
     public void setBufferedOutput() {
         System.setOut(new PrintStream(out));
     }
@@ -41,7 +43,7 @@ public class StartUITest {
     /**
      * Method trackerInit - creates new Tracker instance
      */
-    @Before
+    @BeforeEach
     public void trackerInit() {
         this.tracker = new Tracker();
     }
@@ -49,7 +51,7 @@ public class StartUITest {
     /**
      * Method setStdOutputBack - replaces "buffered" out back to std System.out after test
      */
-    @After
+    @AfterEach
     public void setStdOutputBack() {
         System.setOut(stdOut);
     }

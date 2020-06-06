@@ -1,7 +1,7 @@
 package ru.job4j.iterators;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * IteratorOfIteratorsTest
@@ -26,8 +27,8 @@ public class IteratorOfIteratorsTest {
     Iterator<Iterator<Integer>> its;
     Converter iteratorOfIterators;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    public void init() {
         it1 = Arrays.asList(1, 2, 3).iterator();
         it2 = Arrays.asList(4, 5, 6).iterator();
         it3 = Arrays.asList(7, 8, 9).iterator();
@@ -98,16 +99,20 @@ public class IteratorOfIteratorsTest {
         assertThat(it.hasNext(), is(false));
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void invocationOfNextMethodShouldThrowNoSuchElementException() {
-        it1 = Arrays.asList(1, 2, 3).iterator();
-        its = Arrays.asList(it1).iterator();
-        iteratorOfIterators = new Converter();
-        it = iteratorOfIterators.convert(its);
-        assertThat(it.next(), is(1));
-        assertThat(it.next(), is(2));
-        assertThat(it.next(), is(3));
-        it.next();
+        assertThrows(NoSuchElementException.class,
+                () -> {
+                    it1 = Arrays.asList(1, 2, 3).iterator();
+                    its = Arrays.asList(it1).iterator();
+                    iteratorOfIterators = new Converter();
+                    it = iteratorOfIterators.convert(its);
+                    assertThat(it.next(), is(1));
+                    assertThat(it.next(), is(2));
+                    assertThat(it.next(), is(3));
+                    it.next();
+                }
+        );
     }
 
     @Test

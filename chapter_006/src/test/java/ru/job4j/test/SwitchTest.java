@@ -1,10 +1,10 @@
 package ru.job4j.test;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 
 /**
  * SwitchTest
@@ -17,7 +17,7 @@ public class SwitchTest {
     private Switch aSwitch;
     private static final int REPETITIONS = 7;
 
-    @Before
+    @BeforeEach
     public void init() {
         aSwitch = new Switch(REPETITIONS);
     }

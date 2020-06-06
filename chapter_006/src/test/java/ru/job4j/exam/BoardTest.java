@@ -1,10 +1,11 @@
 package ru.job4j.exam;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * BoardTest
@@ -18,7 +19,7 @@ public class BoardTest {
     private Cell dest;
     private GameObject bomberman;
 
-    @Before
+    @BeforeEach
     public void init() {
         board = new Board(GameSettings.DEFAULT_BOARD_SIZE);
         bomberman = new Bomberman(GameSettings.HERO_INIT_POSITION);
@@ -47,8 +48,10 @@ public class BoardTest {
         assertThat(board.move(bomberman.getPosition(), dest), is(false));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenCellsAreNullMoveMethodShouldThrowIAException() throws InterruptedException {
-        board.move(null, dest);
+        assertThrows(IllegalArgumentException.class,
+                () -> board.move(null, dest)
+        );
     }
 }

@@ -1,14 +1,15 @@
 package ru.job4j.lists;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * DynamicListTest
@@ -18,11 +19,12 @@ import static org.junit.Assert.assertThat;
  * @since 0.1
  */
 public class DynamicListTest {
-    DynamicList<String> list = new DynamicList<>();
+    DynamicList<String> list;
     Iterator<String> it;
 
-    @Before
+    @BeforeEach
     public void init() {
+        list = new DynamicList<>();
         list.add("first");
         list.add("second");
         list.add("third");
@@ -73,17 +75,22 @@ public class DynamicListTest {
         assertThat(list.size(), is(0));
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void whenDeleteElementFromEmptyListShouldThrowNSEException() {
         DynamicList<String> anotherList = new DynamicList<>();
-        anotherList.deleteFirst();
+        assertThrows(NoSuchElementException.class, anotherList::deleteFirst);
+
     }
 
     // getting tests
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void whenGetNonExistingElementThenThrowsNSEException() {
-        list.get(-1);
-        list.get(list.size() + 1);
+        assertThrows(NoSuchElementException.class,
+                () -> {
+                    list.get(-1);
+                    list.get(list.size() + 1);
+                }
+        );
     }
 
     @Test
@@ -92,10 +99,10 @@ public class DynamicListTest {
         assertThat(list.size(), is(3));
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void whenGettingFirstElementOfEmptyListShouldThrowNSEException() {
         DynamicList<String> anotherList = new DynamicList<>();
-        anotherList.getFirst();
+        assertThrows(NoSuchElementException.class, anotherList::getFirst);
     }
 
     //iterator tests

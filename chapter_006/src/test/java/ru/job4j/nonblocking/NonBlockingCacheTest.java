@@ -1,7 +1,7 @@
 package ru.job4j.nonblocking;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -23,7 +23,7 @@ public class NonBlockingCacheTest {
     private Base second;
     private Base third;
 
-    @Before
+    @BeforeEach
     public void init() {
         cache = new NonBlockingCache();
         first = new Base(1);

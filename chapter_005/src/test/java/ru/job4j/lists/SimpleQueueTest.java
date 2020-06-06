@@ -1,12 +1,13 @@
 package ru.job4j.lists;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.NoSuchElementException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * SimpleQueueTest
@@ -22,7 +23,7 @@ public class SimpleQueueTest {
     private String second = "second";
     private String third = "third";
 
-    @Before
+    @BeforeEach
     public void init() {
         queue = new SimpleQueue<>();
     }
@@ -35,9 +36,11 @@ public class SimpleQueueTest {
         assertThat(queue.size(), is(3));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void whenPushNullThenThrowsIAException() {
-        queue.push(null);
+        assertThrows(IllegalArgumentException.class,
+                () -> queue.push(null)
+        );
     }
 
     @Test
@@ -50,9 +53,11 @@ public class SimpleQueueTest {
         assertThat(queue.poll().equals(third), is(true));
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void whenPollFromEmptyQueueThenThrowsNSEException() {
-        queue.poll();
+        assertThrows(NoSuchElementException.class,
+                () -> queue.poll()
+        );
     }
 
     @Test

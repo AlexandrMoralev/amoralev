@@ -1,9 +1,11 @@
 package ru.job4j.loop;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import java.util.StringJoiner;
-import static org.junit.Assert.*;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 /**
