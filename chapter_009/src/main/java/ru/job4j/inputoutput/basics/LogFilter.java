@@ -1,8 +1,6 @@
 package ru.job4j.inputoutput.basics;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -16,6 +14,12 @@ public class LogFilter {
     public static final String ERROR_CODE = "404";
     public static final int INDEX_FROM_TAIL = 1;
 
+    public static void main(String[] args) {
+        List<String> log = filter("log.txt");
+        System.out.println(log);
+        save(log, "404.txt");
+    }
+
     public static List<String> filter(String file) {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             return reader.lines()
@@ -25,6 +29,17 @@ public class LogFilter {
             e.printStackTrace();
         }
         return Collections.emptyList();
+    }
+
+    public static void save(List<String> log, String file) {
+        try (PrintWriter writer = new PrintWriter(
+                new BufferedOutputStream(
+                        new FileOutputStream(file.trim())
+                ))) {
+            log.forEach(writer::println);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     private static Predicate<String> containsRequiredElement = line -> {
@@ -39,8 +54,4 @@ public class LogFilter {
         return ERROR_CODE.equals(code);
     };
 
-    public static void main(String[] args) {
-        List<String> log = filter("log.txt");
-        System.out.println(log);
-    }
 }

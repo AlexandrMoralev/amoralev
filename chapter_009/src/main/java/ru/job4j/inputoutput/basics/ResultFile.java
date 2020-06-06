@@ -2,8 +2,9 @@ package ru.job4j.inputoutput.basics;
 
 import ru.job4j.array.Matrix;
 
+import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
-import java.nio.charset.StandardCharsets;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -13,7 +14,10 @@ public class ResultFile {
     public static final String LINE_SEPARATOR = System.lineSeparator();
 
     public static void main(String[] args) {
-        try (FileOutputStream fos = new FileOutputStream("result.txt")) {
+        try (PrintWriter writer = new PrintWriter(
+                new BufferedOutputStream(
+                        new FileOutputStream("result.txt")
+                ))) {
 
             Matrix matrix = new Matrix();
 
@@ -22,9 +26,9 @@ public class ResultFile {
             // java 7
             for (int[] rows : result) {
                 for (int element : rows) {
-                    fos.write((" " + element).getBytes(StandardCharsets.UTF_8));
+                    writer.write((" " + element));
                 }
-                fos.write(LINE_SEPARATOR.getBytes(StandardCharsets.UTF_8));
+                writer.write(LINE_SEPARATOR);
             }
 
             // java 8+
@@ -33,7 +37,7 @@ public class ResultFile {
                             .mapToObj(String::valueOf)
                             .collect(Collectors.joining(" ")) + LINE_SEPARATOR)
                     .collect(Collectors.joining());
-            fos.write(table.getBytes(StandardCharsets.UTF_8));
+            writer.write(table);
 
         } catch (Exception e) {
             e.printStackTrace();
