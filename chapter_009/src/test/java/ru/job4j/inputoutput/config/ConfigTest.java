@@ -19,7 +19,7 @@ public class ConfigTest {
 
     @Test
     public void whenPairWithoutComment() {
-        String path = "./data/pairs_without_comment.properties";
+        String path = "./data/config/pairs_without_comment.properties";
         Config config = new Config(path);
         config.load();
         assertEquals(config.value("hibernate.dialect"), EXPECTED.get("hibernate.dialect"));
@@ -32,7 +32,7 @@ public class ConfigTest {
 
     @Test
     public void whenPairWithComment() {
-        String path = "./data/pairs_with_comment.properties";
+        String path = "./data/config/pairs_with_comment.properties";
         Config config = new Config(path);
         config.load();
         assertEquals(config.value("hibernate.dialect"), EXPECTED.get("hibernate.dialect"));
@@ -46,7 +46,7 @@ public class ConfigTest {
 
     @Test
     public void whenPairWithEmptyLines() {
-        String path = "./data/pairs_with_empty_lines.properties";
+        String path = "./data/config/pairs_with_empty_lines.properties";
         Config config = new Config(path);
         config.load();
         assertEquals(config.value("hibernate.dialect"), EXPECTED.get("hibernate.dialect"));
@@ -58,7 +58,7 @@ public class ConfigTest {
 
     @Test
     public void whenPairWithSpaces() {
-        String path = "./data/pairs_with_spaces.properties";
+        String path = "./data/config/pairs_with_spaces.properties";
         Config config = new Config(path);
         config.load();
         assertEquals(config.value("hibernate.dialect"), EXPECTED.get("hibernate.dialect"));
@@ -70,7 +70,7 @@ public class ConfigTest {
 
     @Test
     public void whenPairIncorrect() {
-        String path = "./data/incorrect_pairs.properties";
+        String path = "./data/config/incorrect_pairs.properties";
         Config config = new Config(path);
         config.load();
         assertEquals(config.value("hibernate.dialect"), EXPECTED.get("hibernate.dialect"));
