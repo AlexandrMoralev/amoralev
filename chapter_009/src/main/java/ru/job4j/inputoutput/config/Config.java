@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringJoiner;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class Config {
@@ -20,13 +19,12 @@ public class Config {
 
     public void load() {
         try (BufferedReader reader = new BufferedReader(new FileReader(this.path))) {
-            Consumer<String[]> putProperty = entry -> this.values.put(entry[0].strip(), entry[1].strip());
             reader.lines()
                     .map(String::strip)
                     .filter(validLines)
                     .map(v -> v.split("="))
                     .filter(validKVPairs)
-                    .forEach(putProperty);
+                    .forEach(entry -> this.values.put(entry[0].strip(), entry[1].strip()));
         } catch (IOException e) {
             e.printStackTrace();
         }
