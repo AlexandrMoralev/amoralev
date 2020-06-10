@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.function.Predicate.not;
@@ -34,6 +35,12 @@ public class Search {
             String fileName = p.toFile().getName();
             return ext.stream().anyMatch(fileName::endsWith);
         });
+        Files.walkFileTree(root, searcher);
+        return searcher.getPaths();
+    }
+
+    public static List<Path> search(Path root, Predicate<Path> filter) throws IOException {
+        SearchFiles<Path> searcher = new SearchFiles<>(filter);
         Files.walkFileTree(root, searcher);
         return searcher.getPaths();
     }

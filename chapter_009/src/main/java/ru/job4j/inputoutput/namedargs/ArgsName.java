@@ -24,7 +24,7 @@ public class ArgsName {
                 Arrays.stream(args)
                         .map(String::strip)
                         .filter(not(String::isBlank))
-                        .map(v -> v.split(" -"))
+                        .map(v -> v.replace(",", "").split(" -"))
                         .flatMap(Stream::of)
                         .map(String::strip)
                         .filter(not(String::isBlank))
