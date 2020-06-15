@@ -1,5 +1,8 @@
 package ru.job4j.socket.base;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,17 +21,19 @@ import static java.util.function.Predicate.not;
 
 public class EchoServer {
 
+    private static final Logger LOG = LoggerFactory.getLogger(EchoServer.class);
     private static final String EXIT = "Exit";
     private static final String ACTION_PARAM = "msg";
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         try (ServerSocket server = new ServerSocket(9000)) {
             boolean isRun = true;
             List<String> requestInfo = new ArrayList<>();
             while (isRun) {
                 Socket socket = server.accept();
                 try (OutputStream out = socket.getOutputStream();
-                     BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+                     BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))
+                ) {
                     String str;
                     while (!(str = in.readLine()).isEmpty()) {
                         requestInfo.add(str);
@@ -43,8 +48,12 @@ public class EchoServer {
                         answer = requestParams.get(ACTION_PARAM);
                     }
                     out.write(String.format("HTTP/1.1 200 OK >> %s \r\n", answer).getBytes());
+                } catch (IOException e) {
+                    LOG.error(e.getMessage(), e);
                 }
             }
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
         }
     }
 
