@@ -55,6 +55,7 @@
         <module>chapter_008</module>
         <module>cinema</module>
         <module>chapter_009</module>
+        <module>file_search</module>
     </modules>
 
     <dependencies>
