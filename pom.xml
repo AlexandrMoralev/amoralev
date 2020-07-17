@@ -20,6 +20,7 @@
                 <db.driver>org.postgresql.Driver</db.driver>
                 <tracker.db.name>tracker_db</tracker.db.name>
                 <cinema.db.name>test_cinema_app</cinema.db.name>
+                <cars.db.name>test_auto_crash</cars.db.name>
                 <liquibase.cinema.changelog>db/master.xml</liquibase.cinema.changelog>
             </properties>
         </profile>
@@ -32,6 +33,7 @@
                 <db.driver>org.postgresql.Driver</db.driver>
                 <tracker.db.name>tracker_db</tracker.db.name>
                 <cinema.db.name>cinema_app</cinema.db.name>
+                <cars.db.name>auto_crash</cars.db.name>
                 <liquibase.cinema.changelog>db/master.xml</liquibase.cinema.changelog>
             </properties>
         </profile>

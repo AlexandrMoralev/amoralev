@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static java.util.Optional.ofNullable;
 
 @Repository
-public class AccidentMem {
+public class AccidentMem implements AccidentStore {
 
     private final AtomicInteger index;
     private final Map<Integer, Accident> store;
@@ -24,27 +24,32 @@ public class AccidentMem {
         this.index = new AtomicInteger(1);
     }
 
+    @Override
     public Optional<Accident> getAccident(Integer id) {
         return ofNullable(this.store.get(id));
     }
 
+    @Override
     public Collection<Accident> getAllAccidents() {
         return new ArrayList<>(this.store.values());
     }
 
-    public Optional<Accident> addAccident(Accident accident) {
+    @Override
+    public Accident addAccident(Accident accident) {
         if (accident.getId() == null) {
             Accident acc = Accident.newBuilder().of(accident).setId(index.getAndIncrement()).build();
-            return ofNullable(this.store.put(acc.getId(), acc));
+            return this.store.put(acc.getId(), acc);
         }
-        return Optional.empty();
+        return null;
     }
 
+    @Override
     public void updateAccident(Accident updatedAccident) {
         this.store.replace(updatedAccident.getId(), updatedAccident);
     }
 
-    public Optional<Accident> removeAccident(Integer id) {
-        return ofNullable(this.store.remove(id));
+    @Override
+    public void removeAccident(Integer id) {
+        this.store.remove(id);
     }
 }
