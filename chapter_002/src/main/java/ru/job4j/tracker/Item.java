@@ -1,5 +1,6 @@
 package ru.job4j.tracker;
 
+import javax.persistence.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -13,12 +14,20 @@ import static java.util.Optional.ofNullable;
  * @version 0.1
  * @since $Id$
  */
+@Entity
+@Table(name = "items")
 public class Item {
-    private final Integer id;
-    private final String name;
-    private final String description;
-    private final Long created;
-    private final Collection<Comment> comments;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    private String name;
+    private String description;
+    private Long created;
+    @Transient
+    private Collection<Comment> comments;
+
+    public Item() {
+    }
 
     /**
      * Default instance constructor of the Item class
@@ -57,7 +66,6 @@ public class Item {
         this.comments = comments;
     }
 
-
     private Item(Builder builder) {
         this(builder.id, builder.name, builder.description, builder.created, builder.comments);
     }
@@ -95,6 +103,23 @@ public class Item {
      */
     public Collection<Comment> getComments() {
         return comments;
+    }
+
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setCreated(Long created) {
+        this.created = created;
     }
 
     @Override
