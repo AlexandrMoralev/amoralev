@@ -2,6 +2,7 @@ package ru.job4j.persistence;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -11,68 +12,95 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static java.util.Optional.ofNullable;
 
 public class ItemsDao {
 
-    public static final ItemsDao INSTANCE = new ItemsDao();
+    public static final ItemsDao INSTANCE = new ItemsDao(new StandardServiceRegistryBuilder().configure().build());
 
     private final SessionFactory sessionFactory;
 
-    private ItemsDao() {
-        StandardServiceRegistry registry = new StandardServiceRegistryBuilder().configure().build();
+    ItemsDao(StandardServiceRegistry registry) {
         sessionFactory = new MetadataSources(registry).buildMetadata().buildSessionFactory();
     }
 
     public Item addItem(Item item) {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        session.save(item);
-        session.getTransaction().commit();
-        session.close();
-        return item;
+        return this.tx(
+                session -> {
+                    session.save(item);
+                    return item;
+                }
+        );
     }
 
     public Optional<Item> getItem(Integer id) {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        Optional<Item> item = ofNullable(session.get(Item.class, id));
-        session.getTransaction().commit();
-        session.close();
-        return item;
+        return this.tx(
+                session -> {
+                    return ofNullable(session.get(Item.class, id));
+                }
+        );
     }
 
     public void updateItem(Integer itemId) {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        ofNullable(session.get(Item.class, itemId))
-                .ifPresent(item -> {
-                    item.setDone(true);
-                    session.update(item);
-                });
-        session.getTransaction().commit();
-        session.close();
+        this.tx(
+                session -> {
+                    ofNullable(session.get(Item.class, itemId))
+                            .ifPresent(item -> {
+                                item.setDone(true);
+                                session.update(item);
+                            });
+                }
+        );
     }
 
     public void deleteItem(Integer itemId) {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        Item deletableItem = new Item();
-        deletableItem.setId(itemId);
-        session.delete(deletableItem);
-        session.getTransaction().commit();
-        session.close();
+        this.tx(
+                session -> {
+                    ofNullable(session.get(Item.class, itemId))
+                            .ifPresent(session::delete);
+                }
+        );
     }
 
     public Collection<Item> getItems() {
-        Session session = sessionFactory.openSession();
-        session.beginTransaction();
-        List result = session.createQuery("from ru.job4j.domain.Item").list();
-        Collection<Item> items = new ArrayList<>(result);
-        session.getTransaction().commit();
-        session.close();
-        return items;
+        return this.tx(
+                session -> {
+                    final List result = session.createQuery("from ru.job4j.domain.Item").list();
+                    return new ArrayList<>(result);
+                }
+        );
+    }
+
+    private <T> T tx(final Function<Session, T> command) {
+        final Session session = sessionFactory.openSession();
+        final Transaction tx = session.beginTransaction();
+        try {
+            T rsl = command.apply(session);
+            tx.commit();
+            return rsl;
+        } catch (final Exception e) {
+            session.getTransaction().rollback();
+            throw e;
+        } finally {
+            session.close();
+        }
+    }
+
+    private void tx(final Consumer<Session> command) {
+        final Session session = sessionFactory.openSession();
+        final Transaction tx = session.beginTransaction();
+        try {
+            command.accept(session);
+            tx.commit();
+        } catch (final Exception e) {
+            session.getTransaction().rollback();
+            throw e;
+        } finally {
+            session.close();
+        }
     }
 
 }

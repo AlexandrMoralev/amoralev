@@ -13,7 +13,6 @@ public class Item {
     private Long created;
     private boolean done;
 
-
     public Integer getId() {
         return id;
     }
