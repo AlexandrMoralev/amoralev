@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.job4j.ui.model.ItemDTO;
+import ru.job4j.ui.model.ItemsDTO;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -16,9 +18,16 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.gen5.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * ItemTest
+ *
+ * @author Alexandr Moralev (moralev.alexandr@yandex.ru)
+ * @version $Id$
+ * @since 0.1
+ */
 public class ItemTest {
 
     private Item firstItem;
@@ -104,6 +113,51 @@ public class ItemTest {
         JsonNode jsonNode = mapper.readTree(itemsAsJson);
 
         Collection<Item> itemsFromJson = Arrays.asList(mapper.treeToValue(jsonNode, Item[].class));
+
+        assertIterableEquals(items, itemsFromJson);
+    }
+
+    @Test
+    void testItemDTOJsonMapping() throws IOException {
+
+        ItemDTO itemDTO = ItemDTO.fromModel(firstItem);
+
+        String itemAsJson = mapper.writeValueAsString(itemDTO);
+
+        ItemDTO uploadedItem = mapper.readValue(itemAsJson, ItemDTO.class);
+
+        assertEquals(uploadedItem.getId(), itemDTO.getId());
+        assertEquals(uploadedItem.getDescription(), itemDTO.getDescription());
+        assertEquals(uploadedItem.getCreated(), itemDTO.getCreated());
+        assertEquals(uploadedItem.getDone(), itemDTO.getDone());
+
+        String newItemString = "{\"id\":null,\"description\":\"firstItem description\",\"created\":1600135559280,\"done\":false}";
+        ItemDTO newItem = mapper.readValue(newItemString, ItemDTO.class);
+
+        assertNull(newItem.getId());
+        assertEquals("firstItem description", newItem.getDescription());
+        assertEquals(1600135559280L, newItem.getCreated());
+        assertFalse(newItem.getDone());
+    }
+
+    @Test
+    void testItemsDTOJsonMapping() throws IOException {
+
+        String author = "testUser";
+        List<Item> items = List.of(firstItem, secondItem, thirdItem);
+
+        ItemsDTO itemsDTO = new ItemsDTO(author, items);
+
+        StringWriter sw = new StringWriter();
+        mapper.writeValue(sw, itemsDTO);
+
+        String itemsAsJson = sw.toString();
+
+        JsonNode jsonNode = mapper.readTree(itemsAsJson);
+
+        assertEquals(author, jsonNode.get("author").asText());
+
+        Collection<Item> itemsFromJson = Arrays.asList(mapper.treeToValue(jsonNode.get("tasks"), Item[].class));
 
         assertIterableEquals(items, itemsFromJson);
     }

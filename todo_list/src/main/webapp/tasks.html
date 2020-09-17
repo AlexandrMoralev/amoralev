@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Todo list.</title>
+</head>
+<body>
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+<script>
+    function getTasks() {
+        var sort = document.getElementById("done").checked;
+
+        $.ajax({
+            url: "items",
+            method: "get",
+            dataType: 'application/json; charset=utf-8',
+            complete: function (data) {
+                var result = "";
+                var response = JSON.parse(data.responseText);
+                var items = response.tasks;
+                var author = response.author.toString();
+                for (var i = 0; i < items.length; i++) {
+                    if (!sort) {
+                        result += showActive(items[i], author);
+                    } else {
+                        result += showAll(items[i], author);
+                    }
+                }
+                var table = document.getElementById("items-table");
+                table.innerHTML = result;
+            }
+        });
+    }
+
+    function createTask() {
+        $.ajax({
+            url: "items",
+            method: "post",
+            dataType: 'application/json; charset=utf-8',
+            data: JSON.stringify(
+                {
+                    item: {
+                        description: $('#description').val(),
+                        created: Date.now(),
+                        done: false
+                    }
+                }
+            ),
+            complete: function () {
+                getTasks();
+                document.getElementById("description").value = "";
+            }
+        });
+    }
+
+    function completeTask(data) {
+        $.ajax({
+            url: "items",
+            method: "put",
+            dataType: 'application/json; charset=utf-8',
+            data: JSON.stringify(
+                {
+                    item:
+                        {
+                            id: data,
+                            description: $('#description').val(),
+                            created: -1,
+                            done: true
+                        }
+                }
+            ),
+            complete: function () {
+                getTasks();
+            }
+        });
+    }
+
+    function showAll(task, author) {
+        var result = "";
+        result += "<tr>"
+            + "<td>" + task.id + "</td>"
+            + "<td>" + task.description + "</td>"
+            + "<td>" + new Date(task.created).toLocaleString() + "</td>"
+            + "<td>" + author + "</td>"
+            + "<td>" + showStatus(task.done) + "</td>";
+        if (!task.done) {
+            result += "<td><button type=\"button\" class=\"btn btn-primary\" onclick=\"completeTask(" + task.id + ")\" >Complete</button></td>";
+        } else {
+            result += "<td>Completed</td>"
+        }
+        result += "</tr>";
+        return result;
+    }
+
+
+    function showActive(task, author) {
+        var result = "";
+        if (!task.done) {
+            result = "<tr>"
+                + "<td>" + task.id + "</td>"
+                + "<td>" + task.description + "</td>"
+                + "<td>" + new Date(task.created).toLocaleString() + "</td>"
+                + "<td>" + author + "</td>"
+                + "<td>" + showStatus(task.done) + "</td>"
+                + "<td><button type=\"button\" class=\"btn btn-primary\" onclick=\"completeTask(" + task.id + ")\" >Complete</button></td>"
+                + "</tr>";
+        }
+        return result;
+    }
+
+    function showStatus(status) {
+        var result = "";
+        if (status) {
+            result += "<span class=\"badge badge-pill badge-success\">Done</span>";
+        } else {
+            result += "<span class=\"badge badge-pill badge-danger\">Undone</span>";
+        }
+        return result;
+    }
+
+    $(document).ready(function () {
+        getTasks();
+    });
+
+</script>
+
+<div class="container">
+    <h1 class="h1">Todo list</h1>
+    <div class="row">
+        <div class="col-sm"></div>
+        <div class="col-sm-12">
+            <form class="form-horizontal">
+                <h4 class="h4">Add new task</h4>
+                <div class="form-group">
+                    <label for="description">Task description:</label>
+                    <textarea name="description"
+                              class="form-control"
+                              rows="2"
+                              id="description"
+                              placeholder="Enter task description"></textarea>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="createTask()">Create</button>
+                <label for="done">Show all</label>
+                <input type="checkbox" id="done" onchange="getTasks()">
+            </form>
+        </div>
+        <div class="col-xs-8"></div>
+    </div>
+    <br>
+    <h4 class="h4">Task list</h4>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover" id="users_table">
+            <thead>
+            <tr>
+                <th width="10%">Task id</th>
+                <th>Description</th>
+                <th width="8%">Created</th>
+                <th width="7%">Author</th>
+                <th width="10%">Status</th>
+                <th width="10%">Finish</th>
+            </tr>
+            </thead>
+            <tbody id="items-table"></tbody>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

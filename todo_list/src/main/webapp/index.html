@@ -1,18 +1,14 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <title>Todo list.</title>
 </head>
 <body>
-<!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"
         crossorigin="anonymous"></script>
@@ -24,160 +20,134 @@
         crossorigin="anonymous"></script>
 
 <script>
-    function getTasks() {
-        var sort = document.getElementById("done").checked;
-
-        $.ajax({
-            url: "items",
-            method: "get",
-            dataType: 'application/json',
-            complete: function (data) {
-                var result = "";
-                console.log(data.responseText);
-                var tasks = JSON.parse(data.responseText);
-                for (var i = 0; i < tasks.length; i++) {
-                    if (!sort) {
-                        result += showActive(tasks[i]);
-                    } else {
-                        result += showAll(tasks[i]);
-                    }
-                }
-                var table = document.getElementById("items-table");
-                table.innerHTML = result;
-            }
-        });
-    }
-
-    function createTask() {
-        $.ajax({
-            url: "items",
-            method: "post",
-            dataType: 'application/json',
-            data: JSON.stringify(
-                {
-                    item: {
-                        description: $('#description').val(),
-                        created: Date.now(),
-                        done: false
-                    }
-                }
-            ),
-            complete: function () {
-                getTasks();
-                document.getElementById("description").value = "";
-            }
-        });
-    }
-
-    function completeTask(data) {
-        $.ajax({
-            url: "items",
-            method: "put",
-            dataType: 'application/json',
-            data: JSON.stringify(
-                {
-                    item:
-                        {
-                            id: data,
-                            description: "",
-                            created: 0,
-                            done: true
-                        }
-                }
-            ),
-            complete: function () {
-                getTasks();
-            }
-        });
-    }
-
-    function showAll(task) {
-        var result = "";
-        result += "<tr>"
-            + "<td>" + task.id + "</td>"
-            + "<td>" + task.description + "</td>"
-            + "<td>" + new Date(task.created).toLocaleString() + "</td>"
-            + "<td>" + showStatus(task.done) + "</td>";
-        if (!task.done) {
-            result += "<td><button type=\"button\" class=\"btn btn-primary\" onclick=\"completeTask("
-                + task.id + ")\" >Complete</button></td>";
-        } else {
-            result += "<td>Completed</td>"
-        }
-        result += "</tr>";
-        return result;
-    }
-
-
-    function showActive(task) {
-        var result = "";
-        if (!task.done) {
-            result = "<tr>"
-                + "<td>" + task.id + "</td>"
-                + "<td>" + task.description + "</td>"
-                + "<td>" + new Date(task.created).toLocaleString() + "</td>"
-                + "<td>" + showStatus(task.done) + "</td>"
-                + "<td><button type=\"button\" class=\"btn btn-primary\" onclick=\"completeTask(" + task.id + ")\" >Complete</button></td>"
-                + "</tr>";
-        }
-        return result;
-    }
-
-    function showStatus(status) {
-        var result = "";
-        if (status) {
-            result += "<span class=\"badge badge-pill badge-success\">Done</span>";
-        } else {
-            result += "<span class=\"badge badge-pill badge-danger\">Undone</span>";
-        }
-        return result;
-    }
 
     $(document).ready(function () {
-        getTasks();
+        $("#signin").click(function (event) {
+            event.preventDefault();
+            if (isAuthValid()) {
+                sendRequest('signin');
+            }
+        });
+        $("#register").click(function (event) {
+            event.preventDefault();
+            if (isAuthValid()) {
+                sendRequest('register');
+            }
+        });
     });
 
+    function sendRequest(action) {
+        var login = $("#login").val();
+        var password = $("#password").val();
+        var request = {
+            auth: {
+                login: login,
+                password: password,
+                action: action.toString()
+            }
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: 'login',
+            data: JSON.stringify(request),
+            dataType: 'application/json; charset=utf-8',
+            success: function (data) {
+                console.log('wtf! it works?');
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR) {
+                    var status = jqXHR.status;
+                    var response = JSON.parse(jqXHR.responseText);
+
+                    if (200 === status) {
+                        alert('Success!');
+                        setTimeout(redirectToTasks, 2000);
+                    } else if (201 === status) {
+                        alert('Registration successful!');
+                        setTimeout(reload, 2000);
+                    } else if (4 === Math.round(status / 100)) {
+                        console.log(response);
+                        alert(response.message);
+                    } else if (5 === Math.round(status / 100)) {
+                        console.log(response);
+                        alert('Server error');
+                    }
+                }
+            }
+        });
+    }
+
+    function redirectToTasks() {
+        window.location.href = './tasks.html';
+    }
+
+    function reload() {
+        document.location.reload();
+    }
+
+    function isAuthValid() {
+        var result = true;
+        var login = $('#login');
+        var password = $('#password');
+        var message = '';
+        if (login.val() === '') {
+            message += login.attr('placeholder') + '\n';
+            result = false;
+        }
+        if (password.val() === '') {
+            message += password.attr('placeholder') + '\n';
+            result = false;
+        }
+        if (!result) {
+            alert(message);
+        }
+        return result;
+    }
 </script>
 
-<div class="container">
-    <h1 class="h1">TODO LIST</h1>
-    <div class="row">
-        <div class="col-sm"></div>
-        <div class="col-sm-12">
-            <form class="form-horizontal">
-                <h2 class="h2">Add new task</h2>
-                <div class="form-group">
-                    <label for="description">Task description:</label>
-                    <textarea name="description"
-                              class="form-control"
-                              rows="2"
-                              id="description"
-                              placeholder="Enter task description"></textarea>
-                </div>
-                <button type="button" class="btn btn-primary" onclick="createTask()">Create</button>
-                <label for="done">Show all</label>
-                <input type="checkbox" id="done" onchange="getTasks()">
-            </form>
-        </div>
-        <div class="col-xs-8"></div>
-    </div>
+<div class="container-fluid">
+    <h1 class="h1">Todo list</h1>
     <br>
-    <h2 class="h2">Task list</h2>
-    <div class="table-responsive">
-        <table class="table table-striped table-hover" id="users_table">
-            <thead>
-            <tr>
-                <th width="10%">Task id</th>
-                <th>Description</th>
-                <th width="15%">Created</th>
-                <th width="10%">Status</th>
-                <th width="10%">Finish</th>
-            </tr>
-            </thead>
-            <tbody id="items-table"></tbody>
-        </table>
-    </div>
-
+    <h4 class="h4">Login page</h4>
+    <form id="account" class="form-horizontal" action="/" method="POST">
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="login">Login:</label>
+            <div class="col-sm-4">
+                <input type="text"
+                       class="form-control"
+                       name="login"
+                       id="login"
+                       placeholder="Enter login">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="password">Password:</label>
+            <div class="col-sm-4">
+                <input type="password"
+                       class="form-control"
+                       maxlength="16"
+                       name="password"
+                       id="password"
+                       placeholder="Enter password">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <input id="signin"
+                       type="submit"
+                       class="btn btn-primary btn-green"
+                       value="Signin">
+                <form>
+                    <button id="register"
+                            type="button"
+                            class="btn btn-default btn-green">
+                        Registration
+                    </button>
+                </form>
+            </div>
+        </div>
+    </form>
 </div>
 </body>
 </html>
