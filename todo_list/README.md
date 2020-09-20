@@ -18,23 +18,23 @@
 #### Скриншоты приложения:
 
 * Страница регистрации и аутентификации
-![](/screenshots/login_page.png)
+![](/screenshots/loginPage.png)
 
 * Регистрация нового пользователя
-![](/screenshots/successful_registration.png)
+![](/screenshots/successfulRegistration.png)
 
 * Ошибка авторизации 
-![](/screenshots/auth_error.png)
+![](/screenshots/authError.png)
 
 * Успешная авторизация 
-![](/screenshots/auth_success.png)
+![](/screenshots/authSuccess.png)
 
 * Просмотр актуальных задач
-![](/screenshots/active_tasks.png)
+![](/screenshots/activeTasks.png)
 
 * Добавление новой задачи
-![](/screenshots/task creation.png)
-![](/screenshots/task created.png)
+![](/screenshots/taskCreation.png)
+![](/screenshots/taskCreated.png)
 
 * Просмотр всех задач
-![](/screenshots/all tasks.png)
+![](/screenshots/allTasks.png)
