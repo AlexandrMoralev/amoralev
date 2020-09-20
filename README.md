@@ -7,9 +7,11 @@
 This is an internship repository for keeping different projects and learning Java.
 
 Used stuff:
-* **Frameworks**: junit, hamcrest, log4j, collections, stream api, concurrency  
-* **Tools**: maven, git, checkstyle, jacoco, travis ci, intellij idea, command line
-* **Databases**: postgresql, mysql
+* **Lang**: Java 8/11, Javascript es5
+* **Frameworks**: Spring 5, Hibernate 5, Liquibase, Junit 4/5, Hamcrest, Stream api, Concurrency, Collections   
+* **Tools**: Maven, Git, IntellijIdea, checkstyle, command line, task tracker
+* **CI/CD**:  Travis ci, Jacoco, Codecov
+* **Databases**: Postgresql, SQlite, h2
 
 ## Contents
 
@@ -24,8 +26,8 @@ Used stuff:
 * [**3. SQL, JDBC** (sql language, pure jdbc, xml, xstl)](https://github.com/AlexandrMoralev/amoralev/tree/master/chapter_007)
 * [**4. Servlets, JSP** (servlets, jsp, web app, crud, filters, security, mockito, *html, ajax, css*)](https://github.com/AlexandrMoralev/amoralev/tree/master/chapter_008)
 #### Level 3
-* **1. Hibernate** (orm, mapping, persistence, hql)
-* **2. Spring** (di, core, mvc, templates, data, security, boot, tests, *heroku*)
-* **3. IO** (Readers, Writers, Sockets)
+* [**1. Hibernate** (orm, mapping, persistence, hql)](https://github.com/AlexandrMoralev/amoralev/tree/master/chapter_010)
+* [**2. Spring** (di, core, mvc, templates, data, security, boot, tests, *heroku*)](https://github.com/AlexandrMoralev/amoralev/tree/master/chapter_011)
+* [**3. IO** (Readers, Writers, Sockets)](https://github.com/AlexandrMoralev/amoralev/tree/master/chapter_009)
 * **4. OOD** (SOLID)
 * **5. Garbage collection**
