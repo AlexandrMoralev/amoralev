@@ -16,23 +16,25 @@
 * **DB**: Postgresql 42.2.5, h2database 1.4.200
 
 #### Скриншоты приложения:
-* Регистрация нового пользователя
-![]()
 
-* Авторизация пользователя
-![]()
+* Страница регистрации и аутентификации
+![](/screenshots/login_page.png)
+
+* Регистрация нового пользователя
+![](/screenshots/successful_registration.png)
 
 * Ошибка авторизации 
-![]()
+![](/screenshots/auth_error.png)
 
 * Успешная авторизация 
-![]()
+![](/screenshots/auth_success.png)
 
 * Просмотр актуальных задач
-![]()
+![](/screenshots/active_tasks.png)
 
 * Добавление новой задачи
-![]()
+![](/screenshots/task creation.png)
+![](/screenshots/task created.png)
 
 * Просмотр всех задач
-![]()
+![](/screenshots/all tasks.png)
