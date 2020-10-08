@@ -4,12 +4,19 @@
     "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
   <session-factory>
-    <property name="connection.url"/>
-    <property name="connection.driver_class"/>
-    <!-- <property name="connection.username"/> -->
-    <!-- <property name="connection.password"/> -->
+    <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
+    <property name="hibernate.connection.url">jdbc:postgresql://127.0.0.1:5432/car_marketplace</property>
+    <property name="hibernate.connection.username">postgres</property>
+    <property name="hibernate.connection.password">admin</property>
+    <property name="hibernate.connection.pool_size">10</property>
+    <property name="hibernate.current_session_context_class">thread</property>
+    <property name="hibernate.show_sql">true</property>
+    <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQL10Dialect</property>
+    <property name="hibernate.hbm2ddl.auto">create</property>
+    <property name="hibernate.enable_lazy_load_no_trans">true</property>
+    <property name="hibernate.event.merge.entity_copy_observer">allow</property>
+    <property name="hibernate.cache.use_second_level_cache" >false</property>
 
-    <!-- DB schema will be updated if needed -->
-    <!-- <property name="hbm2ddl.auto">update</property> -->
+
   </session-factory>
 </hibernate-configuration>
