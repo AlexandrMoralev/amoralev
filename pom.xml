@@ -22,6 +22,7 @@
                 <cinema.db.name>test_cinema_app</cinema.db.name>
                 <cars.db.name>test_auto_crash</cars.db.name>
                 <todolist.db.name>test_todo_list</todolist.db.name>
+                <car.marketplace.db.name>test_car_marketplace</car.marketplace.db.name>
                 <liquibase.cinema.changelog>db/master.xml</liquibase.cinema.changelog>
             </properties>
         </profile>
@@ -36,6 +37,7 @@
                 <cinema.db.name>cinema_app</cinema.db.name>
                 <cars.db.name>auto_crash</cars.db.name>
                 <todolist.db.name>todo_list</todolist.db.name>
+                <car.marketplace.db.name>car_marketplace</car.marketplace.db.name>
                 <liquibase.cinema.changelog>db/master.xml</liquibase.cinema.changelog>
             </properties>
         </profile>
@@ -63,6 +65,7 @@
         <module>chapter_010</module>
         <module>chapter_011</module>
         <module>todo_list</module>
+        <module>car_marketplace</module>
     </modules>
 
     <dependencies>
