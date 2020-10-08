@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="ru.job4j.mapping.modelsrelations.xmlbased.entity">
+    <class name="ru.job4j.mapping.modelsrelations.xmlbased.entity.Car" table="car" schema="public">
+        <id name="id" column="car_id">
+            <generator class="identity"/>
+        </id>
+        <property name="brand"
+                  column="brand"
+                  type="java.lang.String"/>
+
+        <many-to-one name="engine"
+                     column="engine_id"
+                     class="ru.job4j.mapping.modelsrelations.xmlbased.entity.Engine"/>
+
+        <set name="owners"
+             table="history_owner"
+             cascade="all"
+             lazy="true"
+             fetch="select">
+            <key column="car_id" not-null="true"/>
+            <many-to-many column="driver_id" class="Driver"/>
+        </set>
+    </class>
+</hibernate-mapping>

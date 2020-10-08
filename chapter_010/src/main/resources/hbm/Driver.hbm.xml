@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="ru.job4j.mapping.modelsrelations.xmlbased.entity">
+    <class name="ru.job4j.mapping.modelsrelations.xmlbased.entity.Driver" table="driver" schema="public">
+        <id name="id" column="driver_id">
+            <generator class="identity"/>
+        </id>
+        <property name="name" column="name" type="java.lang.String"/>
+    </class>
+</hibernate-mapping>
