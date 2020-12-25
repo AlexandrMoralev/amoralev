@@ -9,7 +9,6 @@ import ru.job4j.exception.ConsumerEx;
 import ru.job4j.exception.RunnableEx;
 import ru.job4j.service.AuthService;
 import ru.job4j.service.SecurityService;
-import ru.job4j.service.ValidationService;
 import ru.job4j.ui.cache.Cache;
 import ru.job4j.ui.dto.AuthAction;
 import ru.job4j.ui.dto.AuthRequest;
@@ -43,7 +42,6 @@ public class AuthController extends HttpServlet {
 
     private static final Logger LOG = LogManager.getLogger(AuthController.class);
 
-    private final ValidationService validationService = AppContext.INSTANCE.validationService;
     private final AuthService authService = AppContext.INSTANCE.authService;
     private final SecurityService securityService = AppContext.INSTANCE.securityService;
     private final Cache cache = AppContext.INSTANCE.cache;

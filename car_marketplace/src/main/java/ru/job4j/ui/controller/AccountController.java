@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 import ru.job4j.AppContext;
 import ru.job4j.entity.User;
 import ru.job4j.exception.RunnableEx;
-import ru.job4j.persistence.impl.UsersDao;
 import ru.job4j.service.AuthService;
 import ru.job4j.service.ItemsService;
 import ru.job4j.service.ValidationService;
@@ -42,7 +41,6 @@ public class AccountController extends HttpServlet {
     private final AuthService authService = AppContext.INSTANCE.authService;
     private final ValidationService validationService = AppContext.INSTANCE.validationService;
     private final ItemsService itemsService = AppContext.INSTANCE.itemsService;
-    private final UsersDao usersDao = AppContext.INSTANCE.usersDao;
     private final Cache cache = AppContext.INSTANCE.cache;
 
 
