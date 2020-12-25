@@ -167,7 +167,7 @@ public class AuthController extends HttpServlet {
                 .filter(AuthRequest::isValid)
                 .orElseThrow(() -> {
                     LOG.error("Auth not found");
-                    throw new CommonException("Server error");
+                    return new CommonException("Server error");
                 });
     }
 
