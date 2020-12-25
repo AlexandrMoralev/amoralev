@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Car marketplace</title>
+</head>
+<body>
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+<script>
+
+    var uploadedPhotoIds = [1, 2];
+
+    $(document).ready(function () {
+        getFilterInfo();
+    });
+
+    function getFilterInfo() {
+        $.ajax({
+            url: "info",
+            method: "get",
+            dataType: 'application/json; charset=utf-8',
+            complete: function (data) {
+                var response = JSON.parse(data.responseText);
+                var form = document.getElementById("item-form");
+                form.innerHTML = createItemForm(response);
+            }
+        });
+    }
+
+    function createItemForm(filterInfo) {
+        var itemForm = "";
+        itemForm += "<form id=\"item-create\" method='post' action='/car_marketplace/account' enctype='application/json'>"
+            + "<div class=\"form-row\">"
+            + "<div class=\"form-group col-md-3\">"
+            + "<label for=\"inputItemType\">Item type</label>"
+            + "<select id=\"inputItemType\" class=\"form-control\">"
+            + createOptions(filterInfo.itemTypes)
+            + "</select>"
+            + "</div>"
+            + "<div class=\"form-group col-md-3\">"
+            + "<label for=\"inputPrice\">Price, usd</label>"
+            + "<input type=\"number\" class=\"form-control\" id=\"inputPrice\" placeholder=\"Price, usd\" min=\"0\" maxlength=\"10\">"
+            + "</div>"
+            + "<div class=\"form-group col-md-3\">"
+            + "<label for=\"inputMileage\">Mileage, km</label>"
+            + "<input type=\"number\" class=\"form-control\" id=\"inputMileage\" placeholder=\"Mileage, km\" min=\"0\" maxlength=\"10\">"
+            + "</div>"
+            + "<div class=\"form-group col-md-3\">"
+            + "<label for=\"inputProducedAt\">Produced at</label>"
+            + "<input type=\"datetime-local\" class=\"form-control\" id=\"inputProducedAt\" placeholder=\"Produced at\">"
+            + "</div>"
+            + "</div>"
+            + "<div class=\"form-row\">"
+            + "<div class=\"form-group col-md-3\">"
+            + "<label for=\"inputMake\">Make</label>"
+            + "<select id=\"inputMake\" class=\"form-control\" >"
+            + createOptions(filterInfo.makes)
+            + "</select>"
+            + "</div>"
+            + "<div class=\"form-group col-md-3\">"
+            + "<label for=\"inputBodyStyle\">Body style</label>"
+            + "<select id=\"inputBodyStyle\" class=\"form-control\" >"
+            + createOptions(filterInfo.bodyStyles)
+            + "</select>"
+            + "</div>"
+            + "<div class=\"form-group col-md-3\">"
+            + "<label for=\"inputDriveType\">Drive type</label>"
+            + "<select id=\"inputDriveType\" class=\"form-control\" >"
+            + createOptions(filterInfo.driveTypes)
+            + "</select>"
+            + "</div>"
+            + "<div class=\"form-group col-md-3\">"
+            + "<label for=\"inputColor\">Color</label>"
+            + "<select id=\"inputColor\" class=\"form-control\" >"
+            + createOptions(filterInfo.colors)
+            + "</select>"
+            + "</div>"
+            + "</div>"
+            + "<div class=\"form-row\">"
+            + "<div class=\"form-group col-md-3\">"
+            + "<label for=\"inputEngineType\">Engine type</label>"
+            + "<select id=\"inputEngineType\" class=\"form-control\" >"
+            + createOptions(filterInfo.engineTypes)
+            + "</select>"
+            + "</div>"
+            + "<div class=\"form-group col-md-3\">"
+            + "<label for=\"inputEngineModel\">Engine model</label>"
+            + "<input type=\"text\" class=\"form-control\" id=\"inputEngineModel\" placeholder=\"Engine model\" min=\"0\" maxlength=\"24\">"
+            + "</div>"
+            + "<div class=\"form-group col-md-3\">"
+            + "<label for=\"inputHp\">Engine power, hp</label>"
+            + "<input type=\"number\" class=\"form-control\" id=\"inputHp\" placeholder=\"Engine power, hp\" min=\"0\" maxlength=\"7\">"
+            + "</div>"
+            + "<div class=\"form-group col-md-3\">"
+            + "<label for=\"inputVolume\">Engine volume, cm3</label>"
+            + "<input type=\"number\" class=\"form-control\" id=\"inputVolume\" placeholder=\"Engine volume, cm3\" min=\"0\" maxlength=\"7\">"
+            + "</div>"
+            + "</div>"
+            + "<div class=\"form-row\">"
+            + "<div class=\"form-group col-md-3\">"
+            + "<label for=\"inputTransmissionType\">Transmission type</label>"
+            + "<select id=\"inputTransmissionType\" class=\"form-control\" >"
+            + createOptions(filterInfo.transmissionTypes)
+            + "</select>"
+            + "</div>"
+            + "<div class=\"form-group col-md-3\">"
+            + "<label for=\"inputTransmissionModel\">Transmission model</label>"
+            + "<input type=\"text\" class=\"form-control\" id=\"inputTransmissionModel\" placeholder=\"Transmission model\" min=\"0\" maxlength=\"24\">"
+            + "</div>"
+            + "<div class=\"form-group col-md-3\">"
+            + "<label for=\"inputIsActive\">Activate item</label>"
+            + "<input type=\"checkbox\" class=\"form-control\" id=\"inputIsActive\">"
+            + "</div>"
+            + "</div>"
+            + "</div>"
+            + "<button type=\"button\" class=\"btn btn-primary\" onclick='createItem(event)'>Create item</button>"
+            + "</form>"
+            + "<br>"
+
+            + createUploadForm();
+
+        return itemForm;
+    }
+
+    function createUploadForm() {
+        result = "";
+        result += "<form id=\"upload-form\" action=\"file\" method=\"post\" enctype=\"multipart/form-data\">"
+            + "<form id=\"upload-form\">"
+            + "<div class=\"checkbox\">"
+            + "<input id=\"fileToUpload\" type=\"file\" name=\"file\" multiple>"
+            + "</div>"
+            + "<button id=\"uploadPhoto\" type=\"submit\" class=\"btn btn-default\">Upload</button>"
+            + "</form>"
+            + "</div>";
+        return result;
+    }
+
+    function createOptions(arr) {
+        result = "";
+        for (var i = 0; i < arr.length; i++) {
+            result += "<option>" + arr[i] + "</option>"
+        }
+        return result;
+    }
+
+    //
+    $(document).ready(function () {
+        $("uploadPhoto").submit(function (e) {
+            // $("upload-form").submit(function (event) {
+            e.preventDefault();
+            var fileData = $('#fileToUpload').prop('files')[0];
+            var formData = new FormData();
+            formData.append('file', fileData);
+
+            $.ajax({
+                url: 'file',
+                type: 'post',
+                data: formData,
+                dataType: 'application/json; charset=utf-8', // 'text'
+                // async: false,
+                cache: false,
+                contentType: false,
+                enctype: 'multipart/form-data',
+                processData: false,
+                complete: function (jqXHR, textStatus, errorThrown) {
+                    e.preventDefault();
+                    if (jqXHR && jqXHR.responseText) {
+                        var response = JSON.parse(jqXHR.responseText);
+                        var status = jqXHR.status;
+                        if (2 === Math.round(status / 100)) {
+                            response.forEach(
+                                function (photo) {
+                                    uploadedPhotoIds.push(photo.id);
+                                }
+                            );
+                        } else if (4 === Math.round(status / 100)) {
+                            console.log(response);
+                            alert(response.message);
+                        } else if (5 === Math.round(status / 100)) {
+                            console.log(response);
+                            alert('Server error');
+                        }
+                    } else {
+                        alert('Unexpected error. Try later.');
+                    }
+                }
+            });
+            e.preventDefault();
+        });
+    });
+
+    //
+    // $('#uploadPhoto').on('click', function() {
+    //     event.preventDefault();
+    //     console.log('uploadPhoto');
+    //     var file_data = $('#fileToUpload').prop('files')[0];
+    //     var form_data = new FormData();
+    //     form_data.append('file', file_data);
+    //
+    //     $.ajax({
+    //         url: 'file',
+    //         type: 'POST',
+    //         data: form_data,
+    //         dataType: 'text',
+    //         async: false,
+    //         cache: false,
+    //         contentType: false,
+    //         enctype: 'multipart/form-data',
+    //         processData: false,
+    //         complete: function (jqXHR, textStatus, errorThrown) {
+    //             if (jqXHR && jqXHR.responseText) {
+    //                 var response = JSON.parse(jqXHR.responseText);
+    //                 var status = jqXHR.status;
+    //                 if (2 === Math.round(status / 100)) {
+    //                     response.forEach(
+    //                         function (photoId) {
+    //                             uploadedPhotoIds.push(photoId);
+    //                         }
+    //                     );
+    //                 } else if (4 === Math.round(status / 100)) {
+    //                     console.log(response);
+    //                     alert(response.message);
+    //                 } else if (5 === Math.round(status / 100)) {
+    //                     console.log(response);
+    //                     alert('Server error');
+    //                 }
+    //             } else {
+    //                 alert('Unexpected error. Try later.');
+    //             }
+    //         }
+    //     });
+    //     event.preventDefault();
+    // });
+
+
+    function createItem(event) {
+        event.preventDefault();
+        $.ajax({
+            url: "account",
+            method: "post",
+            dataType: 'application/json; charset=utf-8',
+            data: JSON.stringify(
+                {
+                    item: {
+                        type: $('#inputItemType').val(),
+                        car: {
+                            productionInfo: {
+                                make: $('#inputMake').val(),
+                                producedAt: $('#inputProducedAt').val(),
+                                engine: {
+                                    model: $('#inputEngineModel').val(),
+                                    type: $('#inputEngineType').val(),
+                                    hp: parseInt($('#inputHp').val(), 10),
+                                    volume: parseInt($('#inputVolume').val(), 10)
+                                },
+                                transmission: {
+                                    model: $('#inputTransmissionModel').val(),
+                                    type: $('#inputTransmissionType').val()
+                                },
+                                driveType: $('#inputDriveTypes').val(),
+                                color: $('#inputColor').val()
+                            },
+                            bodyStyle: $('#inputBodyStyle').val(),
+                            mileage: parseInt($('#inputMileage').val(), 10),
+                            price: parseInt($('#inputPrice').val(), 10)
+                        },
+                        photoIds: uploadedPhotoIds,
+                        isActive: $('#inputIsActive').prop('checked')
+                    }
+                }
+            ),
+            complete: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR && jqXHR.responseText) {
+                    var response = JSON.parse(jqXHR.responseText);
+                    var status = jqXHR.status;
+                    if (!status || 2 === Math.round(status / 100)) {
+                        alert('Item successfully created!');
+                    } else if (4 === Math.round(status / 100)) {
+                        console.log(response);
+                        alert(response.message);
+                    } else if (5 === Math.round(status / 100)) {
+                        console.log(response);
+                        alert('Server error');
+                    }
+                    redirectToAccount();
+                } else {
+                    alert('Unexpected error. Try later.');
+                }
+            }
+        });
+    }
+
+    function redirectToAccount() {
+        window.location.href = './account.html';
+    }
+
+</script>
+
+<div class="jumbotron text-center" style="margin-bottom:0">
+    <h1>Cars Marketplace</h1>
+</div>
+
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+    <a class="navbar-brand" href="#">Navbar</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="/car_marketplace/index.html">Cars for Sale</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/car_marketplace/create-item.html">Sell Your Car</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/car_marketplace/account.html">My Account</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <br>
+    <h4 class="h4">Add new item to sale</h4>
+    <div class="row">
+        <div class="col-lg" id="item-form"></div>
+    </div>
+    <br>
+</div>
+<div class="jumbotron text-center" style="margin-bottom:0">
+    <p>(c)</p>
+</div>
+</body>
+</html>

@@ -22,3 +22,4 @@ before_install:
     - psql -c 'create database cinema_app;' -U postgres
     - psql -c 'create database auto_crash;' -U postgres
     - psql -c 'create database todo_list;' -U postgres
+    - psql -c 'create database car_marketplace;' -U postgres
