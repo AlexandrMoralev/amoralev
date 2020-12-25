@@ -20,6 +20,10 @@ before_install:
     - psql -c 'create database users_app;' -U postgres
     - psql -c 'create database vacancies_db;' -U postgres
     - psql -c 'create database cinema_app;' -U postgres
+    - psql -c 'create database test_cinema_app;' -U postgres
     - psql -c 'create database auto_crash;' -U postgres
+    - psql -c 'create database test_auto_crash;' -U postgres
     - psql -c 'create database todo_list;' -U postgres
+    - psql -c 'create database test_todo_list;' -U postgres
     - psql -c 'create database car_marketplace;' -U postgres
+    - psql -c 'create database test_car_marketplace;' -U postgres

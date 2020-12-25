@@ -7,11 +7,12 @@
 This is an internship repository for keeping different projects and learning Java.
 
 Used stuff:
-* **Lang**: Java 8/11, Javascript es5
-* **Frameworks**: Spring 5, Hibernate 5, Liquibase, Junit 4/5, Hamcrest, Stream api, Concurrency, Collections   
-* **Tools**: Maven, Git, IntellijIdea, checkstyle, command line, task tracker
+* **Lang**: Java 8/11, Sql, Javascript es5
+* **Frameworks & Libs**: Spring 5, Hibernate 5, Servlet api, Stream api, Concurrency, Collections   
+* **Testing**: Junit 4/5, Hamcrest  
+* **Tools**: Maven, IntellijIdea, Checkstyle
 * **CI/CD**:  Travis ci, Jacoco, Codecov
-* **Databases**: Postgresql, SQlite, h2
+* **DB**: Liquibase, Postgresql, SQlite, h2database
 
 ## Contents
 
