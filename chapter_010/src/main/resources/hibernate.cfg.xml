@@ -31,5 +31,7 @@
         <!--<mapping class="ru.job4j.mapping.modelsrelations.annotationbased.entity.Driver" />-->
         <!--<mapping class="ru.job4j.mapping.modelsrelations.annotationbased.entity.Car" />-->
 
+        <mapping class="ru.job4j.hql.base.Candidate" />
+
     </session-factory>
 </hibernate-configuration>
