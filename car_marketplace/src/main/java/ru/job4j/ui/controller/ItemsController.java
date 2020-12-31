@@ -40,7 +40,6 @@ public class ItemsController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         sendResponse(
                 itemsService.getActiveItems()
-                        .stream()
                         .map(ItemDto::fromEntity)
                         .collect(Collectors.toList()),
                 resp
@@ -52,10 +51,9 @@ public class ItemsController extends HttpServlet {
         Optional<FilterInfo> filter = extractObject("filter", req, FilterInfo.class);
         filter.ifPresentOrElse(
                 (ConsumerEx<FilterInfo>) filterInfo -> {
-                    validationService.validateFilterInfo(filterInfo);
+                    FilterInfo validFilter = validationService.validateFilterInfo(filterInfo);
                     sendResponse(
-                            itemsService.getActiveItems(filterInfo)
-                                    .stream()
+                            itemsService.getActiveItems(validFilter)
                                     .map(ItemDto::fromEntity)
                                     .collect(Collectors.toList()),
                             resp

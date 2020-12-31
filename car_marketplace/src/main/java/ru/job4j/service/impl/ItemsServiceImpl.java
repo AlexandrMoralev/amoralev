@@ -8,9 +8,9 @@ import ru.job4j.service.ItemsService;
 import ru.job4j.ui.dto.FilterInfo;
 import ru.job4j.ui.dto.ItemDto;
 
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * ItemsServiceImpl
@@ -89,27 +89,27 @@ public class ItemsServiceImpl implements ItemsService {
     }
 
     @Override
-    public Collection<Item> getAllItems() {
+    public Stream<Item> getAllItems() {
         return this.itemsDao.findAll();
     }
 
     @Override
-    public Collection<Item> getAllItems(FilterInfo filter) {
+    public Stream<Item> getAllItems(FilterInfo filter) {
         return this.itemsDao.findAll(filter);
     }
 
     @Override
-    public Collection<Item> getActiveItems() {
+    public Stream<Item> getActiveItems() {
         return this.itemsDao.findActive();
     }
 
     @Override
-    public Collection<Item> getActiveItems(FilterInfo filter) {
+    public Stream<Item> getActiveItems(FilterInfo filter) {
         return this.itemsDao.findActive(filter);
     }
 
     @Override
-    public Collection<Item> getUserItems(Integer userId) {
+    public Stream<Item> getUserItems(Integer userId) {
         return this.itemsDao.findByUser(userId);
     }
 }

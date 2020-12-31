@@ -31,7 +31,11 @@ public class FilterInfo {
 
     private Integer hpMin;
 
-    private String producedAfter;
+    private String productProducedAfter;
+
+    private String itemCreatedAfter;
+
+    private Boolean hasPhoto;
 
     public FilterInfo() {
     }
@@ -126,12 +130,12 @@ public class FilterInfo {
         this.mileageMax = mileageMax;
     }
 
-    public Optional<String> getProducedAfter() {
-        return ofNullable(producedAfter);
+    public Optional<String> getProductProducedAfter() {
+        return ofNullable(productProducedAfter);
     }
 
-    public void setProducedAfter(String producedAfter) {
-        this.producedAfter = producedAfter;
+    public void setProductProducedAfter(String productProducedAfter) {
+        this.productProducedAfter = productProducedAfter;
     }
 
     public Optional<Integer> getHpMin() {
@@ -140,6 +144,22 @@ public class FilterInfo {
 
     public void setHpMin(Integer hpMin) {
         this.hpMin = hpMin;
+    }
+
+    public Optional<String> getItemCreatedAfter() {
+        return ofNullable(itemCreatedAfter);
+    }
+
+    public void setItemCreatedAfter(String itemCreatedAfter) {
+        this.itemCreatedAfter = itemCreatedAfter;
+    }
+
+    public Optional<Boolean> getHasPhoto() {
+        return ofNullable(hasPhoto);
+    }
+
+    public void setHasPhoto(Boolean hasPhoto) {
+        this.hasPhoto = hasPhoto;
     }
 
     @Override
@@ -152,10 +172,12 @@ public class FilterInfo {
                 .add("driveTypes=" + join(driveTypes))
                 .add("transmissionTypes=" + join(transmissionTypes))
                 .add("colors=" + join(colors))
-                .add("priceMax" + ofNullable(priceMax).map(String::valueOf).orElse(""))
-                .add("mileageMax" + ofNullable(mileageMax).map(String::valueOf).orElse(""))
-                .add("producedAfter" + ofNullable(producedAfter).orElse(""))
-                .add("hpMin" + ofNullable(hpMin).map(String::valueOf).orElse(""))
+                .add("priceMax=" + ofNullable(priceMax).map(String::valueOf).orElse(""))
+                .add("mileageMax=" + ofNullable(mileageMax).map(String::valueOf).orElse(""))
+                .add("productProducedAfter=" + ofNullable(productProducedAfter).orElse(""))
+                .add("hpMin=" + ofNullable(hpMin).map(String::valueOf).orElse(""))
+                .add("itemCreatedAfter=" + ofNullable(itemCreatedAfter).orElse(""))
+                .add("hasPhoto=" + ofNullable(hasPhoto).orElse(false))
                 .toString();
     }
 

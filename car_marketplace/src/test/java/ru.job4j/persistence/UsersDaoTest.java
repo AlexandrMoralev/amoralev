@@ -83,7 +83,7 @@ public class UsersDaoTest {
         assertTrue(user.getItems().contains(item));
         assertEquals(car, user.getItems().iterator().next().getCar());
 
-        assertEquals(1, this.usersDao.findAll().size());
+        assertEquals(1, this.usersDao.findAll().count());
     }
 
     @Test
@@ -97,7 +97,7 @@ public class UsersDaoTest {
         Optional<User> saved2 = this.usersDao.find(user2.getId());
         assertTrue(saved1.isPresent());
         assertTrue(saved2.isPresent());
-        assertEquals(2, this.usersDao.findAll().size());
+        assertEquals(2, this.usersDao.findAll().count());
 
         Engine dieselEngine = getDieselEngine();
         this.engineDao.save(dieselEngine);
@@ -140,7 +140,7 @@ public class UsersDaoTest {
         assertEquals(item, updated.getItems().iterator().next());
 
         assertEquals(user2, this.usersDao.find(user2.getId()).get());
-        assertEquals(2, this.usersDao.findAll().size());
+        assertEquals(2, this.usersDao.findAll().count());
     }
 
 
@@ -187,14 +187,14 @@ public class UsersDaoTest {
 
         assertTrue(this.usersDao.find(user1.getId()).isPresent());
         assertTrue(this.usersDao.find(user2.getId()).isPresent());
-        assertEquals(2, this.usersDao.findAll().size());
+        assertEquals(2, this.usersDao.findAll().count());
 
         this.usersDao.delete(user1);
         this.usersDao.deleteById(user2.getId());
 
         assertTrue(this.usersDao.find(user1.getId()).isEmpty());
         assertTrue(this.usersDao.find(user2.getId()).isEmpty());
-        assertTrue(this.usersDao.findAll().isEmpty());
+        assertEquals(0, this.usersDao.findAll().count());
 
         assertTrue(this.itemsDao.find(item1.getId()).isEmpty());
         assertTrue(this.itemsDao.find(item2.getId()).isEmpty());

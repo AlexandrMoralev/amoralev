@@ -50,7 +50,7 @@ public class PhotoDaoTest {
         Photo result1 = this.photoDao.find(photo1.getId()).orElseThrow(() -> new RuntimeException("photo_1 not found"));
         Photo result2 = this.photoDao.find(photo2.getId()).orElseThrow(() -> new RuntimeException("photo_2 not found"));
 
-        assertEquals(2, this.photoDao.findAll().size());
+        assertEquals(2, this.photoDao.findAll().count());
 
         assertEquals("car 1", result1.getName());
         assertEquals("car 2", result2.getName());
@@ -70,7 +70,7 @@ public class PhotoDaoTest {
 
         assertEquals("car 1", t.get().getName());
         assertArrayEquals(PHOTO_1, t.get().getImage());
-        assertEquals(2, this.photoDao.findAll().size());
+        assertEquals(2, this.photoDao.findAll().count());
         assertTrue(d.isPresent());
     }
 
@@ -86,7 +86,7 @@ public class PhotoDaoTest {
 
         assertTrue(saved1.isPresent());
         assertTrue(saved2.isPresent());
-        assertEquals(2, this.photoDao.findAll().size());
+        assertEquals(2, this.photoDao.findAll().count());
 
         saved1.map(photo -> {
             photo.setName("updated car 1");
@@ -94,7 +94,7 @@ public class PhotoDaoTest {
             return photo;
         }).ifPresent(this.photoDao::update);
 
-        assertEquals(2, this.photoDao.findAll().size());
+        assertEquals(2, this.photoDao.findAll().count());
 
         Optional<Photo> updated = this.photoDao.find(photo1.getId());
         Optional<Photo> notUpdated = this.photoDao.find(photo2.getId());
@@ -123,7 +123,7 @@ public class PhotoDaoTest {
         assertTrue(result2.isPresent());
         assertTrue(result3.isPresent());
 
-        assertEquals(3, this.photoDao.findAll().size());
+        assertEquals(3, this.photoDao.findAll().count());
 
         this.photoDao.delete(photo1);
         this.photoDao.deleteById(photo2.getId());

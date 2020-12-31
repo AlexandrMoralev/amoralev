@@ -9,6 +9,10 @@
         <Logger name="ru.job4j" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
+        <Logger name="org.hibernate.stat" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" use-parent-handlers="true" level="debug"/>
         <Root level="error">
             <AppenderRef ref="Console"/>
         </Root>

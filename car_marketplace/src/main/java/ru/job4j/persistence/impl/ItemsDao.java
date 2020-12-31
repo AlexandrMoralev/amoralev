@@ -1,22 +1,27 @@
 package ru.job4j.persistence.impl;
 
+import org.hibernate.Session;
 import org.hibernate.query.Query;
 import ru.job4j.entity.Item;
+import ru.job4j.entity.Item_;
 import ru.job4j.persistence.AbstractDao;
+import ru.job4j.persistence.FilterInfoResolver;
 import ru.job4j.ui.dto.FilterInfo;
-import ru.job4j.util.DateTimeUtils;
 import ru.job4j.util.HibernateUtils;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Root;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class ItemsDao extends AbstractDao<Item> {
 
     private final String selectAll;
     private final String orderByCreatedAt;
-    private final String findAll;
     private final String findActive;
 
     public ItemsDao(HibernateUtils db) {
@@ -24,85 +29,67 @@ public class ItemsDao extends AbstractDao<Item> {
 
         this.selectAll = "from " + clazz.getName();
         this.orderByCreatedAt = " order by date(created_at) desc ";
-        this.findAll = selectAll + orderByCreatedAt;
         this.findActive = selectAll + " where is_active = true" + orderByCreatedAt;
 
     }
 
-
     @Override
-    public Collection<Item> findAll(FilterInfo filterInfo) {  // TODO use entity graph
-        List<Predicate<Item>> itemFilters = createFilters(filterInfo);
+    public Stream<Item> findAll(FilterInfo filterInfo) {  // TODO use entity graph
         return db.tx(
-                session -> (List<Item>) session.createQuery(findAll).list()
-                        .stream()
-                        .filter(itemFilters.stream().reduce(x -> true, Predicate::and))
-                        .collect(Collectors.toList())
+                session -> {
+                    return findItemsByFilterInfo(session, filterInfo, FilterInfoResolver::createItemsPredicates);
+                }
         );
     }
 
-    public Collection<Item> findByUser(Integer userId) {
+    public Stream<Item> findByUser(Integer userId) {
         return db.tx(
                 session -> {
                     Query query = session.createQuery(selectAll + " where user_id = :userId" + orderByCreatedAt);
                     query.setParameter("userId", userId);
-                    return (List<Item>) query.list();
+                    return (Stream<Item>) query.list().stream();
                 }
         );
     }
 
-    public Collection<Item> findActive() {
+    public Stream<Item> findActive() {
         return db.tx(
                 session -> {
                     Query query = session.createQuery(findActive);
-                    return (List<Item>) query.list();
+                    return (Stream<Item>) query.list().stream();
                 }
         );
     }
 
-    public Collection<Item> findActive(FilterInfo filterInfo) {
-        List<Predicate<Item>> itemFilters = createFilters(filterInfo);
+    public Stream<Item> findActive(FilterInfo filterInfo) {
         return db.tx(
                 session -> {
-                    return ((List<Item>) session.createQuery(findActive).list())
-                            .stream()
-                            .filter(itemFilters.stream().reduce(x -> true, Predicate::and))
-                            .collect(Collectors.toList()); // FIXME need to collect?
+                    return findItemsByFilterInfo(session, filterInfo, FilterInfoResolver::createActiveItemsPredicates);
                 }
         );
     }
 
-    private static List<Predicate<Item>> createFilters(FilterInfo filter) { // TODO refactoring, use hibernate features
-        Predicate<Item> itemTypesFilter = item -> isRelevant(item.getType(), filter.getItemTypes());
-        Predicate<Item> carsMakesFilter = item -> isRelevant(item.getCar().getProductionInfo().getMake(), filter.getMakes());
-        Predicate<Item> driveTypeFilter = item -> isRelevant(item.getCar().getProductionInfo().getDriveType(), filter.getDriveTypes());
-        Predicate<Item> transmissionTypeFilter = item -> isRelevant(item.getCar().getProductionInfo().getTransmission().getType(), filter.getTransmissionTypes());
-        Predicate<Item> engineTypeFilter = item -> isRelevant(item.getCar().getProductionInfo().getEngine().getType(), filter.getEngineTypes());
-        Predicate<Item> bodyStyleFilter = item -> isRelevant(item.getCar().getBodyStyle(), filter.getBodyStyles());
-        Predicate<Item> carsColorFilter = item -> isRelevant(item.getCar().getProductionInfo().getColor(), filter.getColors());
+    private Stream<Item> findItemsByFilterInfo(Session session,
+                                               FilterInfo filterInfo,
+                                               Function<FilterInfoResolver, Stream<javax.persistence.criteria.Predicate>> filterInfoResolverFunction
+    ) {
+        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+        CriteriaQuery query = criteriaBuilder.createQuery(Item.class);
+        Root<Item> itemRoot = query.from(Item.class);
 
-        Predicate<Item> priceFilter = item -> filter.getPriceMax().map(p -> item.getCar().getPrice() <= p).orElse(true);
-        Predicate<Item> mileageFilter = item -> filter.getMileageMax().map(m -> item.getCar().getMileage() <= m).orElse(true);
-        Predicate<Item> producedDateFilter = item -> filter.getProducedAfter().map(DateTimeUtils::convertToLocalDateTime).map(p -> item.getCar().getProductionInfo().getProducedAt().isAfter(p)).orElse(true);
-        Predicate<Item> hpFilter = item -> filter.getHpMin().map(hp -> item.getCar().getProductionInfo().getEngine().getHp() >= hp).orElse(true);
+        Optional<FilterInfoResolver> filterInfoResolver = FilterInfoResolver.of(criteriaBuilder, itemRoot, filterInfo);
+        Order createdAtDesc = criteriaBuilder.desc(itemRoot.get(Item_.createdAt));
 
-        return List.of(
-                itemTypesFilter,
-                priceFilter,
-                mileageFilter,
-                hpFilter,
-                producedDateFilter,
-                carsMakesFilter,
-                driveTypeFilter,
-                transmissionTypeFilter,
-                engineTypeFilter,
-                bodyStyleFilter,
-                carsColorFilter
-        );
-    }
+        CriteriaQuery queryBuilder = query.select(itemRoot)
+                .distinct(true);
+        filterInfoResolver
+                .map(filterInfoResolverFunction)
+                .map(v -> v.toArray(javax.persistence.criteria.Predicate[]::new))
+                .ifPresent(queryBuilder::where);
+        queryBuilder.orderBy(createdAtDesc);
 
-    private static <T> boolean isRelevant(T element, Collection<T> relevantValues) {
-        return relevantValues.isEmpty() || relevantValues.contains(element);
+        TypedQuery<Item> typedQuery = session.createQuery(query);
+        return typedQuery.getResultList().stream();
     }
 
 }

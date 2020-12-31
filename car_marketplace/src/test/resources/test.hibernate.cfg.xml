@@ -27,9 +27,9 @@
         <property name="hibernate.dbcp.maxWaitMillis">-1</property>
         <property name="hibernate.event.merge.entity_copy_observer">allow</property>
 
-        <!--<property name="hibernate.show_sql">true</property>-->
-        <!--<property name="hibernate.format_sql">true</property>-->
-        <!--<property name="generate_statistics">true</property>-->
+        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.format_sql">true</property>
+        <property name="generate_statistics">true</property>
 
         <mapping class="ru.job4j.entity.Photo"/>
         <mapping class="ru.job4j.entity.Engine"/>

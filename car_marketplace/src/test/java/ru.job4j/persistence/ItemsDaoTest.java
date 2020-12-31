@@ -77,7 +77,7 @@ public class ItemsDaoTest {
 
         assertEquals(item, result);
 
-        assertEquals(1, this.productionInfoDao.findAll().size());
+        assertEquals(1, this.productionInfoDao.findAll().count());
     }
 
     @Test
@@ -201,7 +201,7 @@ public class ItemsDaoTest {
         assertEquals(false, updated.getActive());
         assertEquals(photo.getId(), updated.getPhotoIds().iterator().next());
 
-        assertEquals(1, this.itemsDao.findAll().size());
+        assertEquals(1, this.itemsDao.findAll().count());
     }
 
     @Test
@@ -261,7 +261,7 @@ public class ItemsDaoTest {
         this.itemsDao.save(item1);
         this.itemsDao.save(item2);
 
-        assertEquals(2, this.itemsDao.findAll().size());
+        assertEquals(2, this.itemsDao.findAll().count());
         assertTrue(this.itemsDao.find(item1.getId()).isPresent());
         assertTrue(this.itemsDao.find(item2.getId()).isPresent());
 
@@ -270,7 +270,7 @@ public class ItemsDaoTest {
         assertTrue(this.itemsDao.find(item1.getId()).isEmpty());
         assertEquals(item2, this.itemsDao.find(item2.getId()).get());
 
-        assertEquals(1, this.itemsDao.findAll().size());
+        assertEquals(1, this.itemsDao.findAll().count());
     }
 
 }

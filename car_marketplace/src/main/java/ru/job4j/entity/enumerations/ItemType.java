@@ -16,4 +16,8 @@ public enum ItemType {
         return values;
     }
 
+    @Override
+    public String toString() {
+        return this.name();
+    }
 }

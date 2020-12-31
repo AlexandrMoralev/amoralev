@@ -47,7 +47,6 @@ public class AccountController extends HttpServlet {
     private final BiFunction<HttpServletRequest, HttpServletResponse, Consumer<User>> getUserItems = (request, response) ->
             user -> sendResponse(
                     itemsService.getUserItems(user.getId())
-                            .stream()
                             .map(ItemDto::fromEntity)
                             .collect(Collectors.toList()),
                     response);
@@ -79,7 +78,7 @@ public class AccountController extends HttpServlet {
             user -> extractObject(ITEM_ID, request, Integer.class)
                     .ifPresentOrElse(
                             itemId -> {
-                                itemsService.getUserItems(user.getId()).stream()
+                                itemsService.getUserItems(user.getId())
                                         .filter(i -> itemId.equals(i.getId()))
                                         .findFirst()
                                         .ifPresentOrElse(

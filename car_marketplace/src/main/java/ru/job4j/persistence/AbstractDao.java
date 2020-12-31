@@ -6,8 +6,8 @@ import ru.job4j.ui.dto.FilterInfo;
 import ru.job4j.util.HibernateUtils;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static java.util.Optional.ofNullable;
 
@@ -49,15 +49,15 @@ public abstract class AbstractDao<T extends Serializable> {
         );
     }
 
-    public Collection<T> findAll() {
+    public Stream<T> findAll() {
         return db.tx(
                 session -> {
-                    return session.createQuery("from " + clazz.getName()).list();
+                    return session.createQuery("from " + clazz.getName()).list().stream();
                 }
         );
     }
 
-    public Collection<T> findAll(FilterInfo filter) {
+    public Stream<T> findAll(FilterInfo filter) {
         return findAll();
     }
 

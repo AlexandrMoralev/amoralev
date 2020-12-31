@@ -57,7 +57,7 @@ public class ProductionInfoDaoTest {
         ProductionInfo result = this.productionInfoDao.find(productionInfo.getId()).orElseThrow(() -> new RuntimeException("productionInfo entity not found"));
 
         assertEquals(productionInfo, result);
-        assertEquals(1, this.productionInfoDao.findAll().size());
+        assertEquals(1, this.productionInfoDao.findAll().count());
     }
 
     @Test
@@ -170,13 +170,13 @@ public class ProductionInfoDaoTest {
         assertTrue(saved1.isPresent());
         assertTrue(saved2.isPresent());
 
-        assertEquals(2, this.productionInfoDao.findAll().size());
+        assertEquals(2, this.productionInfoDao.findAll().count());
 
         this.productionInfoDao.delete(productionInfo1);
         this.productionInfoDao.deleteById(productionInfo2.getId());
 
         assertTrue(this.productionInfoDao.find(productionInfo1.getId()).isEmpty());
         assertTrue(this.productionInfoDao.find(productionInfo2.getId()).isEmpty());
-        assertTrue(this.productionInfoDao.findAll().isEmpty());
+        assertEquals(0, this.productionInfoDao.findAll().count());
     }
 }

@@ -46,7 +46,7 @@ public class TransmissionDaoTest {
 
         assertEquals("transmission_model", optionalTransmission.get().getModel());
         assertEquals(TransmissionType.AUTOMATIC, optionalTransmission.get().getType());
-        assertEquals(2, this.transmissionDao.findAll().size());
+        assertEquals(2, this.transmissionDao.findAll().count());
         assertTrue(optionalDuplicate.isPresent());
     }
 
@@ -91,14 +91,14 @@ public class TransmissionDaoTest {
         assertTrue(result1.isPresent());
         assertTrue(result2.isPresent());
 
-        assertEquals(2, this.transmissionDao.findAll().size());
+        assertEquals(2, this.transmissionDao.findAll().count());
 
         this.transmissionDao.delete(transmission1);
         this.transmissionDao.deleteById(transmission2.getId());
 
         assertTrue(this.transmissionDao.find(transmission1.getId()).isEmpty());
         assertTrue(this.transmissionDao.find(transmission2.getId()).isEmpty());
-        assertTrue(this.transmissionDao.findAll().isEmpty());
+        assertEquals(0, this.transmissionDao.findAll().count());
     }
 
 }

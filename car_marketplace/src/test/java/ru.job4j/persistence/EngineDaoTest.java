@@ -31,7 +31,7 @@ public class EngineDaoTest {
         Engine result = this.engineDao.find(engine.getId()).orElseThrow(() -> new RuntimeException("engine entity not found"));
 
         assertEquals(engine, result);
-        assertEquals(1, this.engineDao.findAll().size());
+        assertEquals(1, this.engineDao.findAll().count());
     }
 
     @Test
@@ -100,7 +100,7 @@ public class EngineDaoTest {
         Optional<Engine> engine = this.engineDao.find(engine3.getId());
         assertTrue(engine.isPresent());
 
-        assertEquals(3, this.engineDao.findAll().size());
+        assertEquals(3, this.engineDao.findAll().count());
 
         this.engineDao.delete(engine1);
         this.engineDao.deleteById(engine2.getId());

@@ -8,6 +8,7 @@ import ru.job4j.service.SecurityService;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -56,7 +57,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Collection<User> getAllUsers() {
-        return this.usersDao.findAll();
+        return this.usersDao.findAll().collect(Collectors.toList());
     }
 
 }

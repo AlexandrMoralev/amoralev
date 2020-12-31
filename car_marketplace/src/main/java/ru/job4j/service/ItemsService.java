@@ -5,8 +5,8 @@ import ru.job4j.entity.User;
 import ru.job4j.ui.dto.FilterInfo;
 import ru.job4j.ui.dto.ItemDto;
 
-import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * ItemsService
@@ -25,14 +25,14 @@ public interface ItemsService {
 
     void deleteItem(Integer itemId);
 
-    Collection<Item> getAllItems();
+    Stream<Item> getAllItems();
 
-    Collection<Item> getActiveItems();
+    Stream<Item> getActiveItems();
 
-    Collection<Item> getActiveItems(FilterInfo filter);
+    Stream<Item> getActiveItems(FilterInfo filter);
 
-    Collection<Item> getUserItems(Integer userId);
+    Stream<Item> getUserItems(Integer userId);
 
-    Collection<Item> getAllItems(FilterInfo filter);
+    Stream<Item> getAllItems(FilterInfo filter);
 
 }

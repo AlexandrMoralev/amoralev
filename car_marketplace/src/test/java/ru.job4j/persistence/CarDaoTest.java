@@ -64,7 +64,7 @@ public class CarDaoTest {
         Car result = this.carDao.find(car.getId()).orElseThrow(() -> new RuntimeException("car entity not found"));
 
         assertEquals(car, result);
-        assertEquals(1, this.carDao.findAll().size());
+        assertEquals(1, this.carDao.findAll().count());
     }
 
     @Test
@@ -192,7 +192,7 @@ public class CarDaoTest {
         assertEquals(50000L, notUpdated.getPrice());
         assertEquals(productionInfo2, notUpdated.getProductionInfo());
 
-        assertEquals(2, this.carDao.findAll().size());
+        assertEquals(2, this.carDao.findAll().count());
     }
 
     @Test
@@ -232,7 +232,7 @@ public class CarDaoTest {
 
         Optional<Car> saved = this.carDao.find(car.getId());
         assertTrue(saved.isPresent());
-        assertEquals(1, this.carDao.findAll().size());
+        assertEquals(1, this.carDao.findAll().count());
 
         saved.map(c -> {
             c.setProductionInfo(productionInfo2);
@@ -245,7 +245,7 @@ public class CarDaoTest {
         assertEquals(50000L, updated.getPrice());
         assertEquals(productionInfo1, updated.getProductionInfo());
 
-        assertEquals(1, this.carDao.findAll().size());
+        assertEquals(1, this.carDao.findAll().count());
 
     }
 
@@ -292,18 +292,18 @@ public class CarDaoTest {
         assertTrue(saved1.isPresent());
         assertTrue(saved2.isPresent());
 
-        assertEquals(2, this.carDao.findAll().size());
+        assertEquals(2, this.carDao.findAll().count());
 
         this.carDao.delete(car1);
         this.carDao.deleteById(car2.getId());
 
         assertTrue(this.carDao.find(car1.getId()).isEmpty());
         assertTrue(this.carDao.find(car2.getId()).isEmpty());
-        assertTrue(this.carDao.findAll().isEmpty());
+        assertEquals(0, this.carDao.findAll().count());
 
-        assertEquals(2, this.productionInfoDao.findAll().size());
-        assertEquals(2, this.engineDao.findAll().size());
-        assertEquals(2, this.transmissionDao.findAll().size());
+        assertEquals(2, this.productionInfoDao.findAll().count());
+        assertEquals(2, this.engineDao.findAll().count());
+        assertEquals(2, this.transmissionDao.findAll().count());
     }
 
 }

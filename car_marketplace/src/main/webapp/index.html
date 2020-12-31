@@ -58,7 +58,7 @@
                             priceMax: parseInt($('#inputPrice').val(), 10) || null,
                             mileageMax: parseInt($('#inputMileage').val(), 10) || null,
                             hpMin: parseInt($('#inputHp').val(), 10) || null,
-                            producedAfter: $('#inputProducedAfter').val() || null,
+                            productProducedAfter: $('#inputProducedAfter').val() || null,
                             itemTypes: $('#inputItemTypes').val().filter(function (e) {
                                 return e.indexOf('Any') < 0
                             }),
@@ -79,7 +79,9 @@
                             }),
                             transmissionTypes: $('#inputTransmissionTypes').val().filter(function (e) {
                                 return e.indexOf('Any') < 0
-                            })
+                            }),
+                            itemCreatedAfter: $('#inputCreatedAfter').val() || null,
+                            hasPhoto: $('#inputHasPhoto').prop('checked')
                         }
                     }
                 ),
@@ -131,13 +133,17 @@
                 + "<label for=\"inputMileage\">Max mileage, km</label>"
                 + "<input type=\"number\" class=\"form-control\" id=\"inputMileage\" placeholder=\"Max mileage\" min=\"0\" maxlength=\"10\">"
                 + "</div>"
-                + "<div class=\"form-group col-md-3\">"
+                + "<div class=\"form-group col-md-2\">"
                 + "<label for=\"inputHp\">Min hp</label>"
                 + "<input type=\"number\" class=\"form-control\" id=\"inputHp\" placeholder=\"Min hp\" min=\"0\" maxlength=\"7\">"
                 + "</div>"
-                + "<div class=\"form-group col-md-3\">"
-                + "<label for=\"inputProducedAfter\">Produced after</label>"
-                + "<input type=\"datetime-local\" class=\"form-control\" id=\"inputProducedAfter\" placeholder=\"Produced after\">"
+                + "<div class=\"form-group col-md-2\">"
+                + "<label for=\"inputProducedAfter\">Product produced after</label>"
+                + "<input type=\"datetime-local\" class=\"form-control\" id=\"inputProducedAfter\" placeholder=\"Product produced after\">"
+                + "</div>"
+                + "<div class=\"form-group col-md-2\">"
+                + "<label for=\"inputCreatedAfter\">Item created after</label>"
+                + "<input type=\"datetime-local\" class=\"form-control\" id=\"inputCreatedAfter\" placeholder=\"Item created after\">"
                 + "</div>"
                 + "</div>"
                 + "<div class=\"form-row\">"
@@ -171,26 +177,30 @@
                 + "</div>"
                 + "</div>"
                 + "<div class=\"form-row\">"
-                + "<div class=\"form-group col-md-4\">"
+                + "<div class=\"form-group col-md-3\">"
                 + "<label for=\"inputDriveTypes\">Drive types</label>"
                 + "<select id=\"inputDriveTypes\" class=\"form-control\" multiple>"
                 + "<option selected>Any drive type</option>"
                 + createOptions(filterInfo.driveTypes)
                 + "</select>"
                 + "</div>"
-                + "<div class=\"form-group col-md-4\">"
+                + "<div class=\"form-group col-md-3\">"
                 + "<label for=\"inputEngineTypes\">Engine types</label>"
                 + "<select id=\"inputEngineTypes\" class=\"form-control\" multiple>"
                 + "<option selected>Any engine type</option>"
                 + createOptions(filterInfo.engineTypes)
                 + "</select>"
                 + "</div>"
-                + "<div class=\"form-group col-md-4\">"
+                + "<div class=\"form-group col-md-3\">"
                 + "<label for=\"inputTransmissionTypes\">Transmission types</label>"
                 + "<select id=\"inputTransmissionTypes\" class=\"form-control\" multiple>"
                 + "<option selected>Any transmission</option>"
                 + createOptions(filterInfo.transmissionTypes)
                 + "</select>"
+                + "</div>"
+                + "<div class=\"form-group col-md-3\">"
+                + "<label for=\"inputHasPhoto\">Only with photos</label>"
+                + "<input type=\"checkbox\" class=\"form-control\" id=\"inputHasPhoto\">"
                 + "</div>"
                 + "</div>"
                 + "<button type=\"button\" class=\"btn btn-primary\" onclick='getItemsFiltered(event)'>Search</button>"
@@ -234,7 +244,7 @@
             if (createdBy) {
                 userCard += "<div class=\"card\">"
                     + "<div class=\"card-header\">"
-                    + "User info"
+                    + "Seller"
                     + "</div>"
                     + "<div class=\"card-body\">"
                     + "<p class=\"card-text\">Name: " + createdBy.name + "</p>"
