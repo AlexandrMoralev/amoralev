@@ -12,27 +12,15 @@
 
         <property name="hibernate.connection.pool_size">10</property>
         <property name="hibernate.current_session_context_class">thread</property>
+
         <property name="hibernate.show_sql">true</property>
-        <property name="hibernate.hbm2ddl.auto">create-drop</property>
         <property name="hibernate.format_sql">true</property>
         <property name="hibernate.enable_lazy_load_no_trans">true</property>
 
-        <mapping class="ru.job4j.mapping.base.User" />
-        <mapping class="ru.job4j.mapping.base.Role" />
+        <property name="hibernate.hbm2ddl.auto">create</property>
 
-        <!--<mapping resource="/hbm/Car.hbm.xml"/>-->
-        <!--<mapping resource="/hbm/Driver.hbm.xml"/>-->
-        <!--<mapping resource="/hbm/Engine.hbm.xml"/>-->
-
-        <!--<mapping class="ru.job4j.mapping.modelsrelations.xmlbased.entity.Engine" />-->
-        <!--<mapping class="ru.job4j.mapping.modelsrelations.xmlbased.entity.Driver" />-->
-        <!--<mapping class="ru.job4j.mapping.modelsrelations.xmlbased.entity.Car" />-->
-
-        <!--<mapping class="ru.job4j.mapping.modelsrelations.annotationbased.entity.Engine" />-->
-        <!--<mapping class="ru.job4j.mapping.modelsrelations.annotationbased.entity.Driver" />-->
-        <!--<mapping class="ru.job4j.mapping.modelsrelations.annotationbased.entity.Car" />-->
-
-        <mapping class="ru.job4j.hql.base.Candidate" />
+        <!-- List of XML mapping files -->
+        <mapping class="ru.job4j.testing.hqldb.City" />
 
     </session-factory>
 </hibernate-configuration>
