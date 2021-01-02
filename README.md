@@ -12,7 +12,7 @@ Used stuff:
 * **Testing**: Junit 4/5, Hamcrest  
 * **Tools**: Maven, IntellijIdea, Checkstyle
 * **CI/CD**:  Travis ci, Jacoco, Codecov
-* **DB**: Liquibase, Postgresql, SQlite, h2database
+* **DB**: Liquibase, Postgresql, SQlite, h2database, hsqldb
 
 ## Contents
 
