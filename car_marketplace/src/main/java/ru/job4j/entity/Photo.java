@@ -25,7 +25,7 @@ public class Photo implements Serializable {
     private String name;
 
     @Lob
-    @Column(name = "image", nullable = false)
+    @Column(name = "image", nullable = false, length = 10 * 1024 * 1024)
     private byte[] image;
 
     @Column(name = "created_at", nullable = false)
