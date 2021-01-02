@@ -5,7 +5,8 @@
 <hibernate-configuration>
     <session-factory>
         <property name="hibernate.connection.driver_class">org.hsqldb.jdbcDriver</property>
-        <property name="hibernate.connection.url">jdbc:hsqldb:mem:cities;sql.enforce_size=false</property>
+        <property name="hibernate.connection.url">jdbc:hsqldb:mem:test_db;sql.enforce_size=false</property>
+        <property name="hibernate.default_schema">public</property>
         <property name="hibernate.connection.username">test</property>
         <property name="hibernate.connection.password"></property>
         <property name = "hibernate.dialect">org.hibernate.dialect.HSQLDialect</property>
