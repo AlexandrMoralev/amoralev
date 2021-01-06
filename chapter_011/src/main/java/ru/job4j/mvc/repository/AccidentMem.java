@@ -37,7 +37,7 @@ public class AccidentMem implements AccidentStore {
     @Override
     public Accident addAccident(Accident accident) {
         if (accident.getId() == null) {
-            Accident acc = Accident.newBuilder().of(accident).setId(index.getAndIncrement()).build();
+            Accident acc = Accident.of(accident).setId(index.getAndIncrement()).build();
             return this.store.put(acc.getId(), acc);
         }
         return null;

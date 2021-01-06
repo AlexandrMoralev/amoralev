@@ -1,16 +1,23 @@
 package ru.job4j.mvc.model;
 
+import javax.persistence.*;
 import java.util.Objects;
 import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 
+@Entity
+@Table(name = "accident")
 public class Accident {
 
-    private final Integer id;
-    private final String name;
-    private final String text;
-    private final String address;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", unique = true, nullable = false)
+    private Integer id;
+
+    private String name;
+    private String text;
+    private String address;
 
     private Accident(Accident.Builder builder) {
         this.id = builder.id;
@@ -66,6 +73,15 @@ public class Accident {
         return sb.toString();
     }
 
+    public static Accident.Builder of(Accident accident) {
+        Accident.Builder builder = newBuilder();
+        ofNullable(accident.getId()).ifPresent(v -> builder.id = v);
+        Optional.of(accident.getName()).ifPresent(v -> builder.name = v);
+        Optional.of(accident.getText()).ifPresent(v -> builder.text = v);
+        Optional.of(accident.getAddress()).ifPresent(v -> builder.address = v);
+        return builder;
+    }
+
     public static Accident.Builder newBuilder() {
         return new Accident.Builder();
     }
@@ -77,13 +93,13 @@ public class Accident {
         private String text;
         private String address;
 
-        public Builder of(Accident accident) {
-            ofNullable(accident.getId()).ifPresent(v -> this.id = v);
-            Optional.of(accident.getName()).ifPresent(v -> this.name = v);
-            Optional.of(accident.getText()).ifPresent(v -> this.text = v);
-            Optional.of(accident.getAddress()).ifPresent(v -> this.address = v);
-            return this;
-        }
+//        public Builder of(Accident accident) {
+//            ofNullable(accident.getId()).ifPresent(v -> this.id = v);
+//            Optional.of(accident.getName()).ifPresent(v -> this.name = v);
+//            Optional.of(accident.getText()).ifPresent(v -> this.text = v);
+//            Optional.of(accident.getAddress()).ifPresent(v -> this.address = v);
+//            return this;
+//        }
 
         public Builder setId(Integer id) {
             this.id = id;

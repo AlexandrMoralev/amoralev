@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Repository;
 import ru.job4j.mvc.model.Accident;
 
 import java.util.Collection;
@@ -13,7 +12,7 @@ import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 
-@Repository
+//@Repository // disabled to switch on hibernate store
 public class AccidentJdbcTemplate implements AccidentStore {
 
     private final JdbcTemplate jdbcTemplate;
@@ -42,7 +41,7 @@ public class AccidentJdbcTemplate implements AccidentStore {
         int accId = ofNullable(keyHolder.getKey())
                 .map(Number::intValue)
                 .orElseThrow(() -> new RuntimeException("Incorrect insertion of accident: " + accident.toString()));
-        return Accident.newBuilder()
+        return Accident
                 .of(accident)
                 .setId(accId)
                 .build();
