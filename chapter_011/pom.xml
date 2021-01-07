@@ -123,7 +123,7 @@
     </dependencies>
 
     <build>
-        <finalName>chapter_010</finalName>
+        <finalName>chapter_011</finalName>
         <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
             <plugins>
                 <plugin>
