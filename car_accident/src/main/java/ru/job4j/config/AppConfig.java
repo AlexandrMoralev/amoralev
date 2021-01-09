@@ -1,6 +1,7 @@
 package ru.job4j.config;
 
-import liquibase.integration.spring.SpringLiquibase;
+//import liquibase.integration.spring.SpringLiquibase;
+
 import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,8 +15,6 @@ import ru.job4j.repository.AccidentMem;
 import ru.job4j.repository.AccidentStore;
 import ru.job4j.service.AccidentService;
 import ru.job4j.service.AccidentServiceImpl;
-
-import javax.sql.DataSource;
 
 @Configuration
 @PropertySource("classpath:car_accident_app.properties")
