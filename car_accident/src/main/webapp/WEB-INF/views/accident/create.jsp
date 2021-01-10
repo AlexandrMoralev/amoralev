@@ -1,6 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%--<%@ page import="ru.job4j.model.Accident" %>--%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <!-- Required meta tags -->
@@ -23,6 +22,22 @@
         <div class="form-group">
             <label>Название:</label>
             <input type="text" class="form-control" name="name">
+        </div>
+        <div class="form-group">
+            <label>Тип:</label>
+            <select class="form-control" name="typeId">
+                <c:forEach var="type" items="${types}" >
+                    <option class="form-control" value="${type.id}">${type.name}</option>
+                </c:forEach>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Статьи:</label>
+            <select class="form-control" name="rIds" multiple>
+                <c:forEach var="rule" items="${rules}" >
+                    <option class="form-control" value="${rule.id}">${rule.name}</option>
+                </c:forEach>
+            </select>
         </div>
         <div class="form-group">
             <label>Описание:</label>

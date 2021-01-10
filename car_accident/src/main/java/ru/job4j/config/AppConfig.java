@@ -3,6 +3,7 @@ package ru.job4j.config;
 //import liquibase.integration.spring.SpringLiquibase;
 
 import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -18,7 +19,8 @@ import ru.job4j.service.AccidentServiceImpl;
 
 @Configuration
 @PropertySource("classpath:car_accident_app.properties")
-@Import({JdbcConfig.class, HbmConfig.class})
+//@Import({JdbcConfig.class, HbmConfig.class})
+@Import({JdbcConfig.class})
 public class AppConfig {
 
     @Bean
@@ -31,15 +33,17 @@ public class AppConfig {
         return new AccidentMem();
     }
 
-    @Bean("accidentJdbcTemplate")
-    public AccidentJdbcTemplate accidentJdbcTemplate(JdbcTemplate jdbcTemplate) {
-        return new AccidentJdbcTemplate(jdbcTemplate);
-    }
+    // TODO enable config
 
-    @Bean("accidentHibernateStore")
-    public AccidentHibernate accidentHibernateStore(SessionFactory sessionFactory) {
-        return new AccidentHibernate(sessionFactory);
-    }
+//    @Bean("accidentJdbcTemplate")
+//    public AccidentJdbcTemplate accidentJdbcTemplate(JdbcTemplate jdbcTemplate) {
+//        return new AccidentJdbcTemplate(jdbcTemplate);
+//    }
+//
+//    @Bean("accidentHibernateStore")
+//    public AccidentHibernate accidentHibernateStore(SessionFactory sessionFactory) {
+//        return new AccidentHibernate(sessionFactory);
+//    }
 
     @Bean
     public AccidentService accidentService(AccidentStore store) {

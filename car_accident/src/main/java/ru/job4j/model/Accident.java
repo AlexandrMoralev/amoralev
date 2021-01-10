@@ -1,8 +1,7 @@
 package ru.job4j.model;
 
 import javax.persistence.*;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static java.util.Optional.ofNullable;
 
@@ -18,16 +17,22 @@ public class Accident {
     private String name;
     private String text;
     private String address;
+    private AccidentType type;
+    private Set<Rule> rules = new HashSet<>();
 
     public Accident(Integer id,
                     String name,
                     String text,
-                    String address
+                    String address,
+                    AccidentType type,
+                    Collection<Rule> rules
     ) {
         this.id = id;
         this.name = name;
         this.text = text;
         this.address = address;
+        this.type = type;
+        this.rules.addAll(rules);
     }
 
     private Accident(Accident.Builder builder) {
@@ -35,6 +40,8 @@ public class Accident {
         this.name = builder.name;
         this.text = builder.text;
         this.address = builder.address;
+        this.type = builder.type;
+        this.rules.addAll(builder.rules);
     }
 
     public Integer getId() {
@@ -53,6 +60,14 @@ public class Accident {
         return address;
     }
 
+    public AccidentType getType() {
+        return type;
+    }
+
+    public Set<Rule> getRules() {
+        return new HashSet<>(rules);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -65,12 +80,13 @@ public class Accident {
         return Objects.equals(getId(), accident.getId())
                 && Objects.equals(getName(), accident.getName())
                 && Objects.equals(getText(), accident.getText())
-                && Objects.equals(getAddress(), accident.getAddress());
+                && Objects.equals(getAddress(), accident.getAddress())
+                && Objects.equals(getType(), accident.getType());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getName(), getText(), getAddress());
+        return Objects.hash(getId(), getName(), getText(), getAddress(), getType());
     }
 
     @Override
@@ -80,6 +96,7 @@ public class Accident {
         sb.append(", name='").append(name).append('\'');
         sb.append(", text='").append(text).append('\'');
         sb.append(", address='").append(address).append('\'');
+        sb.append(", type='").append(type).append('\'');
         sb.append('}');
         return sb.toString();
     }
@@ -90,6 +107,8 @@ public class Accident {
         Optional.of(accident.getName()).ifPresent(builder::setName);
         Optional.of(accident.getText()).ifPresent(builder::setText);
         Optional.of(accident.getAddress()).ifPresent(builder::setAddress);
+        Optional.of(accident.getType()).ifPresent(builder::setType);
+        Optional.of(accident.getRules()).ifPresent(builder::setRules);
         return builder;
     }
 
@@ -103,6 +122,8 @@ public class Accident {
         private String name;
         private String text;
         private String address;
+        private AccidentType type;
+        private Set<Rule> rules = new HashSet<>();
 
         public Builder setId(Integer id) {
             this.id = id;
@@ -121,6 +142,16 @@ public class Accident {
 
         public Builder setAddress(String address) {
             this.address = address;
+            return this;
+        }
+
+        public Builder setType(AccidentType type) {
+            this.type = type;
+            return this;
+        }
+
+        public Builder setRules(Collection<Rule> rules) {
+            this.rules.addAll(rules);
             return this;
         }
 

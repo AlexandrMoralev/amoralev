@@ -24,39 +24,40 @@ public class HbmConfig {
     public static PropertySourcesPlaceholderConfigurer placeHolderConfigurer() {
         return new PropertySourcesPlaceholderConfigurer();
     }
+// TODO enable config
 
-    @Bean
-    public DataSource ds(@Value("${jdbc.driver}") String driver,
-                         @Value("${jdbc.url}") String url,
-                         @Value("${jdbc.username}") String username,
-                         @Value("${jdbc.password}") String password
-    ) {
-        BasicDataSource ds = new BasicDataSource();
-        ds.setDriverClassName(driver);
-        ds.setUrl(url);
-        ds.setUsername(username);
-        ds.setPassword(password);
-        return ds;
-    }
-
-    @Bean
-    public LocalSessionFactoryBean sessionFactory(@Value("${hibernate.dialect}") String dialect,
-                                                  DataSource dataSource
-    ) {
-        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setDataSource(dataSource);
-        sessionFactory.setPackagesToScan("ru.job4j.model");
-        Properties cfg = new Properties();
-        cfg.setProperty("hibernate.dialect", dialect);
-        sessionFactory.setHibernateProperties(cfg);
-        return sessionFactory;
-    }
-
-    @Bean
-    public PlatformTransactionManager htx(SessionFactory sessionFactory) {
-        HibernateTransactionManager tx = new HibernateTransactionManager();
-        tx.setSessionFactory(sessionFactory);
-        return tx;
-    }
+//    @Bean
+//    public DataSource ds(@Value("${jdbc.driver}") String driver,
+//                         @Value("${jdbc.url}") String url,
+//                         @Value("${jdbc.username}") String username,
+//                         @Value("${jdbc.password}") String password
+//    ) {
+//        BasicDataSource ds = new BasicDataSource();
+//        ds.setDriverClassName(driver);
+//        ds.setUrl(url);
+//        ds.setUsername(username);
+//        ds.setPassword(password);
+//        return ds;
+//    }
+//
+//    @Bean
+//    public LocalSessionFactoryBean sessionFactory(@Value("${hibernate.dialect}") String dialect,
+//                                                  DataSource dataSource
+//    ) {
+//        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+//        sessionFactory.setDataSource(dataSource);
+//        sessionFactory.setPackagesToScan("ru.job4j.model");
+//        Properties cfg = new Properties();
+//        cfg.setProperty("hibernate.dialect", dialect);
+//        sessionFactory.setHibernateProperties(cfg);
+//        return sessionFactory;
+//    }
+//
+//    @Bean
+//    public PlatformTransactionManager htx(SessionFactory sessionFactory) {
+//        HibernateTransactionManager tx = new HibernateTransactionManager();
+//        tx.setSessionFactory(sessionFactory);
+//        return tx;
+//    }
 
 }
